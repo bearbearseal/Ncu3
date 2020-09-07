@@ -1,0 +1,117 @@
+Subscription:
+{
+	"Command":"Subscribe",
+	"Data":{
+		"Subject":[
+			{
+				"Channel":"ModbusRTU",
+				"Id": "All"
+			}
+		]
+	}
+}
+Reply:
+{
+	"Command": "Subscribe",
+	"Status": "Good"/"Bad",
+	"Data":{
+		"Message": "Some message"
+	}
+}
+
+
+{
+	"SerialPort":[
+		{
+			"Id": 1,
+			"Name": "/dev/ttyUSB0",
+			"Parity": false,
+			"StopBit": false,
+			"BitPerByte": 8,
+			"HardwareFlowControl": false,
+			"SoftwareFlowControl": false,
+			"Baudrate": 19200
+		}
+	],
+	"Channels":[
+		{
+			"ModbusRTU":[
+				{
+					"Id": 1,
+					"SerialPort" : 1,
+					"Slaves":[
+						{
+							"Address": 1,
+							"SmallEndian":true,
+							"MaxRegisterPerMessage":32,
+							"MaxCoilPerMessage":32
+						}
+					],
+					"Variable":
+					[
+						{
+							"Id": 1, 
+							"SlaveAddres": 1,
+							"Type": "HoldingRegister", 
+							"Data":{
+								"Address": 36,
+								"Type": "INT32_LM"
+							}
+						},
+						{
+							"Id": 2, 
+							"SlaveAddres": 1,
+							"Type": "HoldingRegister", 
+							"Data":{
+								"Address": 40,
+								"Type": "INT32_LM"
+							}
+						},
+						{
+							"Id": 3, 
+							"SlaveAddres": 1,
+							"Type": "HoldingRegister", 
+							"Data":{
+								"Address": 70,
+								"Type": "INT64_ML"
+							}
+						},
+						{
+							"Id": 4, 
+							"SlaveAddres": 1,
+							"Type": "HoldingRegister", 
+							"Data":{
+								"Address": 60,
+								"Type": "INT16"
+							}
+						},
+						{
+							"Id": 5, 
+							"SlaveAddres": 1,
+							"Type": "CoilStatus", 
+							"Data":{
+								"Address": 20
+							}
+						},
+						{
+							"Id": 6, 
+							"SlaveAddres": 1,
+							"Type": "CoilStatus", 
+							"Data":{
+								"Address": 21
+							}
+						},
+						{
+							"Id": 7, 
+							"SlaveAddres": 1,
+							"Type": "CoilStatus", 
+							"Data":{
+								"Address": 30
+							}
+						}
+					]
+				}
+			]
+		}
+	]
+}

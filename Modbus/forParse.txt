@@ -1,0 +1,20 @@
+{
+	"Command":"Subscribe",
+	"Data":{
+		"Subjects":[
+			{
+				"Channel":"ModbusRTU1",
+				"Id": "All"
+			},
+			{
+				"Channel":"ModbusRTU1",
+				"Id": [1, 2, 4, "hg"]
+			},
+			{
+				"ffdg":"sfd"
+			}
+		]
+	}
+}
+
+
