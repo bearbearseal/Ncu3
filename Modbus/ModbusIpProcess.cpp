@@ -254,7 +254,12 @@ bool ModbusIpProcess::do_write_holding_register_query(uint16_t& sequenceNumber) 
             writeHoldingRegisterData.valueMap.erase(entry);
         }
         ++sequenceNumber;
+        //cout<<"Writing to holding registers\n";
         auto writeData = ModbusIP::construct_write_multiple_holding_registers(sequenceNumber, config.slaveAddress, registerAddress, values);
+        for(unsigned i = 0; i < writeData.first.size(); ++i) {
+            printf("[%03u]", uint8_t(writeData.first[i]));
+        }
+        printf("\n");
         if(!socket.write(writeData.first)) {
             lock_guard<mutex> lock(writeHoldingRegisterData.mapMutex);
             writeHoldingRegisterData.valueMap.clear();
@@ -289,18 +294,18 @@ void ModbusIpProcess::thread_process(ModbusIpProcess* me) {
                 }
                 break;
             case 1: //wait connection established
-                cout<<"State 1\n";
+                //cout<<"State 1\n";
                 if(me->socket.connection_established()) {
                     me->threadData.mainState = 10;
                     me->threadData.subState = 0;
                 }
                 else {
-                    printf("ModbusIp Cannot connect.\n");
+                    cout<<"ModbusIp Cannot connect.\n";
                     this_thread::sleep_for(10s);
                 }
                 break;
             case 10:    //Routine operation
-                cout<<"State 10\n";
+                //cout<<"State 10\n";
                 //Do write coil if got any
                 if(!me->do_write_coil_query(sequenceNumber)) {
                     me->threadData.mainState = 20; //close socket
@@ -313,7 +318,7 @@ void ModbusIpProcess::thread_process(ModbusIpProcess* me) {
                 //Do write register if got any
                 switch(me->threadData.subState) {
                     case 0: //Query Coil
-                        cout<<"SubState 0\n";
+                        //cout<<"SubState 0\n";
                         if(coilIter == me->coilQueryList.end()) {
                             coilIter = me->coilQueryList.begin();
                             me->threadData.subState = 1;    //Query Register
@@ -360,7 +365,7 @@ void ModbusIpProcess::thread_process(ModbusIpProcess* me) {
                         }
                         break;
                     case 1: //Query Register
-                        cout<<"SubState 1\n";
+                        //cout<<"SubState 1\n";
                         if(registerIter == me->holdingRegisterQueryList.end()){
                             registerIter = me->holdingRegisterQueryList.begin();
                             me->threadData.subState = 0;    //Query Coil
@@ -388,7 +393,7 @@ void ModbusIpProcess::thread_process(ModbusIpProcess* me) {
                 break;
             case 20:    //Close socket
             default:
-                cout<<"State 20\n";
+                //cout<<"State 20\n";
                 me->socket.close();
                 me->threadData.mainState = 0;
                 this_thread::sleep_for(1s);
@@ -418,21 +423,13 @@ ModbusIpProcess::CoilStatusVariable::~CoilStatusVariable() {
 
 }
 
-void ModbusIpProcess::CoilStatusVariable::set_value(const Value& newValue) {
+bool ModbusIpProcess::CoilStatusVariable::write_value(const Value& newValue) {
     auto shared = master.lock();
     if(shared != nullptr) {
         shared->force_coil(coilAddress, (bool) newValue.get_int());
+        return true;
     }
-}
-
-Value ModbusIpProcess::CoilStatusVariable::get_value() const {
-	lock_guard<mutex> locker(valueLock);
-    return Value(value);
-}
-
-pair<Value, chrono::time_point<chrono::system_clock>> ModbusIpProcess::CoilStatusVariable::get_value_with_time() const {
-	lock_guard<mutex> locker(valueLock);
-    return {Value(value), timePoint};
+    return false;
 }
 
 void ModbusIpProcess::CoilStatusVariable::update_value_from_source(uint16_t firstAddress, const vector<bool>& values) {
@@ -442,19 +439,7 @@ void ModbusIpProcess::CoilStatusVariable::update_value_from_source(uint16_t firs
 	{
 		return;
 	}
-	bool update = false;
-	{
-		lock_guard<mutex> locker(valueLock);
-		if(value != values[index])
-		{
-			update = true;
-			value = values[index];
-		}
-		timePoint = chrono::system_clock::now();
-	}
-	if(update) {
-		this->update_value_to_listeners(value, timePoint);
-	}
+    this->update_value_to_cache(values[index]);
 }
 
 ModbusIpProcess::HoldingRegisterVariable::HoldingRegisterVariable(
@@ -468,47 +453,26 @@ ModbusIpProcess::HoldingRegisterVariable::~HoldingRegisterVariable() {
 
 }
 
-void ModbusIpProcess::HoldingRegisterVariable::set_value(const Value& newValue) {
+bool ModbusIpProcess::HoldingRegisterVariable::write_value(const Value& newValue) {
 	ModbusRegisterValue setValue(type, smallEndian);
 	std::vector<RegisterValue> converted = setValue.convert_to_register_value(newValue);
     auto shared = master.lock();
     if(shared != nullptr) {
         shared->write_multiple_holding_register(firstAddress, converted);
+        return true;
     }
-}
-
-Value ModbusIpProcess::HoldingRegisterVariable::get_value() const {
-	lock_guard<mutex> locker(valueLock);
-    return value;
-}
-
-pair<Value, chrono::time_point<chrono::system_clock>> ModbusIpProcess::HoldingRegisterVariable::get_value_with_time() const {
-	lock_guard<mutex> locker(valueLock);
-    return {value, timePoint};
+    return false;
 }
 
 void ModbusIpProcess::HoldingRegisterVariable::update_value_from_source(uint16_t _registerAddress, const vector<RegisterValue>& values) {
+    //cout<<"Holding register updating value.\n";
 	size_t index = firstAddress - _registerAddress;
 	if (index >= values.size())
 	{
 		return;
 	}
 	ModbusRegisterValue modbusValue(type, smallEndian);
-
-	bool update = false;
-	modbusValue.set_register_value(values, index);
-	{
-		lock_guard<mutex> locker(valueLock);
-		if(value != modbusValue.get_value())
-		{
-			//printf("%llu != %llu\n", value.get_int(), modbusValue.get_value().get_int());
-			update = true;
-			value = modbusValue.get_value();
-		}
-		timePoint = chrono::system_clock::now();
-	}
-	if(update)
-	{
-		this->update_value_to_listeners(value, timePoint);
-	}
+    modbusValue.set_register_value(values, index);
+    //cout<<"Register setting value to "<<modbusValue.get_value().to_string()<<endl;
+    this->update_value_to_cache(modbusValue.get_value());
 }

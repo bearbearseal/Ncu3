@@ -1,5 +1,5 @@
 #include "ModbusRtuProcess.h"
-#include "ModbusRTU.h"
+#include "ModbusRtu.h"
 #include <iostream>
 
 using namespace std;
@@ -88,17 +88,17 @@ void ModbusRtuProcess::write_holding_register() {
 		uint16_t registerAddress = writeOrder[i];
 		pair<string, uint16_t> query;	//query string and expected reply length
 		if (values.size() > 1) {
-			query = ModbusRTU::create_preset_multiple_registers(config.slaveAddress, registerAddress, values);
+			query = ModbusRtu::create_preset_multiple_registers(config.slaveAddress, registerAddress, values);
 		}
 		else {
-			query = ModbusRTU::create_preset_single_register(config.slaveAddress, registerAddress, values[0]);
+			query = ModbusRtu::create_preset_single_register(config.slaveAddress, registerAddress, values[0]);
 		}
 		for (unsigned j=0; j<2; ++j) {	//try at most 2 times
 			string reply = serialPort->write_then_read(query.first, query.second, config.timeout);
 			if (values.size() == 1) {	//Preset single register
 				if(reply.size() >= query.second) {
-					auto replyData = ModbusRTU::decode_reply(reply);
-					if (replyData.functionCode == ModbusRTU::PRESET_SINGLE_REGISTER_CODE) {
+					auto replyData = ModbusRtu::decode_reply(reply);
+					if (replyData.functionCode == ModbusRtu::PRESET_SINGLE_REGISTER_CODE) {
 						auto presetSingleRegister = replyData.get_preset_single_register();	//returns address and value pair
 						if(presetSingleRegister.first == registerAddress && presetSingleRegister.second == values[0]) {	//Both values same, write was succesful
 							break;
@@ -108,8 +108,8 @@ void ModbusRtuProcess::write_holding_register() {
 			}
 			else {	//Preset multiple register
 				if(reply.size() >= query.second) {
-					auto replyData = ModbusRTU::decode_reply(reply); 
-					if (replyData.functionCode == ModbusRTU::PRESET_MULTIPLE_REGISTERS_CODE)
+					auto replyData = ModbusRtu::decode_reply(reply); 
+					if (replyData.functionCode == ModbusRtu::PRESET_MULTIPLE_REGISTERS_CODE)
 					{
 						auto presetMultipleRegister = replyData.get_preset_multiple_registers();	//returns address and register count
 						if(presetMultipleRegister.first == registerAddress && presetMultipleRegister.second == values.size()) {	//wrtie successfull
@@ -134,12 +134,12 @@ void ModbusRtuProcess::force_coil_status() {
 		theMap = move(forceCoilData.address2ValueWriteMap);
 	}
 	for (auto i = theMap.begin(); i != theMap.end(); ++i) {
-		auto query = ModbusRTU::create_force_single_coil(config.slaveAddress, i->first, i->second);	//query string and expected reply length
+		auto query = ModbusRtu::create_force_single_coil(config.slaveAddress, i->first, i->second);	//query string and expected reply length
 		for (unsigned j = 0; j < 2; ++j) {
 			string reply = serialPort->write_then_read(query.first, query.second, config.timeout);
 			if(reply.size() >= query.second) {
-				auto replyData = ModbusRTU::decode_reply(reply);
-				if (replyData.functionCode == ModbusRTU::FORCE_SINGLE_COIL_CODE) {
+				auto replyData = ModbusRtu::decode_reply(reply);
+				if (replyData.functionCode == ModbusRtu::FORCE_SINGLE_COIL_CODE) {
 					auto forceSingleCoil = replyData.get_force_single_coil();
 					if(forceSingleCoil.first == i->first && forceSingleCoil.second == i->second) {	//write successfull
 						break;
@@ -173,7 +173,7 @@ void ModbusRtuProcess::build_query() {
 					continue;
 				}
 			}
-			auto result = ModbusRTU::create_read_coil_status(config.slaveAddress, entry.firstAddress, entry.coilCount);
+			auto result = ModbusRtu::create_read_coil_status(config.slaveAddress, entry.firstAddress, entry.coilCount);
 			CoilStatusQuery element;
 			element.query = result.first;
 			element.replyLength = result.second;
@@ -185,7 +185,7 @@ void ModbusRtuProcess::build_query() {
 			entry.variables.push_back(i->second);
 		}
 		if (bool(entry.coilCount)) {
-			auto result = ModbusRTU::create_read_coil_status(config.slaveAddress, entry.firstAddress, entry.coilCount);
+			auto result = ModbusRtu::create_read_coil_status(config.slaveAddress, entry.firstAddress, entry.coilCount);
 			CoilStatusQuery element;
 			element.query = result.first;
 			element.replyLength = result.second;
@@ -215,7 +215,7 @@ void ModbusRtuProcess::build_query() {
 					continue;
 				}
 			}
-			auto result = ModbusRTU::create_read_holding_register(config.slaveAddress, entry.registerAddress, entry.registerCount);
+			auto result = ModbusRtu::create_read_holding_register(config.slaveAddress, entry.registerAddress, entry.registerCount);
 			HoldingRegisterQuery element;
 			element.query = result.first;
 			element.replyLength = result.second;
@@ -227,7 +227,7 @@ void ModbusRtuProcess::build_query() {
 			entry.variables = i->second.variables;
 		}
 		if(bool(entry.registerCount)) {
-			auto result = ModbusRTU::create_read_holding_register(config.slaveAddress, entry.registerAddress, entry.registerCount);
+			auto result = ModbusRtu::create_read_holding_register(config.slaveAddress, entry.registerAddress, entry.registerCount);
 			HoldingRegisterQuery element;
 			element.query = result.first;
 			element.replyLength = result.second;
@@ -254,8 +254,8 @@ void ModbusRtuProcess::thread_process(ModbusRtuProcess* theProcess) {
 			//}
 			string reply = theProcess->serialPort->write_then_read(singleQuery.query, singleQuery.replyLength, theProcess->config.timeout);
 			if(reply.size() >= singleQuery.replyLength) {
-				auto replyData = ModbusRTU::decode_reply(reply);
-				if (replyData.functionCode == ModbusRTU::READ_HOLDING_REGISTER_CODE) {
+				auto replyData = ModbusRtu::decode_reply(reply);
+				if (replyData.functionCode == ModbusRtu::READ_HOLDING_REGISTER_CODE) {
 					vector<RegisterValue> result = replyData.get_holding_register();
 					for(auto element : singleQuery.variables) {
 						element->update_value_from_source(singleQuery.startAddress, result);
@@ -270,8 +270,8 @@ void ModbusRtuProcess::thread_process(ModbusRtuProcess* theProcess) {
 			//}
 			string reply = theProcess->serialPort->write_then_read(singleQuery.query, singleQuery.replyLength, theProcess->config.timeout);
 			if(reply.size() >= singleQuery.replyLength) {
-				auto replyData = ModbusRTU::decode_reply(reply);
-				if(replyData.functionCode == ModbusRTU::READ_COIL_CODE) {
+				auto replyData = ModbusRtu::decode_reply(reply);
+				if(replyData.functionCode == ModbusRtu::READ_COIL_CODE) {
 					vector<bool> result = replyData.get_coils();
 					for(auto element : singleQuery.variables) {
 						element->update_value_from_source(singleQuery.startAddress, result);
@@ -300,6 +300,16 @@ void ModbusRtuProcess::CoilStatusVariable::update_value_from_source(uint16_t fir
 	}
 	this->update_value_to_cache(values[index]);
 }
+
+bool ModbusRtuProcess::CoilStatusVariable::write_value(const Value& newValue) {
+    auto shared = master.lock();
+    if(shared != nullptr) {
+        shared->add_force_coil_status(coilAddress, (bool) newValue.get_int());
+        return true;
+    }
+    return false;
+}
+
 //}
 
 //Holding Register Variable {
@@ -323,4 +333,16 @@ void ModbusRtuProcess::HoldingRegisterVariable::update_value_from_source(uint16_
 	ModbusRegisterValue modbusValue(type, isSmallEndian);
 	this->update_value_to_cache(modbusValue.get_value());
 }
+
+bool ModbusRtuProcess::HoldingRegisterVariable::write_value(const Value& newValue) {
+	ModbusRegisterValue setValue(type, isSmallEndian);
+	std::vector<RegisterValue> converted = setValue.convert_to_register_value(newValue);
+    auto shared = master.lock();
+    if(shared != nullptr) {
+        shared->add_write_holding_register(firstAddress, converted);
+        return true;
+    }
+    return false;
+}
+
 //}

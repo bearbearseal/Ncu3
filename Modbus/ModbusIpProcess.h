@@ -5,7 +5,7 @@
 #include <map>
 #include <chrono>
 #include "ModbusIP.h"
-#include "../MyLib/TcpSocket/TcpSocket.h"
+#include "../../MyLib/TcpSocket/TcpSocket.h"
 #include "../Basic/Variable.h"
 
 class ModbusIpProcess {
@@ -25,17 +25,18 @@ public:
 	public:
 		CoilStatusVariable(std::shared_ptr<Shadow> _master, uint16_t _coilAddress);
 		virtual ~CoilStatusVariable();
-		void set_value(const Value& newValue);
-		Value get_value() const;
-		std::pair<Value, std::chrono::time_point<std::chrono::system_clock>> get_value_with_time() const;
+		virtual bool write_value(const Value& newValue);
+		//void set_value(const Value& newValue);
+		//Value get_value() const;
+		//std::pair<Value, std::chrono::time_point<std::chrono::system_clock>> get_value_with_time() const;
 
 	private:
 		void update_value_from_source(uint16_t firstAddress, const std::vector<bool>& values);
 		std::weak_ptr<Shadow> master;
-		mutable std::mutex valueLock;
-		bool value;
+		//mutable std::mutex valueLock;
+		//bool value;
 		uint16_t coilAddress;
-		std::chrono::time_point<std::chrono::system_clock> timePoint;
+		//std::chrono::time_point<std::chrono::system_clock> timePoint;
 	};
 	std::shared_ptr<CoilStatusVariable> get_coil_status_variable(uint16_t coilAddress);
 
@@ -48,21 +49,22 @@ public:
 			ModbusRegisterValue::DataType _type,
 			bool smallEndian);
 		virtual ~HoldingRegisterVariable();
-		void set_value(const Value& newValue);
-		Value get_value() const;
-		std::pair<Value, std::chrono::time_point<std::chrono::system_clock>> get_value_with_time() const;
+		virtual bool write_value(const Value& newValue);
+		//void set_value(const Value& newValue);
+		//Value get_value() const;
+		//std::pair<Value, std::chrono::time_point<std::chrono::system_clock>> get_value_with_time() const;
 
 	private:
 		void update_value_from_source(uint16_t _registerAddress, const std::vector<RegisterValue>& values);
 		inline uint8_t register_count() { return ModbusRegisterValue::get_register_count(type); }
 
 		std::weak_ptr<Shadow> master;
-		mutable std::mutex valueLock;
-		Value value;
+		//mutable std::mutex valueLock;
+		//Value value;
 		uint16_t firstAddress;
 		bool smallEndian;
 		ModbusRegisterValue::DataType type;
-		std::chrono::time_point<std::chrono::system_clock> timePoint;
+		//std::chrono::time_point<std::chrono::system_clock> timePoint;
 	};
 	std::shared_ptr<HoldingRegisterVariable> get_holding_register_variable(uint16_t registerAddress, ModbusRegisterValue::DataType type);
 

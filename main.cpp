@@ -7,8 +7,8 @@ int main() {
 	//Test::run_multi_thread();
 	//Test::run_tree_browser();
 	//Test::run_tcp_talker();
-	Test::variable_tree();
-	Test::run_Variable_Tree();
-	Test::run_tcp_talker();
-	
+	//Test::variable_tree();
+	//Test::run_Variable_Tree();
+	//Test::run_tcp_talker();
+	Test::run_tcp_talker_and_modbus();
 }

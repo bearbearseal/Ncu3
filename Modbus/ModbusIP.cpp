@@ -283,7 +283,7 @@ pair<string, uint16_t> ModbusIP::construct_write_single_holding_register(uint16_
 }
 
 pair<string, uint16_t> ModbusIP::construct_write_multiple_holding_registers(uint16_t sequenceNumber, uint8_t slaveAddress, uint16_t registerAddress, const std::vector<RegisterValue>& values){
-	uint16_t frameLength = 5 + values.size()*2;
+	uint16_t frameLength = 7 + values.size()*2;
 	uint16_t registerCount = values.size();
 	uint8_t byteCount = registerCount*2;
 	string retVal;

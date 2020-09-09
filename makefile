@@ -1,4 +1,6 @@
 OBJS = main.o TcpSocket.o TcpListener.o TcpTalker.o TreeBrowser.o Value.o Variable.o VariableTree.o
+OBJS += ModbusIP.o ModbusIpProcess.o ModbusRtu.o ModbusRtuProcess.o ModbusRegisterValue.o
+OBJS += SerialPort.o SyncedSerialPort.o
 CC = g++ -std=c++17
 CFLAGS = -Wall -c
 LFLAGS = -Wall
@@ -32,6 +34,27 @@ Variable.o: Basic/Variable.h Basic/Variable.cpp
 
 VariableTree.o: VariableTree/VariableTree.h VariableTree/VariableTree.cpp
 	$(CC) $(CFLAGS) VariableTree/VariableTree.cpp
+
+ModbusIP.o: Modbus/ModbusIP.h Modbus/ModbusIP.cpp
+	$(CC) $(CFLAGS) Modbus/ModbusIP.cpp
+
+ModbusIpProcess.o: Modbus/ModbusIpProcess.h Modbus/ModbusIpProcess.cpp
+	$(CC) $(CFLAGS) Modbus/ModbusIpProcess.cpp
+
+ModbusRtu.o: Modbus/ModbusRtu.h Modbus/ModbusRtu.cpp
+	$(CC) $(CFLAGS) Modbus/ModbusRtu.cpp
+
+ModbusRtuProcess.o: Modbus/ModbusRtuProcess.h Modbus/ModbusRtuProcess.cpp
+	$(CC) $(CFLAGS) Modbus/ModbusRtuProcess.cpp
+
+ModbusRegisterValue.o: Modbus/ModbusRegisterValue.h Modbus/ModbusRegisterValue.cpp
+	$(CC) $(CFLAGS) Modbus/ModbusRegisterValue.cpp
+
+SerialPort.o: ../MyLib/SerialPort/SerialPort.h ../MyLib/SerialPort/SerialPort.cpp
+	$(CC) $(CFLAGS) ../MyLib/SerialPort/SerialPort.cpp
+
+SyncedSerialPort.o: ../MyLib/SerialPort/SyncedSerialPort.h ../MyLib/SerialPort/SyncedSerialPort.cpp
+	$(CC) $(CFLAGS) ../MyLib/SerialPort/SyncedSerialPort.cpp
 
 clean:
 	rm -f $(binaries) *.o
