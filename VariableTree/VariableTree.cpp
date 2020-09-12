@@ -252,12 +252,12 @@ shared_ptr<VariableTree> VariableTree::get_child(const HashKey::EitherKey& key) 
 	return i->second;
 }
 
-bool VariableTree::set_value(const Value& value) {
+bool VariableTree::set_value(const Value& value, uint8_t priority) {
 	if (!isLeaf) {
 		return false;
 	}
 	//lock_guard<mutex> lock(dataMutex);
-	bool result = leafData->variable->write_value(value);
+	bool result = leafData->variable->write_value(value, priority);
 	/*
 	if (!result) {
 		return false;

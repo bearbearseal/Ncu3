@@ -52,7 +52,7 @@ public:
 
 	std::shared_ptr<VariableTree> get_child(const HashKey::EitherKey& key) const;
 
-	bool set_value(const Value& value);
+	bool set_value(const Value& value, uint8_t priority = 0);
 	Value get_value() const;
 
 	void add_add_remove_listener(std::shared_ptr<AddRemoveListener> listener);

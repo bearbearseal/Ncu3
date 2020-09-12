@@ -1,6 +1,6 @@
 OBJS = main.o TcpSocket.o TcpListener.o TcpTalker.o TreeBrowser.o Value.o Variable.o VariableTree.o
 OBJS += ModbusIP.o ModbusIpProcess.o ModbusRtu.o ModbusRtuProcess.o ModbusRegisterValue.o
-OBJS += SerialPort.o SyncedSerialPort.o
+OBJS += SerialPort.o SyncedSerialPort.o PrioritizedValue.o
 CC = g++ -std=c++17
 CFLAGS = -Wall -c
 LFLAGS = -Wall
@@ -28,6 +28,9 @@ TreeBrowser.o: VariableTree/TreeBrowser.h VariableTree/TreeBrowser.cpp
 
 Value.o: Basic/Value.h Basic/Value.cpp
 	$(CC) $(CFLAGS) Basic/Value.cpp
+
+PrioritizedValue.o: Basic/PrioritizedValue.h Basic/PrioritizedValue.cpp
+	$(CC) $(CFLAGS) Basic/PrioritizedValue.cpp
 
 Variable.o: Basic/Variable.h Basic/Variable.cpp
 	$(CC) $(CFLAGS) Basic/Variable.cpp

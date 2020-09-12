@@ -17,7 +17,9 @@ Value Variable::read_value() const {
 
 bool Variable::write_value(const Value& newValue, uint8_t priority) {
 	if(writeValue.set_value(priority, newValue)) {
-		_write_value(newValue);
+		if(value != newValue) {
+			_write_value(newValue);
+		}
 		return true;
 	}
 	return false;
@@ -29,6 +31,12 @@ void Variable::trigger_value(const Value& newValue) {
 }
 
 void Variable::update_value_to_cache(const Value& newValue) {
+	//If value not equal writeValue, call _write_value
+	if(!writeValue.get_value().is_empty()) {
+		if(newValue != writeValue.get_value()) {
+			_write_value(writeValue.get_value());
+		}
+	}
 	{
 		lock_guard<mutex> lock(valueMutex);
 		if(value == newValue) {

@@ -56,7 +56,7 @@ namespace Test {
 		std::shared_ptr<RamVariable> variable1 = make_shared<RamVariable>();
 		variableTree.create_leaf(123, variable1);
 		for (unsigned i = 0; i < 5; ++i) {
-			variable1->write_value(i * 3);
+			variable1->write_value(i * 3, 0);
 			std::this_thread::sleep_for(1s);
 			printf("Loop %u\n", i);
 		}
@@ -273,7 +273,7 @@ namespace Test {
 	}
 
 	void run_tcp_talker_and_modbus() {
-		unique_ptr<ModbusIpProcess> modbusIp1 = make_unique<ModbusIpProcess>("192.168.56.1", 502, 1, 16, 64, true, std::chrono::milliseconds(100));
+		unique_ptr<ModbusIpProcess> modbusIp1 = make_unique<ModbusIpProcess>("192.168.82.130", 502, 1, 16, 64, true, std::chrono::milliseconds(100));
 		shared_ptr<Variable> coil1 = modbusIp1->get_coil_status_variable(1);
 		shared_ptr<Variable> coil2 = modbusIp1->get_coil_status_variable(2);
 		shared_ptr<Variable> coil10 = modbusIp1->get_coil_status_variable(10);
