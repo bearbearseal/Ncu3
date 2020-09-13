@@ -301,4 +301,8 @@ namespace Test {
 			this_thread::sleep_for(1s);
 		}
 	}
+
+	void run_alarm_logic() {
+
+	}
 }
