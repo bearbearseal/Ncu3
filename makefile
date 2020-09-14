@@ -1,6 +1,6 @@
 OBJS = main.o TcpSocket.o TcpListener.o TcpTalker.o TreeBrowser.o Value.o Variable.o VariableTree.o
 OBJS += ModbusIP.o ModbusIpProcess.o ModbusRtu.o ModbusRtuProcess.o ModbusRegisterValue.o
-OBJS += SerialPort.o SyncedSerialPort.o PrioritizedValue.o AlarmLogic.o
+OBJS += SerialPort.o SyncedSerialPort.o PrioritizedValue.o AlarmLogic.o AlarmHandler.o
 CC = g++ -std=c++17
 CFLAGS = -Wall -c
 LFLAGS = -Wall
@@ -61,6 +61,9 @@ SyncedSerialPort.o: ../MyLib/SerialPort/SyncedSerialPort.h ../MyLib/SerialPort/S
 
 AlarmLogic.o: Alarm/AlarmLogic.h Alarm/AlarmLogic.cpp
 	$(CC) $(CFLAGS) Alarm/AlarmLogic.cpp
+
+AlarmHandler.o: Alarm/AlarmHandler.h Alarm/AlarmHandler.cpp
+	$(CC) $(CFLAGS) Alarm/AlarmHandler.cpp
 
 clean:
 	rm -f $(binaries) *.o

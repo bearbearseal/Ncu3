@@ -15,7 +15,9 @@ namespace AlarmDefinition {
     };
 
     struct Condition {
-        Condition(ConditionType _type, uint32_t _code) { type=_type; code = _code; }
+        Condition() {}
+        Condition(ConditionType _type, uint32_t _code) { type=_type; code=_code; }
+        Condition(const Condition& theOther) { type=theOther.type; code=theOther.code; }
         ConditionType type;
         uint32_t code;
     };
