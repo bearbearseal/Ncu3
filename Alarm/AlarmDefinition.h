@@ -18,6 +18,12 @@ namespace AlarmDefinition {
         Condition() {}
         Condition(ConditionType _type, uint32_t _code) { type=_type; code=_code; }
         Condition(const Condition& theOther) { type=theOther.type; code=theOther.code; }
+        bool operator==(const Condition& theOther) { return ((type == theOther.type) && (code == theOther.code));}
+        bool operator!=(const Condition& theOther) { return ((type != theOther.type) || (code != theOther.code));}
+        std::string to_string() {
+            
+        }
+        
         ConditionType type;
         uint32_t code;
     };

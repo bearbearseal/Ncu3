@@ -25,13 +25,21 @@ public:
     void add_logic(const HashKey::EitherKey& leftProperty1, const Value& constant, Comparison compare, uint32_t condition, const std::string& message, uint8_t priority);
 
     struct ConditionData {
-        ConditionData(AlarmDefinition::Condition _condition, const std::string& _message, const HashKey::EitherKey& _left) : 
-            condition(_condition), message(_message), leftProperty(_left) { }
-        AlarmDefinition::Condition condition;
-        std::string message;
-        HashKey::EitherKey leftProperty;
+        ConditionData(AlarmDefinition::Condition _condition, const std::string& _message, const HashKey::EitherKey& _left = HashKey::EitherKey()) :
+            condition(_condition), message(_message), leftProperty(HashKey::EitherKey()), rightProperty(HashKey::EitherKey()),
+            leftValue(Value()), rightValue(Value()) {} 
+        ConditionData(AlarmDefinition::Condition _condition, const std::string& _message, const HashKey::EitherKey& _left, 
+            const HashKey::EitherKey& _right, const Value& _leftValue, const Value& _rightValue) : 
+            condition(_condition), message(_message), leftProperty(_left), 
+            rightProperty(_right), leftValue(_leftValue), rightValue(_rightValue) { }
+        const AlarmDefinition::Condition condition;
+        const std::string message;
+        const HashKey::EitherKey leftProperty;
+        const HashKey::EitherKey rightProperty;
+        const Value leftValue;
+        const Value rightValue;
     };
-    std::vector<ConditionData> get_condition(std::weak_ptr<VariableTree> root, const HashKey::EitherKey& property);
+    std::vector<ConditionData> get_condition(std::shared_ptr<VariableTree> root, const HashKey::EitherKey& property);
 
 private:
     struct LogicData {

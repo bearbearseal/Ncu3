@@ -1,31 +1,25 @@
 #include "AlarmHandler.h"
+#include "../Basic/DataConverter.h"
+#include <iostream>
 
 using namespace std;
 
-AlarmHandler::AlarmHandler() {
-    unordered_map<string, string> stringMap;
-    unordered_map<HashKey::EitherKey, string, HashKey::EitherKey> keyMap;
-    stringMap["dfsdsf"] = "dsfs";
-    keyMap["dsfdf"] = "fgfgdg";
-}
-
-AlarmHandler::~AlarmHandler() {
-
-}
-
-void AlarmHandler::add_root_alarm_pair(std::shared_ptr<VariableTree> root, std::shared_ptr<AlarmLogic> alarmLogic, std::unordered_map<HashKey::EitherKey, uint32_t, HashKey::EitherKey>& _conditionMap) {
-    PairData& pairData = pairMap[size_t(root.get())][size_t(alarmLogic.get())];
-    pairData.root = root;
-    pairData.alarmLogic = alarmLogic;
-    pair<size_t, size_t> thePair(size_t(root.get()), size_t(alarmLogic.get()));
-    pairData.valueListener = make_shared<ValueListener>(*this, thePair);//, {root.get(), alarmLogic.get()});
-    for(auto entry : _conditionMap) {
-        AlarmDefinition::Condition& theCondition = pairData.conditions[entry.first];
-        theCondition.type = AlarmDefinition::ConditionType::Alarm;
-        theCondition.code = entry.second;
+void AlarmHandler::catch_alarm(const HashKey::EitherKey& equipment, const HashKey::EitherKey& source, const Value& leftValue, 
+    const HashKey::EitherKey& right, const Value& rightValue, const std::string& message, 
+    std::chrono::time_point<std::chrono::system_clock> theMoment, const AlarmDefinition::Condition& condition) 
+{
+    cout<<"Going to send alarm\n";
+    cout<<"Equipment: "<<equipment.to_string()<<endl;
+    cout<<"Left Property: "<<source.to_string()<<endl;
+    cout<<"Left Value: "<<leftValue.to_string()<<endl;
+    if(!right.is_empty()) {
+        cout<<"Right: "<<right.to_string()<<endl;
     }
-}
-
-void AlarmHandler::handle_value_change(const HashKey::EitherKey& property, const Value& newValue, std::chrono::time_point<std::chrono::system_clock> theMoment, pair<size_t, size_t> pairId) {
-
+    else {
+        cout<<"Constant"<<endl;
+    }
+    cout<<"Right Value: "<<rightValue.to_string()<<endl;
+    cout<<"Message: "<<message<<endl;
+    cout<<"Time: "<<DataConverter::ChronoSystemTime(theMoment).to_string()<<endl;
+    
 }

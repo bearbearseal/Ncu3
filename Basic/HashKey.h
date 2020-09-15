@@ -30,6 +30,7 @@ namespace HashKey
 		int64_t get_integer() const;
 		bool is_string() const;
 		const std::string& get_string() const;
+		bool is_empty() const;
 
 	private:
 		int64_t intValue;
@@ -163,4 +164,9 @@ inline const std::string& HashKey::EitherKey::get_string() const
 {
 	return stringValue;
 }
+
+inline bool HashKey::EitherKey::is_empty() const {
+	return keyType == KeyType::None;
+}
+
 #endif

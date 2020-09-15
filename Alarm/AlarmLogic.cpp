@@ -31,13 +31,8 @@ void AlarmLogic::add_logic(const HashKey::EitherKey& leftProperty, const Value& 
     }
 }
 
-std::vector<AlarmLogic::ConditionData> AlarmLogic::get_condition(std::weak_ptr<VariableTree> _root, const HashKey::EitherKey& property) {
+std::vector<AlarmLogic::ConditionData> AlarmLogic::get_condition(std::shared_ptr<VariableTree> root, const HashKey::EitherKey& property) {
     vector<AlarmLogic::ConditionData> retVal;
-    auto root = _root.lock();
-    if(root == nullptr) {
-        retVal.push_back({objectNotFound, "Object not found", HashKey::EitherKey()});
-        return retVal;
-    }
     shared_lock<shared_mutex> lock(mapMutex);
     //Check if this property has any AlarmLogic
     auto propertyMap = property2Priority2Data.find(property);
@@ -56,7 +51,7 @@ std::vector<AlarmLogic::ConditionData> AlarmLogic::get_condition(std::weak_ptr<V
         }
         leftValue = leftProperty->get_value();
         //Get right value
-        if(i->second.constant.is_empty()){
+        if(!i->second.rightProperty.is_empty()){
             auto rightProperty = root->get_child(i->second.rightProperty);
             if(rightProperty == nullptr) {
                 retVal.push_back({propertyNotFound, "Property not found", i->second.rightProperty});
@@ -70,7 +65,7 @@ std::vector<AlarmLogic::ConditionData> AlarmLogic::get_condition(std::weak_ptr<V
         //Test
         if(examine_alarm(leftValue, rightValue, i->second.compare)) {
             AlarmDefinition::Condition newCondition(AlarmDefinition::ConditionType::Alarm, i->second.condition);
-            retVal.push_back({newCondition, i->second.message, property});
+            retVal.push_back({newCondition, i->second.message, property, i->second.rightProperty, leftValue, rightValue});
             break;
         }
     }
@@ -104,7 +99,7 @@ std::vector<AlarmLogic::ConditionData> AlarmLogic::get_condition(std::weak_ptr<V
                 Value rightValue = rightProperty->get_value();
                 if(examine_alarm(leftValue, rightValue, j->second.compare)) {
                     AlarmDefinition::Condition newCondition(AlarmDefinition::ConditionType::Alarm, j->second.condition);
-                    retVal.push_back({newCondition, j->second.message, *i});
+                    retVal.push_back({newCondition, j->second.message, *i, property, leftValue, rightValue});
                     break;
                 }
             }
