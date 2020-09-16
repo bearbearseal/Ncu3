@@ -1,6 +1,9 @@
 #ifndef _AlarmCondition_H_
 #define _AlarmCondition_H_
 #include <stdint.h>
+#include <string>
+//#include <iostream>
+//#include <sstream>
 
 namespace AlarmDefinition {
     enum class ConditionType {
@@ -20,8 +23,23 @@ namespace AlarmDefinition {
         Condition(const Condition& theOther) { type=theOther.type; code=theOther.code; }
         bool operator==(const Condition& theOther) { return ((type == theOther.type) && (code == theOther.code));}
         bool operator!=(const Condition& theOther) { return ((type != theOther.type) || (code != theOther.code));}
-        std::string to_string() {
-            
+        std::string to_string() const {
+            char buffer[32];
+            switch(type) {
+                case ConditionType::None:
+                    snprintf(buffer, sizeof(buffer), "None");
+                    break;
+                case ConditionType::Alarm:
+                    snprintf(buffer, sizeof(buffer), "Alarm %u", code);
+                    break;
+                case ConditionType::Event:
+                    snprintf(buffer, sizeof(buffer), "Event %u", code);
+                    break;
+                case ConditionType::Error:
+                    snprintf(buffer, sizeof(buffer), "Error %u", code);
+                    break;
+            }
+            return buffer;
         }
         
         ConditionType type;

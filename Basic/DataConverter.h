@@ -11,7 +11,7 @@ namespace DataConverter {
         ChronoSystemTime(std::chrono::time_point<std::chrono::system_clock> _theTime) {
             theTime = _theTime;
         }
-        std::string to_string() {
+        std::string to_string() const {
             auto microSec = std::chrono::time_point_cast<std::chrono::milliseconds>(theTime);
             auto msPoint = microSec.time_since_epoch();
             auto totalms = msPoint.count();

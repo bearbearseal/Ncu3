@@ -16,7 +16,8 @@ public:
         GREATER_EQUAL,
         EQUAL,
         SMALLER_EQUAL,
-        SMALLER
+        SMALLER,
+        NOT_EQUAL
     };
     AlarmLogic();
     virtual ~AlarmLogic();

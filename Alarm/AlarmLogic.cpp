@@ -120,6 +120,8 @@ bool AlarmLogic::examine_alarm(const Value& left, const Value& right, Comparison
             return left <= right;
         case Comparison::SMALLER:
             return left < right;
+        case Comparison::NOT_EQUAL:
+            return left != right;
     }
     return false;
 }

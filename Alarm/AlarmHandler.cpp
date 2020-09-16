@@ -1,8 +1,17 @@
 #include "AlarmHandler.h"
 #include "../Basic/DataConverter.h"
+#include "AlarmDefinition.h"
 #include <iostream>
 
 using namespace std;
+
+AlarmHandler::AlarmHandler() {
+
+}
+
+AlarmHandler::~AlarmHandler() {
+
+}
 
 void AlarmHandler::catch_alarm(const HashKey::EitherKey& equipment, const HashKey::EitherKey& source, const Value& leftValue, 
     const HashKey::EitherKey& right, const Value& rightValue, const std::string& message, 
@@ -21,5 +30,6 @@ void AlarmHandler::catch_alarm(const HashKey::EitherKey& equipment, const HashKe
     cout<<"Right Value: "<<rightValue.to_string()<<endl;
     cout<<"Message: "<<message<<endl;
     cout<<"Time: "<<DataConverter::ChronoSystemTime(theMoment).to_string()<<endl;
-    
+    cout<<"Condition: "<<condition.to_string();
+    return;
 }

@@ -27,7 +27,8 @@ public:
 
     AlarmDetector(std::shared_ptr<AlarmListener> _listener);
     virtual ~AlarmDetector();
-    void add_root_alarm_pair(const HashKey::EitherKey& equipment, std::shared_ptr<VariableTree> root, std::shared_ptr<AlarmLogic> alarmLogic, std::unordered_map<HashKey::EitherKey, uint32_t, HashKey::EitherKey>& _conditionMap);
+    void add_root_alarm_pair(const HashKey::EitherKey& equipment, std::shared_ptr<VariableTree> root, std::shared_ptr<AlarmLogic> alarmLogic, 
+        const std::unordered_map<HashKey::EitherKey, uint32_t, HashKey::EitherKey>& _conditionMap = std::unordered_map<HashKey::EitherKey, uint32_t, HashKey::EitherKey>());
 
 private:
     void handle_value_change(const HashKey::EitherKey& property, std::pair<size_t, size_t> pairId);

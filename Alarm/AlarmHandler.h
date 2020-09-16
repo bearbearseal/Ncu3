@@ -1,6 +1,7 @@
 #ifndef _AlarmHandler_H_
 #define _AlarmHandler_H_
 #include "AlarmListener.h"
+#include "AlarmDefinition.h"
 
 class AlarmHandler : public AlarmListener {
 public:
