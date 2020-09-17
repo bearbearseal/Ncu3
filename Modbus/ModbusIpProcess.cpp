@@ -296,6 +296,7 @@ void ModbusIpProcess::thread_process(ModbusIpProcess* me) {
             case 1: //wait connection established
                 //cout<<"State 1\n";
                 if(me->socket.connection_established()) {
+                    cout<<"ModbusIp Connected.\n";
                     me->threadData.mainState = 10;
                     me->threadData.subState = 0;
                 }
@@ -394,6 +395,7 @@ void ModbusIpProcess::thread_process(ModbusIpProcess* me) {
             case 20:    //Close socket
             default:
                 //cout<<"State 20\n";
+                cout<<"ModbusIp close socket.\n";
                 me->socket.close();
                 me->threadData.mainState = 0;
                 this_thread::sleep_for(1s);

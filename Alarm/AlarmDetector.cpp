@@ -1,4 +1,5 @@
 #include "AlarmDetector.h"
+#include <iostream>
 
 using namespace std;
 
@@ -23,6 +24,7 @@ void AlarmDetector::add_root_alarm_pair(const HashKey::EitherKey& equipmentId, s
         theCondition.type = AlarmDefinition::ConditionType::Alarm;
         theCondition.code = entry.second;
     }
+    root->add_value_change_listener(pairData.valueListener);
 }
 
 void AlarmDetector::handle_value_change(const HashKey::EitherKey& property, pair<size_t, size_t> pairId) {
@@ -52,20 +54,27 @@ void AlarmDetector::handle_value_change(const HashKey::EitherKey& property, pair
     for(auto singleCondition : conditionList) {
         //compare if condition has changed
         lock_guard<mutex> lock(pairData.conditionMutex);
-        auto previousCondition = pairData.conditions.find(property);
+        auto previousCondition = pairData.conditions.find(singleCondition.leftProperty);
         if(previousCondition == pairData.conditions.end()) {
             //No previous condition, then it's an alarm
-            sharedListener->catch_alarm(pairData.equipment, singleCondition.leftProperty, singleCondition.leftValue,
+            sharedListener->catch_alarm({pairData.equipment, singleCondition.leftProperty, singleCondition.leftValue,
                 singleCondition.rightProperty, singleCondition.rightValue, singleCondition.message, theMoment, 
-                singleCondition.condition);
-            pairData.conditions[property] = singleCondition.condition;
+                singleCondition.condition});
+            pairData.conditions[singleCondition.leftProperty] = singleCondition.condition;
+            cout<<singleCondition.leftProperty.to_string()<<" condition is now "<<singleCondition.condition.to_string()<<endl;
         }
         else if(previousCondition->second != singleCondition.condition) {
             //Condition changed, it's an alarm
-            sharedListener->catch_alarm(pairData.equipment, singleCondition.leftProperty, singleCondition.leftValue,
+            sharedListener->catch_alarm({pairData.equipment, singleCondition.leftProperty, singleCondition.leftValue,
                 singleCondition.rightProperty, singleCondition.rightValue, singleCondition.message, theMoment,
-                singleCondition.condition);
-            pairData.conditions[property] = singleCondition.condition;
+                singleCondition.condition});
+            pairData.conditions[singleCondition.leftProperty] = singleCondition.condition;
+            cout<<singleCondition.leftProperty.to_string()<<" condition is now "<<singleCondition.condition.to_string()<<endl;
+        }
+        else {
+            cout<<singleCondition.leftProperty.to_string()<<" condition remains unchanged.\n";
+            cout<<"Old condition: "<<previousCondition->second.to_string()<<endl;
+            cout<<"New condition: "<<singleCondition.condition.to_string()<<endl;
         }
     }
 }

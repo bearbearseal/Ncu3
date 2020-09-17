@@ -45,6 +45,17 @@ namespace AlarmDefinition {
         ConditionType type;
         uint32_t code;
     };
+
+    struct AlarmMessage {
+        const HashKey::EitherKey equipment;
+        const HashKey::EitherKey source; 
+        const Value leftValue;
+        const HashKey::EitherKey right;
+        const Value rightValue;
+        const std::string message; 
+        const std::chrono::time_point<std::chrono::system_clock> theMoment;
+        const AlarmDefinition::Condition condition;
+    };
 }
 
 #endif

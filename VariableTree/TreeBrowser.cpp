@@ -566,8 +566,8 @@ nlohmann::json make_json_branch(vector<HashKey::EitherKey>::const_reverse_iterat
 }
 
 void TreeBrowser::ValueListener::catch_value_change_event(const vector<HashKey::EitherKey>& branch, const Value& newValue, chrono::time_point<chrono::system_clock> theMoment) {
-	printf("Caught value change, tag Id: %s, newValue: %s.\n", tagId.to_string().c_str(), newValue.to_string().c_str());
-	print_branch(branch);
+	//printf("Caught value change, tag Id: %s, newValue: %s.\n", tagId.to_string().c_str(), newValue.to_string().c_str());
+	//print_branch(branch);
 	auto shared = master.lock();
 	if (shared != nullptr) {
 		nlohmann::json retVal;

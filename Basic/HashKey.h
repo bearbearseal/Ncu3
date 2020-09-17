@@ -41,8 +41,7 @@ namespace HashKey
 
 inline HashKey::EitherKey::EitherKey()
 {
-	keyType = KeyType::Integer;
-	intValue = 0;
+	keyType = KeyType::None;
 }
 
 inline HashKey::EitherKey::EitherKey(const EitherKey& other)

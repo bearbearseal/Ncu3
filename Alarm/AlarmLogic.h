@@ -9,6 +9,7 @@
 #include "../Basic/HashKey.h"
 #include "AlarmDefinition.h"
 
+//Check logic with bigger priority number 1st.
 class AlarmLogic {
 public:
     enum class Comparison {

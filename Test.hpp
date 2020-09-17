@@ -305,7 +305,7 @@ namespace Test {
 	}
 
 	void run_alarm_logic() {
-		unique_ptr<ModbusIpProcess> modbusIp1 = make_unique<ModbusIpProcess>("192.168.82.130", 502, 1, 16, 64, true, std::chrono::milliseconds(100));
+		unique_ptr<ModbusIpProcess> modbusIp1 = make_unique<ModbusIpProcess>("192.168.137.1", 502, 1, 16, 64, true, std::chrono::milliseconds(100));
 		shared_ptr<Variable> coil1 = modbusIp1->get_coil_status_variable(1);
 		shared_ptr<Variable> coil2 = modbusIp1->get_coil_status_variable(2);
 		shared_ptr<Variable> coil10 = modbusIp1->get_coil_status_variable(10);

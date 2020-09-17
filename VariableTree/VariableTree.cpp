@@ -344,7 +344,7 @@ void VariableTree::remove_value_change_listener(shared_ptr<ValueChangeListener> 
 }
 
 void VariableTree::catch_value_change(const Value& newValue, std::chrono::time_point<std::chrono::system_clock> theMoment) {
-	printf("Caught value change.\n");
+	//printf("Caught value change.\n");
 	//Inform listener
 	if (isLeaf) {
 		lock_guard<mutex> lock(leafData->listenerMutex);
