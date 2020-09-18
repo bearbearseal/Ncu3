@@ -12,8 +12,8 @@ namespace DataConverter {
             theTime = _theTime;
         }
         std::string to_string() const {
-            auto microSec = std::chrono::time_point_cast<std::chrono::milliseconds>(theTime);
-            auto msPoint = microSec.time_since_epoch();
+            auto milliSec = std::chrono::time_point_cast<std::chrono::milliseconds>(theTime);
+            auto msPoint = milliSec.time_since_epoch();
             auto totalms = msPoint.count();
             auto second = totalms/1000;
             struct tm timeStruct = *(localtime(&second));
@@ -22,6 +22,11 @@ namespace DataConverter {
             size_t length = strlen(buffer);
             sprintf(&buffer[length], ".%03ld", totalms%1000);
             return buffer;
+        }
+        uint64_t to_milli_second() const {
+            auto milliSec = std::chrono::time_point_cast<std::chrono::milliseconds>(theTime);
+            auto msPoint = milliSec.time_since_epoch();
+            return msPoint.count();
         }
     private:
         std::chrono::time_point<std::chrono::system_clock> theTime;
