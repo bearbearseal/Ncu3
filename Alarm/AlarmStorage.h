@@ -7,7 +7,6 @@
 #include <unordered_map>
 #include <utility>
 #include <list>
-#include <mutex>
 
 //This class cannot be entered from multi-thread
 //No mutex coz worry this class would be destructed while mutex is locked

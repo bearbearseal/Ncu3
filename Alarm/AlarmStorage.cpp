@@ -1,3 +1,4 @@
+#include <iostream>
 #include "AlarmStorage.h"
 #include "../Basic/DataConverter.h"
 
@@ -29,9 +30,9 @@ size_t AlarmStorage::store_alarm(const AlarmDefinition::AlarmMessage& alarmMessa
         }
     }
     string queryString = "Insert into UnreportedAlarm (PriorId, Equipment, Property, Value, TimeMilliSec, Message, Type, Code)Values(";
-    queryString += to_string(priorId) + ",";
-    queryString += alarmMessage.equipment.get_string() + ",";
-    queryString += alarmMessage.source.get_string(); + ",";
+    queryString += to_string(priorId) + ",'";
+    queryString += alarmMessage.equipment.get_string() + "','";
+    queryString += alarmMessage.source.get_string() + "',";
     if(alarmMessage.leftValue.is_empty()) {
         queryString += "0,";
     }
@@ -41,8 +42,9 @@ size_t AlarmStorage::store_alarm(const AlarmDefinition::AlarmMessage& alarmMessa
     queryString += to_string(DataConverter::ChronoSystemTime(alarmMessage.theMoment).to_milli_second()) + ",";
     queryString += "'"+alarmMessage.message+"',";
     queryString += to_string(size_t(alarmMessage.condition.type)) + ",";
-    queryString += to_string(alarmMessage.condition.code) + ")";
+    queryString += to_string(alarmMessage.condition.code) + ");";
     queryString += "SELECT Last_Insert_Rowid();";
+    cout<<"SQL statement: "<<queryString;
     uint64_t newId;
     auto result = move(theDb->execute_query(queryString));
     newId = result->get_integer(0, 0).second;
@@ -77,14 +79,23 @@ list<AlarmStorage::UnreportedAlarm> AlarmStorage::get_unreported_alarms(size_t c
     auto result = move(theDb->execute_query(queryString));
     for(auto i = 0; i < result->get_row_count(); ++i) {
         AlarmStorage::UnreportedAlarm element;
+        cout<<"Getting Id\n";
         element.id = result->get_integer(i, "Id").second;
+        cout<<"PriorId\n";
         element.priorId = result->get_integer(i, "PriorId").second;
+        cout<<"Equipment\n";
         element.equipment = result->get_string(i, "Equipment").second;
+        cout<<"Property\n";
         element.property = result->get_string(i, "Property").second;
+        cout<<"Value\n";
         element.value = result->get_float(i, "Value").second;
+        cout<<"TimeMilliSec\n";
         element.timeMilliSec = result->get_integer(i, "TimeMilliSec").second;
+        cout<<"Message\n";
         element.message = result->get_string(i, "Message").second;
+        cout<<"Type\n";
         element.type = result->get_integer(i, "Type").second;
+        cout<<"Code\n";
         element.code = result->get_integer(i, "Code").second;
         retVal.push_back(element);
     }

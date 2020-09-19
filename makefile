@@ -1,11 +1,11 @@
 OBJS = main.o TcpSocket.o TcpListener.o TcpTalker.o TreeBrowser.o Value.o Variable.o VariableTree.o
 OBJS += ModbusIP.o ModbusIpProcess.o ModbusRtu.o ModbusRtuProcess.o ModbusRegisterValue.o
 OBJS += SerialPort.o SyncedSerialPort.o PrioritizedValue.o AlarmLogic.o AlarmDetector.o
-OBJS += AlarmHandler.o
+OBJS += AlarmHandler.o AlarmStorage.o UdpSocket.o Sqlite3.o
 CC = g++ -std=c++17
 CFLAGS = -Wall -c
 LFLAGS = -Wall
-LIBS = -lpthread
+LIBS = -lpthread -lsqlite3
 #INC = -I../Basic
 binaries = theMain.out
 
@@ -68,6 +68,15 @@ AlarmDetector.o: Alarm/AlarmDetector.h Alarm/AlarmDetector.cpp
 
 AlarmHandler.o: Alarm/AlarmHandler.h Alarm/AlarmHandler.cpp Alarm/AlarmDefinition.h
 	$(CC) $(CFLAGS) Alarm/AlarmHandler.cpp
+
+AlarmStorage.o: Alarm/AlarmStorage.h Alarm/AlarmStorage.cpp Alarm/AlarmDefinition.h
+	$(CC) $(CFLAGS) Alarm/AlarmStorage.cpp
+
+UdpSocket.o: ../MyLib/UdpSocket/UdpSocket.h ../MyLib/UdpSocket/UdpSocket.cpp
+	$(CC) $(CFLAGS) ../MyLib/UdpSocket/UdpSocket.cpp
+
+Sqlite3.o: ../MyLib/Sqlite/Sqlite3.h ../MyLib/Sqlite/Sqlite3.cpp
+	$(CC) $(CFLAGS) ../MyLib/Sqlite/Sqlite3.cpp
 
 clean:
 	rm -f $(binaries) *.o

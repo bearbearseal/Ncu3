@@ -2,6 +2,8 @@
 #define _AlarmHandler_H_
 #include <thread>
 #include <list>
+#include <mutex>
+#include <memory>
 #include "AlarmListener.h"
 #include "AlarmStorage.h"
 #include "AlarmDefinition.h"
@@ -16,13 +18,21 @@ public:
     virtual void catch_alarm(const AlarmDefinition::AlarmMessage& alarmMessage);
 
 private:
+    ITC<bool> itc;
+    //Thread data {
+    std::thread* theProcess = nullptr;
+    bool threadRun = true;
     uint8_t state = 0;
+    std::chrono::time_point<std::chrono::steady_clock> timeRecorder;
     UdpSocket udpSocket;
+    std::shared_ptr<ITC<bool>::FixedSocket> threadSocket;
+    //}
+    std::shared_ptr<ITC<bool>::FixedSocket> messageSocket;
+    std::mutex storageMutex;
     AlarmStorage alarmStorage;
-    ITC<AlarmDefinition::AlarmMessage> itc;
     std::list<AlarmStorage::UnreportedAlarm> unReportedAlarm;
 
-    static void thred_process(AlarmHandler* me);
+    static void thread_process(AlarmHandler* me);
 };
 
 #endif

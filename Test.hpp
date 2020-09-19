@@ -305,7 +305,7 @@ namespace Test {
 	}
 
 	void run_alarm_logic() {
-		unique_ptr<ModbusIpProcess> modbusIp1 = make_unique<ModbusIpProcess>("192.168.137.1", 502, 1, 16, 64, true, std::chrono::milliseconds(100));
+		unique_ptr<ModbusIpProcess> modbusIp1 = make_unique<ModbusIpProcess>("192.168.56.1", 502, 1, 16, 64, true, std::chrono::milliseconds(100));
 		shared_ptr<Variable> coil1 = modbusIp1->get_coil_status_variable(1);
 		shared_ptr<Variable> coil2 = modbusIp1->get_coil_status_variable(2);
 		shared_ptr<Variable> coil10 = modbusIp1->get_coil_status_variable(10);
@@ -333,7 +333,7 @@ namespace Test {
 		alarmLogic2->add_logic("coil0", HashKey::EitherKey("coil1"), AlarmLogic::Comparison::SMALLER, 2, "coil0 smaller than coil1", 6);
 		alarmLogic2->add_logic("coil9", Value(23), AlarmLogic::Comparison::GREATER_EQUAL, 1, "coil9 greater equal 23", 0);
 
-		shared_ptr<AlarmHandler> alarmHandler = make_shared<AlarmHandler>();
+		shared_ptr<AlarmHandler> alarmHandler = make_shared<AlarmHandler>("127.0.0.1", 12345, "/var/sqlite/NcuAlarm.db");
 		shared_ptr<AlarmDetector> alarmDetector = make_shared<AlarmDetector>(alarmHandler);
 		alarmDetector->add_root_alarm_pair("Device2", device2, alarmLogic1);
 		alarmDetector->add_root_alarm_pair("Device1", device1, alarmLogic2);
