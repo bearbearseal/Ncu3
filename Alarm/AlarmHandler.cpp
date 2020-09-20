@@ -11,6 +11,16 @@ const uint8_t STATE_READ_REPLY = 5;
 const uint8_t STATE_LOAD_ALARM = 10;
 //const uint8_t STATE_WAIT_ALARM = 15;
 
+AlarmHandler::AlarmHandler(const std::string& serverAddress, uint16_t serverPort, std::unique_ptr<AlarmStorage>& _alarmStorage) {
+    alarmStorage = move(_alarmStorage);
+    udpSocket.set_destination(UdpSocket::to_address(serverAddress, serverPort));
+    threadSocket = itc.create_fixed_socket(1, 2);
+    messageSocket = itc.create_fixed_socket(2, 1);
+    state = STATE_LOAD_ALARM;
+    threadRun = true;
+    theProcess = new thread(thread_process, this);
+}
+/*
 AlarmHandler::AlarmHandler(const std::string& serverAddress, uint16_t serverPort, const std::string& dbName) : alarmStorage(dbName){
     udpSocket.set_destination(UdpSocket::to_address(serverAddress, serverPort));
     threadSocket = itc.create_fixed_socket(1, 2);
@@ -20,7 +30,7 @@ AlarmHandler::AlarmHandler(const std::string& serverAddress, uint16_t serverPort
     theProcess = new thread(thread_process, this);
     cout<<"Alarm handler starts.\n";
 }
-
+*/
 AlarmHandler::~AlarmHandler() {
     threadRun = false;
     messageSocket->send_message(threadRun);
@@ -47,7 +57,7 @@ void AlarmHandler::catch_alarm(const AlarmDefinition::AlarmMessage& alarmMessage
     //Store to table
     {
         lock_guard<mutex> lock(storageMutex);
-        alarmStorage.store_alarm(alarmMessage);
+        alarmStorage->store_alarm(alarmMessage);
     }
     //inform thread to run
     bool message = true;
@@ -138,7 +148,7 @@ void AlarmHandler::thread_process(AlarmHandler* me) {
                 //Load alarm
                 {
                     lock_guard<mutex> lock(me->storageMutex);
-                    me->unReportedAlarm = me->alarmStorage.get_unreported_alarms(20);
+                    me->unReportedAlarm = me->alarmStorage->get_unreported_alarms(20);
                 }
                 //If no alarm then goto wait state
                 if(me->unReportedAlarm.size()) {

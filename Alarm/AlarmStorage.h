@@ -32,7 +32,8 @@ public:
     ~AlarmStorage();
     //Returns the id
     size_t store_alarm(const AlarmDefinition::AlarmMessage& alarmMessage);
-    std::vector<PropertyCondition> get_property_condition() const;
+    //std::vector<PropertyCondition> get_property_condition() const;
+    std::unordered_map<HashKey::EitherKey, AlarmDefinition::Condition, HashKey::EitherKey> get_active_condition(const HashKey::EitherKey& equipmentId);
     std::list<UnreportedAlarm> get_unreported_alarms(size_t count) const;
     void remove_unreported_alarm(uint64_t id);
     void remove_unreported_alarms(std::vector<uint64_t> id);

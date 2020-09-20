@@ -13,7 +13,8 @@
 //Send UDP packet to server.
 class AlarmHandler : public AlarmListener {
 public:
-    AlarmHandler(const std::string& serverAddress, uint16_t serverPort, const std::string& dbName);
+    //AlarmHandler(const std::string& serverAddress, uint16_t serverPort, const std::string& dbName);
+    AlarmHandler(const std::string& serverAddress, uint16_t serverPort, std::unique_ptr<AlarmStorage>& alarmStorage);
     virtual ~AlarmHandler();
     virtual void catch_alarm(const AlarmDefinition::AlarmMessage& alarmMessage);
 
@@ -29,7 +30,8 @@ private:
     //}
     std::shared_ptr<ITC<bool>::FixedSocket> messageSocket;
     std::mutex storageMutex;
-    AlarmStorage alarmStorage;
+    //AlarmStorage alarmStorage;
+    std::unique_ptr<AlarmStorage> alarmStorage;
     std::list<AlarmStorage::UnreportedAlarm> unReportedAlarm;
 
     static void thread_process(AlarmHandler* me);

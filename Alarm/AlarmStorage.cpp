@@ -62,6 +62,19 @@ size_t AlarmStorage::store_alarm(const AlarmDefinition::AlarmMessage& alarmMessa
     return newId;
 }
 
+unordered_map<HashKey::EitherKey, AlarmDefinition::Condition, HashKey::EitherKey> AlarmStorage::get_active_condition(const HashKey::EitherKey& equipmentId) {
+    unordered_map<HashKey::EitherKey, AlarmDefinition::Condition, HashKey::EitherKey> retVal;
+    auto i = conditionMap.find(equipmentId);
+    if(i == conditionMap.end()) {
+        return retVal;
+    }
+    for(auto j = i->second.begin(); j != i->second.end(); ++j) {
+        retVal.emplace(j->first, j->second.condition);
+    }
+    return retVal;
+}
+
+/*
 std::vector<AlarmStorage::PropertyCondition> AlarmStorage::get_property_condition() const {
     vector<PropertyCondition> retVal;
     for(auto i = conditionMap.begin(); i != conditionMap.end(); ++i) {
@@ -71,7 +84,7 @@ std::vector<AlarmStorage::PropertyCondition> AlarmStorage::get_property_conditio
     }
     return retVal;
 }
-
+*/
 list<AlarmStorage::UnreportedAlarm> AlarmStorage::get_unreported_alarms(size_t count) const {
     list<AlarmStorage::UnreportedAlarm> retVal;
     string queryString = "Select Id, PriorId, Equipment, Property, Value, TimeMilliSec, Message, Type, Code from UnreportedAlarm limit ";

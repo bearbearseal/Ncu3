@@ -3,15 +3,21 @@
 
 using namespace std;
 
-AlarmDetector::AlarmDetector(std::shared_ptr<AlarmListener> _listener) {
-    listener = _listener;
+AlarmDetector::AlarmDetector() {
 }
 
 AlarmDetector::~AlarmDetector() {
     //No thread, no need to stop anything
 }
 
-void AlarmDetector::add_root_alarm_pair(const HashKey::EitherKey& equipmentId, shared_ptr<VariableTree> root, shared_ptr<AlarmLogic> alarmLogic, const unordered_map<HashKey::EitherKey, uint32_t, HashKey::EitherKey>& _conditionMap) {
+void AlarmDetector::set_listener(std::shared_ptr<AlarmListener> _listener) {
+    listener = _listener;
+}
+
+void AlarmDetector::add_root_alarm_pair(
+    const HashKey::EitherKey& equipmentId, shared_ptr<VariableTree> root, shared_ptr<AlarmLogic> alarmLogic, 
+    const unordered_map<HashKey::EitherKey, AlarmDefinition::Condition, HashKey::EitherKey>& _conditionMap
+) {
     PairData& pairData = pairMap[size_t(root.get())][size_t(alarmLogic.get())];
     pairData.equipment = equipmentId;
     pairData.root = root;
@@ -20,9 +26,12 @@ void AlarmDetector::add_root_alarm_pair(const HashKey::EitherKey& equipmentId, s
     pairData.valueListener = make_shared<ValueListener>(*this, thePair);//, {root.get(), alarmLogic.get()});
     for(auto entry : _conditionMap) {
         lock_guard<mutex> lock(pairData.conditionMutex);
+        pairData.conditions[entry.first] = entry.second;
+        /*
         AlarmDefinition::Condition& theCondition = pairData.conditions[entry.first];
         theCondition.type = AlarmDefinition::ConditionType::Alarm;
         theCondition.code = entry.second;
+        */
     }
     root->add_value_change_listener(pairData.valueListener);
 }
