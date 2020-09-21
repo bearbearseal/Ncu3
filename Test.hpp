@@ -336,11 +336,11 @@ namespace Test {
 		unique_ptr<AlarmStorage> alarmStorage = make_unique<AlarmStorage>("/var/sqlite/NcuAlarm.db");
 		shared_ptr<AlarmDetector> alarmDetector = make_shared<AlarmDetector>();
 		alarmDetector->add_root_alarm_pair("Device2", device2, alarmLogic1, alarmStorage->get_active_condition("Device2"));
-		alarmDetector->add_root_alarm_pair("Device1", device1, alarmLogic2, alarmStorage->get_active_condition("Device2"));
+		alarmDetector->add_root_alarm_pair("Device1", device1, alarmLogic2, alarmStorage->get_active_condition("Device1"));
 		shared_ptr<AlarmHandler> alarmHandler = make_shared<AlarmHandler>("127.0.0.1", 12345, alarmStorage);
-		/*
 		alarmDetector->set_listener(alarmHandler);
 
+		alarmHandler->start();
 		modbusIp1->start();
 		TcpTalker tcpTalker(56789);
 		tcpTalker.set_target(variableTree);
@@ -348,6 +348,5 @@ namespace Test {
 		while(1) {
 			this_thread::sleep_for(1s);
 		}
-		*/
 	}
 }

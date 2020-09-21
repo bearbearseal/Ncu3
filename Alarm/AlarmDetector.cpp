@@ -27,6 +27,9 @@ void AlarmDetector::add_root_alarm_pair(
     for(auto entry : _conditionMap) {
         lock_guard<mutex> lock(pairData.conditionMutex);
         pairData.conditions[entry.first] = entry.second;
+        cout<<"Equipment: "<<equipmentId.to_string()<<endl;
+        cout<<"Property: "<<entry.first.to_string()<<endl;
+        cout<<"Condition:"<<entry.second.to_string()<<endl;
         /*
         AlarmDefinition::Condition& theCondition = pairData.conditions[entry.first];
         theCondition.type = AlarmDefinition::ConditionType::Alarm;

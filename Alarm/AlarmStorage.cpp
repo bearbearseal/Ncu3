@@ -6,6 +6,13 @@ using namespace std;
 
 AlarmStorage::AlarmStorage(const std::string& dbName) {
     theDb = make_unique<Sqlite3>(dbName);
+    auto result = move(theDb->execute_query("Select Equipment, Property, Type, Code, Id from ActiveAlarm"));
+    for(size_t i = 0; i < result->get_row_count(); ++i) {
+        ConditionPriorId& element = conditionMap[result->get_string(i, 0).second][result->get_string(i, 1).second];
+        element.condition.type = AlarmDefinition::ConditionType(result->get_integer(i, 2).second);
+        element.condition.code = result->get_integer(i, 3).second;
+        element.id = result->get_integer(i, 4).second;
+    }
 }
 
 AlarmStorage::~AlarmStorage() {
@@ -66,6 +73,7 @@ unordered_map<HashKey::EitherKey, AlarmDefinition::Condition, HashKey::EitherKey
     unordered_map<HashKey::EitherKey, AlarmDefinition::Condition, HashKey::EitherKey> retVal;
     auto i = conditionMap.find(equipmentId);
     if(i == conditionMap.end()) {
+        cout<<"No conditions, Equipment: "<<equipmentId.to_string()<<endl;
         return retVal;
     }
     for(auto j = i->second.begin(); j != i->second.end(); ++j) {
@@ -92,23 +100,14 @@ list<AlarmStorage::UnreportedAlarm> AlarmStorage::get_unreported_alarms(size_t c
     auto result = move(theDb->execute_query(queryString));
     for(auto i = 0; i < result->get_row_count(); ++i) {
         AlarmStorage::UnreportedAlarm element;
-        cout<<"Getting Id\n";
         element.id = result->get_integer(i, "Id").second;
-        cout<<"PriorId\n";
         element.priorId = result->get_integer(i, "PriorId").second;
-        cout<<"Equipment\n";
         element.equipment = result->get_string(i, "Equipment").second;
-        cout<<"Property\n";
         element.property = result->get_string(i, "Property").second;
-        cout<<"Value\n";
         element.value = result->get_float(i, "Value").second;
-        cout<<"TimeMilliSec\n";
         element.timeMilliSec = result->get_integer(i, "TimeMilliSec").second;
-        cout<<"Message\n";
         element.message = result->get_string(i, "Message").second;
-        cout<<"Type\n";
         element.type = result->get_integer(i, "Type").second;
-        cout<<"Code\n";
         element.code = result->get_integer(i, "Code").second;
         retVal.push_back(element);
     }

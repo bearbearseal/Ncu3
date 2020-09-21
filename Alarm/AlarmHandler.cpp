@@ -11,32 +11,28 @@ const uint8_t STATE_READ_REPLY = 5;
 const uint8_t STATE_LOAD_ALARM = 10;
 //const uint8_t STATE_WAIT_ALARM = 15;
 
-AlarmHandler::AlarmHandler(const std::string& serverAddress, uint16_t serverPort, std::unique_ptr<AlarmStorage>& _alarmStorage) {
+AlarmHandler::AlarmHandler(const std::string& serverAddress, uint16_t serverPort, std::unique_ptr<AlarmStorage>& _alarmStorage) : udpSocket(false) {
     alarmStorage = move(_alarmStorage);
+    //hisAddress = UdpSocket::to_address(serverAddress, serverPort);
     udpSocket.set_destination(UdpSocket::to_address(serverAddress, serverPort));
-    threadSocket = itc.create_fixed_socket(1, 2);
-    messageSocket = itc.create_fixed_socket(2, 1);
-    state = STATE_LOAD_ALARM;
-    threadRun = true;
-    theProcess = new thread(thread_process, this);
+    threadSocket = move(itc.create_fixed_socket(1, 2));
+    messageSocket = move(itc.create_fixed_socket(2, 1));
+    cout<<"The size "<<unReportedAlarm.size()<<"\n";
+    //Here!
 }
-/*
-AlarmHandler::AlarmHandler(const std::string& serverAddress, uint16_t serverPort, const std::string& dbName) : alarmStorage(dbName){
-    udpSocket.set_destination(UdpSocket::to_address(serverAddress, serverPort));
-    threadSocket = itc.create_fixed_socket(1, 2);
-    messageSocket = itc.create_fixed_socket(2, 1);
-    state = STATE_LOAD_ALARM;
-    threadRun = true;
-    theProcess = new thread(thread_process, this);
-    cout<<"Alarm handler starts.\n";
-}
-*/
+
 AlarmHandler::~AlarmHandler() {
     threadRun = false;
-    messageSocket->send_message(threadRun);
+    messageSocket->send_message(1);
     theProcess->join();
     delete theProcess;
     theProcess = nullptr;
+}
+
+void AlarmHandler::start() {
+    state = STATE_LOAD_ALARM;
+    threadRun = true;
+    theProcess = new thread(thread_process, this);
 }
 
 void AlarmHandler::catch_alarm(const AlarmDefinition::AlarmMessage& alarmMessage) {
@@ -60,8 +56,7 @@ void AlarmHandler::catch_alarm(const AlarmDefinition::AlarmMessage& alarmMessage
         alarmStorage->store_alarm(alarmMessage);
     }
     //inform thread to run
-    bool message = true;
-    messageSocket->send_message(message);
+    messageSocket->send_message(1);
 }
 
 bool reply_is_valid(const nlohmann::json& theReply, size_t expectedId) {
@@ -83,7 +78,10 @@ bool reply_is_valid(const nlohmann::json& theReply, size_t expectedId) {
 }
 
 void AlarmHandler::thread_process(AlarmHandler* me) {
-    while(1) {
+
+    cout<<"Thread started.\n";
+    cout<<"Size: "<<me->unReportedAlarm.size()<<endl;
+    while(me->threadRun) {
         switch(me->state) {
             case STATE_SEND_ALARM:
                 //If got alarm in list
@@ -102,9 +100,12 @@ void AlarmHandler::thread_process(AlarmHandler* me) {
                     message["TimeMilliSec"] = head.timeMilliSec;
                     message["Type"] = head.type;
                     message["Code"] = head.code;
-                    me->udpSocket.write(jsonAlarm.dump());
+                    //auto ori = UdpSocket::to_ip_and_port(me->hisAddress);
+	                //printf("Sending alarm to %s:%u\n", ori.first.c_str(), ori.second);
+                    me->udpSocket.write(jsonAlarm.dump(), UdpSocket::to_address("127.0.0.1", 12345));
                     me->timeRecorder = chrono::steady_clock::now();
                     //go to read state
+                    me->state = STATE_READ_REPLY;
                 }
                 //else go get alarm state
                 else {
@@ -136,6 +137,9 @@ void AlarmHandler::thread_process(AlarmHandler* me) {
                     }
                     //Else if total wait is more than 2 seconds, goto send state
                     else if(chrono::steady_clock::now() - me->timeRecorder > chrono::seconds(2)) {
+                        cout<<"Setting destination.\n";
+                        me->hisAddress = UdpSocket::to_address("127.0.0.1", 12345);
+                        me->udpSocket.set_destination(me->hisAddress);
                         me->state = STATE_SEND_ALARM;
                     }
                 }
@@ -162,8 +166,5 @@ void AlarmHandler::thread_process(AlarmHandler* me) {
                 me->state = STATE_SEND_ALARM;
                 break;
         }
-        //Finish all the messages
-        
-        //Wait for more messages
     }
 }
