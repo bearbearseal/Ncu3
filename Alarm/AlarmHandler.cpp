@@ -11,9 +11,11 @@ const uint8_t STATE_READ_REPLY = 5;
 const uint8_t STATE_LOAD_ALARM = 10;
 //const uint8_t STATE_WAIT_ALARM = 15;
 
-AlarmHandler::AlarmHandler(const std::string& serverAddress, uint16_t serverPort, std::unique_ptr<AlarmStorage>& _alarmStorage) : udpSocket(false) {
+AlarmHandler::AlarmHandler(const std::string& _serverAddress, uint16_t _serverPort, std::unique_ptr<AlarmStorage>& _alarmStorage) : udpSocket(false) {
     alarmStorage = move(_alarmStorage);
     //hisAddress = UdpSocket::to_address(serverAddress, serverPort);
+    serverAddress = _serverAddress;
+    serverPort = _serverPort;
     udpSocket.set_destination(UdpSocket::to_address(serverAddress, serverPort));
     threadSocket = move(itc.create_fixed_socket(1, 2));
     messageSocket = move(itc.create_fixed_socket(2, 1));
@@ -102,7 +104,7 @@ void AlarmHandler::thread_process(AlarmHandler* me) {
                     message["Code"] = head.code;
                     //auto ori = UdpSocket::to_ip_and_port(me->hisAddress);
 	                //printf("Sending alarm to %s:%u\n", ori.first.c_str(), ori.second);
-                    me->udpSocket.write(jsonAlarm.dump(), UdpSocket::to_address("127.0.0.1", 12345));
+                    me->udpSocket.write(jsonAlarm.dump(), UdpSocket::to_address("127.0.0.1", 11111));
                     me->timeRecorder = chrono::steady_clock::now();
                     //go to read state
                     me->state = STATE_READ_REPLY;
@@ -138,8 +140,7 @@ void AlarmHandler::thread_process(AlarmHandler* me) {
                     //Else if total wait is more than 2 seconds, goto send state
                     else if(chrono::steady_clock::now() - me->timeRecorder > chrono::seconds(2)) {
                         cout<<"Setting destination.\n";
-                        me->hisAddress = UdpSocket::to_address("127.0.0.1", 12345);
-                        me->udpSocket.set_destination(me->hisAddress);
+                        me->udpSocket.set_destination(UdpSocket::to_address(me->serverAddress, me->serverPort));
                         me->state = STATE_SEND_ALARM;
                     }
                 }

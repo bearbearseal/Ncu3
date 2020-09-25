@@ -20,6 +20,8 @@ public:
     virtual void catch_alarm(const AlarmDefinition::AlarmMessage& alarmMessage);
 
 private:
+    std::string serverAddress;
+    uint16_t serverPort;
     ITC<size_t> itc;
     //Thread data {
     std::thread* theProcess = nullptr;
@@ -27,7 +29,6 @@ private:
         uint8_t state = 0;
         std::chrono::time_point<std::chrono::steady_clock> timeRecorder;
         UdpSocket udpSocket;
-        UdpSocket::Address hisAddress;
         std::unique_ptr<ITC<size_t>::FixedSocket> threadSocket;
         std::list<AlarmStorage::UnreportedAlarm> unReportedAlarm;
     //}
