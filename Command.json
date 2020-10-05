@@ -51,10 +51,21 @@
   },
   {"Command":"MoveDown", "Id":"1"}
   ,
-  {"Command": "Write","Branch": {"Id": "2","Branch": {"Id": "1"}},"Value":100}
+  {"Command": "Write","Branch": {"Id": "1","Branch": {"Id": "1"}},"Value":100}
+  ,
+  {"Command": "Write","Branch": {"Id": "1","Branch": {"Id": "2"}},"Value":200}
+  ,
+  {"Command": "Write","Branch": {"Id": "2","Branch": {"Id": "1"}},"Value":1234}
+  ,
+  {"Command": "Write","Branch": {"Id": "2","Branch": {"Id": "2"}},"Value":45.9}
+  ,
+  {"Command": "Write","Branch": {"Id": "3","Branch": {"Id": "1"}},"Value":0.87}
+  ,
+  {"Command": "Write","Branch": {"Id": "3","Branch": {"Id": "2"}},"Value":52.4}
   ,
   {"Command": "Read","Branch": {"Id": "1","Branch": {"Id": "2"}}}
   ,
+  {"Command":"Write", "Id":"2", "Value":"234"}
   ,
   {
     "Command": "MoveToTop"
