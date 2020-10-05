@@ -240,6 +240,7 @@ bool ModbusIpProcess::do_write_coil_query(uint16_t& sequenceNumber) {
 }
 
 bool ModbusIpProcess::do_write_holding_register_query(uint16_t& sequenceNumber) {
+    printf("Writing register.\n");
     while(1) {
         uint16_t registerAddress;
         std::vector<RegisterValue> values;
@@ -329,19 +330,21 @@ void ModbusIpProcess::thread_process(ModbusIpProcess* me) {
                             ++sequenceNumber;
                             auto query = ModbusIP::construct_read_coils(sequenceNumber, me->config.slaveAddress, queryData.startAddress, queryData.coilCount);
                             /*
-                            printf("query:");
+                            printf("writing:");
                             for(unsigned i = 0; i < query.first.size(); ++i) {
                                 printf("[%02X]", query.first[i]);
                             }
                             printf("\n");
                             */
                             if(!me->socket.write(query.first)) {
+                                printf("Read coil failed!\n");
                                 me->threadData.mainState = 20; //close socket
                                 continue;
                             }
                             else {
                                 auto reply = get_reply(me->socket, query.second, me->config.timeout);
                                 if(!reply.first){
+                                    printf("No read coil reply.\n");
                                     me->threadData.mainState = 20;  //close socket
                                     continue;
                                 }
@@ -376,6 +379,7 @@ void ModbusIpProcess::thread_process(ModbusIpProcess* me) {
                             ++sequenceNumber;
                             auto reply = me->query_holding_register_then_get_reply(queryData, sequenceNumber);
                             if(!reply.first) {
+                                printf("No read register reply.\n");
                                 me->threadData.mainState = 20;  //close socket
                                 continue;
                             }

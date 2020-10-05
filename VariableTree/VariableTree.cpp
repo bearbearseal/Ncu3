@@ -256,6 +256,7 @@ bool VariableTree::write_value(const Value& value, uint8_t priority) {
 	if(!isLeaf) {
 		return false;
 	}
+	bool result = leafData->variable->write_value(value, priority);
 	return true;
 }
 
@@ -265,7 +266,7 @@ bool VariableTree::set_value(const Value& value, uint8_t priority) {
 		return false;
 	}
 	//lock_guard<mutex> lock(dataMutex);
-	bool result = leafData->variable->write_value(value, priority);
+	bool result = leafData->variable->set_value(value, priority);
 	/*
 	if (!result) {
 		return false;

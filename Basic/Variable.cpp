@@ -15,7 +15,7 @@ Value Variable::read_value() const {
 	return value;
 }
 
-bool Variable::write_value(const Value& newValue, uint8_t priority) {
+bool Variable::set_value(const Value& newValue, uint8_t priority) {
 	if(writeValue.set_value(priority, newValue)) {
 		if(value != newValue) {
 			_write_value(newValue);
@@ -25,7 +25,7 @@ bool Variable::write_value(const Value& newValue, uint8_t priority) {
 	return false;
 }
 
-void Variable::trigger_value(const Value& newValue, uint8_t priority) {
+bool Variable::write_value(const Value& newValue, uint8_t priority) {
 	//clear those priority lower than input priority.
 	writeValue.clear_lower(priority);
 	_write_value(newValue);

@@ -299,12 +299,28 @@ namespace Test {
 		auto channel1 = variableTree->create_branch("1");
 		auto channel2 = variableTree->create_branch("2");
 		auto channel3 = variableTree->create_branch("3");
-		channel1->create_leaf("1", modbusIp1->get_holding_register_variable(0, ModbusRegisterValue::DataType::INT16));
-		channel1->create_leaf("2", modbusIp1->get_holding_register_variable(1, ModbusRegisterValue::DataType::INT16));
-		channel2->create_leaf("1", modbusIp1->get_holding_register_variable(10, ModbusRegisterValue::DataType::INT16));
-		channel2->create_leaf("2", modbusIp1->get_holding_register_variable(11, ModbusRegisterValue::DataType::INT16));
-		channel3->create_leaf("1", modbusIp1->get_holding_register_variable(20, ModbusRegisterValue::DataType::INT16));
-		channel3->create_leaf("2", modbusIp1->get_holding_register_variable(21, ModbusRegisterValue::DataType::INT16));
+		/*
+		channel1->create_leaf(1, modbusIp1->get_holding_register_variable(0, ModbusRegisterValue::DataType::INT16));
+		channel1->create_leaf(2, modbusIp1->get_holding_register_variable(1, ModbusRegisterValue::DataType::INT16));
+		channel2->create_leaf(1, modbusIp1->get_holding_register_variable(10, ModbusRegisterValue::DataType::INT16));
+		channel2->create_leaf(2, modbusIp1->get_holding_register_variable(11, ModbusRegisterValue::DataType::INT16));
+		channel3->create_leaf(1, modbusIp1->get_holding_register_variable(20, ModbusRegisterValue::DataType::INT16));
+		channel3->create_leaf(2, modbusIp1->get_holding_register_variable(21, ModbusRegisterValue::DataType::INT16));
+		*/
+		auto ram1 = make_shared<RamVariable>();
+		auto ram2 = make_shared<RamVariable>();
+		auto ram3 = make_shared<RamVariable>();
+		auto ram4 = make_shared<RamVariable>();
+		auto ram5 = make_shared<RamVariable>();
+		auto ram6 = make_shared<RamVariable>();
+		
+		channel1->create_leaf("1", ram1);
+		channel1->create_leaf("2", ram2);
+		channel2->create_leaf("1", ram3);
+		channel2->create_leaf("2", ram4);
+		channel3->create_leaf("1", ram5);
+		channel3->create_leaf("2", ram6);
+
 		modbusIp1->start();
 		TcpTalker tcpTalker(56789);
 		tcpTalker.set_target(variableTree);
