@@ -52,6 +52,7 @@ public:
 
 	std::shared_ptr<VariableTree> get_child(const HashKey::EitherKey& key) const;
 
+	bool write_value(const Value& value, uint8_t priority = 0);
 	bool set_value(const Value& value, uint8_t priority = 0);
 	Value get_value() const;
 

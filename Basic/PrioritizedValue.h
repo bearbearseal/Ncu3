@@ -15,10 +15,10 @@ public:
     //Returns true if this unset triggers change of read value
     bool unset_value(uint8_t priority);
     //Simular to unset at all priorities value 
-    bool clear_value();
+    bool clear_lower(uint8_t priority);
     Value get_value() const;
     //Does not persist, same as clear then set with priority 0
-    void trigger_value(const Value& newValue) { clear_value(); set_value(0, newValue); }
+    //void trigger_value(const Value& newValue, uint8_t priority) { clear_value(); set_value(0, newValue); }
 
 private:
     mutable std::shared_mutex valueLock;

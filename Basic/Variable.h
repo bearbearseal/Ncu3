@@ -23,7 +23,7 @@ public:
 	virtual ~Variable();
 	Value read_value() const;
 	bool write_value(const Value& newValue, uint8_t priority);
-	void trigger_value(const Value& newValue);
+	void trigger_value(const Value& newValue, uint8_t priority);
 	void set_listener(std::shared_ptr<Listener> _listener);
 protected:
 	void update_value_to_cache(const Value& newValue);

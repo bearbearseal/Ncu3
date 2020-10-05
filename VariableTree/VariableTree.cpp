@@ -252,6 +252,14 @@ shared_ptr<VariableTree> VariableTree::get_child(const HashKey::EitherKey& key) 
 	return i->second;
 }
 
+bool VariableTree::write_value(const Value& value, uint8_t priority) {
+	if(!isLeaf) {
+		return false;
+	}
+	return true;
+}
+
+
 bool VariableTree::set_value(const Value& value, uint8_t priority) {
 	if (!isLeaf) {
 		return false;

@@ -1,7 +1,6 @@
 [
-  {
-    "Command": "Show"
-  },
+  {"Command": "Show"}
+  ,
   {
     "Command": "Read",
     "Id": "LeafId"
@@ -28,13 +27,10 @@
   {
     "Command": "ListenBranch"
   },
-  {
-    "Command": "Read"
-  },
-  {
-    "Command": "Read",
-    "Id": "BranchId"
-  },
+  {"Command": "Read","Id": "1"}
+  ,
+  {"Command":"Write", "Id":"1", "Value":23}
+  ,
   {
     "Command": "Read",
     "Branch": {
@@ -53,16 +49,13 @@
     "Id": "BranchId",
     "Value": "Value"
   },
-  {
-    "Command": "Write",
-    "Branch": {
-      "Id": "BranchId",
-      "Branch": {
-        "Id": 0
-      }
-    },
-    "Value": "Value"
-  },
+  {"Command":"MoveDown", "Id":"1"}
+  ,
+  {"Command": "Write","Branch": {"Id": "2","Branch": {"Id": "1"}},"Value":100}
+  ,
+  {"Command": "Read","Branch": {"Id": "1","Branch": {"Id": "2"}}}
+  ,
+  ,
   {
     "Command": "MoveToTop"
   },

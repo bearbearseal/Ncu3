@@ -25,8 +25,9 @@ bool Variable::write_value(const Value& newValue, uint8_t priority) {
 	return false;
 }
 
-void Variable::trigger_value(const Value& newValue) {
-	writeValue.clear_value();
+void Variable::trigger_value(const Value& newValue, uint8_t priority) {
+	//clear those priority lower than input priority.
+	writeValue.clear_lower(priority);
 	_write_value(newValue);
 }
 

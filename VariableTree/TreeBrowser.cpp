@@ -80,6 +80,9 @@ string TreeBrowser::process_command(const string& input) {
 	else if (!command.compare(COMMAND_WriteValue)) {
 		return process_command_write_value(theJson);
 	}
+	else if (!command.compare(COMMAND_SetValue)) {
+		return process_command_set_value(theJson);
+	}
 	else if (!command.compare(COMMAND_CreateBranch)) {
 		return process_command_create_branch(theJson);
 	}
@@ -317,7 +320,7 @@ string TreeBrowser::process_command_read_value(const nlohmann::json& jData) {
 	return retVal.dump() + '\n';
 }
 
-string TreeBrowser::process_command_write_value(const nlohmann::json& jData) {
+std::string TreeBrowser::process_command_set_value(const nlohmann::json& jData) {
 	nlohmann::json retVal;
 	auto shared = cursor.lock();
 	if (shared == nullptr) {
@@ -361,6 +364,60 @@ string TreeBrowser::process_command_write_value(const nlohmann::json& jData) {
 		return retVal.dump() + '\n';
 	}
 	if (target->set_value(value)) {
+		retVal["Status"] = "Good";
+	}
+	else {
+		retVal["Status"] = "Bad";
+		retVal["Message"] = "Set value rejected";
+	}
+	retVal["Status"] = "Good";
+	return retVal.dump() + '\n';
+}
+
+string TreeBrowser::process_command_write_value(const nlohmann::json& jData) {
+	nlohmann::json retVal;
+	auto shared = cursor.lock();
+	if (shared == nullptr) {
+		retVal["Status"] = "Bad";
+		retVal["Message"] = "Branch deleted";
+		return retVal.dump() + '\n';
+	}
+	if (!jData.contains("Value")) {
+		retVal["Status"] = "Bad";
+		retVal["Message"] = "Write needs value";
+		return retVal.dump() + '\n';
+	}
+	const nlohmann::json& jValue = jData["Value"];
+	Value value;
+	if (jValue.is_number_float()) {
+		value = jValue.get<double>();
+	}
+	else if (jValue.is_number_integer()) {
+		value = jValue.get<int64_t>();
+	}
+	else if (jValue.is_number_unsigned()) {
+		value = jValue.get<uint64_t>();
+	}
+	else if (jValue.is_string()) {
+		value = jValue.get<string>();
+	}
+	else {
+		retVal["Status"] = "Bad";
+		retVal["Message"] = "Invalid value type";
+		return retVal.dump() + '\n';
+	}
+	auto target = recursive_move_to_branch(jData, shared);
+	if (target == nullptr) {
+		retVal["Status"] = "Bad";
+		retVal["Message"] = "Branch not found";
+		return retVal.dump() + '\n';
+	}
+	if (!target->isLeaf) {
+		retVal["Status"] = "Bad";
+		retVal["Message"] = "Target is not a leaf";
+		return retVal.dump() + '\n';
+	}
+	if (target->write_value(value)) {
 		retVal["Status"] = "Good";
 	}
 	else {

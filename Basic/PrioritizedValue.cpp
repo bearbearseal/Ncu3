@@ -67,13 +67,18 @@ Value PrioritizedValue::get_value() const
     return retValue;
 }
 
-bool PrioritizedValue::clear_value()
+bool PrioritizedValue::clear_lower(uint8_t priority)
 {
-    unique_lock<shared_mutex> lock(valueLock);
-    if(valueMap.size())
-    {
-        valueMap.clear();
-        return true;
+    unique_lock<shared_mutex> lock(valueLock);    
+    for(auto i=valueMap.begin(); i != valueMap.end();) {
+        if(i->second <= priority) {
+            auto temp = i;
+            ++i;
+            valueMap.erase(temp);
+        }
+        else {
+            break;
+        }
     }
-    return false;
+    return true;
 }

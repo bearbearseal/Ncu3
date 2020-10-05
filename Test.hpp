@@ -275,7 +275,7 @@ namespace Test {
 	}
 
 	void run_tcp_talker_and_modbus() {
-		unique_ptr<ModbusIpProcess> modbusIp1 = make_unique<ModbusIpProcess>("192.168.82.130", 502, 1, 16, 64, true, std::chrono::milliseconds(100));
+		unique_ptr<ModbusIpProcess> modbusIp1 = make_unique<ModbusIpProcess>("192.168.43.151", 502, 1, 16, 64, true, std::chrono::milliseconds(100));
 		shared_ptr<Variable> coil1 = modbusIp1->get_coil_status_variable(1);
 		shared_ptr<Variable> coil2 = modbusIp1->get_coil_status_variable(2);
 		shared_ptr<Variable> coil10 = modbusIp1->get_coil_status_variable(10);
@@ -284,6 +284,7 @@ namespace Test {
 		shared_ptr<Variable> register20 = modbusIp1->get_holding_register_variable(20,ModbusRegisterValue::DataType::INT32_ML);
 
 		shared_ptr<VariableTree> variableTree = make_shared<VariableTree>();
+		/*
 		auto device1 = variableTree->create_branch("Device1");
 		auto device2 = variableTree->create_branch("Device2");
 		device1->create_leaf("coil0", modbusIp1->get_coil_status_variable(0));
@@ -294,7 +295,16 @@ namespace Test {
 		device2->create_leaf("register1", register1);
 		device2->create_leaf("register10", register10);
 		device2->create_leaf("register20", register20);
-
+		*/
+		auto channel1 = variableTree->create_branch("1");
+		auto channel2 = variableTree->create_branch("2");
+		auto channel3 = variableTree->create_branch("3");
+		channel1->create_leaf("1", modbusIp1->get_holding_register_variable(0, ModbusRegisterValue::DataType::INT16));
+		channel1->create_leaf("2", modbusIp1->get_holding_register_variable(1, ModbusRegisterValue::DataType::INT16));
+		channel2->create_leaf("1", modbusIp1->get_holding_register_variable(10, ModbusRegisterValue::DataType::INT16));
+		channel2->create_leaf("2", modbusIp1->get_holding_register_variable(11, ModbusRegisterValue::DataType::INT16));
+		channel3->create_leaf("1", modbusIp1->get_holding_register_variable(20, ModbusRegisterValue::DataType::INT16));
+		channel3->create_leaf("2", modbusIp1->get_holding_register_variable(21, ModbusRegisterValue::DataType::INT16));
 		modbusIp1->start();
 		TcpTalker tcpTalker(56789);
 		tcpTalker.set_target(variableTree);
@@ -317,7 +327,7 @@ namespace Test {
 		aSocket.write("222", UdpSocket::to_address("127.0.0.1", 11111));
 		aSocket.write("333", UdpSocket::to_address("127.0.0.1", 11111));
 
-		unique_ptr<ModbusIpProcess> modbusIp1 = make_unique<ModbusIpProcess>("192.168.56.1", 502, 1, 16, 64, true, std::chrono::milliseconds(100));
+		unique_ptr<ModbusIpProcess> modbusIp1 = make_unique<ModbusIpProcess>("192.168.43.151", 502, 1, 16, 64, true, std::chrono::milliseconds(100));
 		shared_ptr<Variable> coil1 = modbusIp1->get_coil_status_variable(1);
 		shared_ptr<Variable> coil2 = modbusIp1->get_coil_status_variable(2);
 		shared_ptr<Variable> coil10 = modbusIp1->get_coil_status_variable(10);

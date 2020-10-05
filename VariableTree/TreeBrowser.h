@@ -22,6 +22,7 @@ private:
 	static constexpr char COMMAND_ListenBranch[] = "ListenBranch";
 	static constexpr char COMMAND_ReadValue[] = "Read";
 	static constexpr char COMMAND_WriteValue[] = "Write";
+	static constexpr char COMMAND_SetValue[] = "Set"; 
 	static constexpr char COMMAND_CreateBranch[] = "CreateBranch";
 	static constexpr char COMMAND_CreateLeaf[] = "CreateLeaf";
 	static constexpr char COMMAND_DeleteChild[] = "DeleteChild";
@@ -83,6 +84,7 @@ private:
 	std::string process_command_subscribe_to_value_event(const nlohmann::json& jData);
 	std::string process_command_read_value(const nlohmann::json& jData);
 	std::string process_command_write_value(const nlohmann::json& jData);
+	std::string process_command_set_value(const nlohmann::json& jData);
 	std::string process_command_create_branch(const nlohmann::json& jData);
 	std::string process_command_create_leaf(const nlohmann::json& jData);
 	std::string process_command_delete_child(const nlohmann::json& jData);
