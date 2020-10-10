@@ -1,6 +1,6 @@
 #ifndef _MODBUSREGISTERVALUE_H_
 #define _MODBUSREGISTERVALUE_H_
-#include "../Basic/Value.h"
+#include "../../MyLib/Basic/Value.h"
 #include "ModbusDefinition.h"
 #include <vector>
 #include <tuple>

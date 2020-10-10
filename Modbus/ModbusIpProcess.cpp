@@ -240,7 +240,6 @@ bool ModbusIpProcess::do_write_coil_query(uint16_t& sequenceNumber) {
 }
 
 bool ModbusIpProcess::do_write_holding_register_query(uint16_t& sequenceNumber) {
-    printf("Writing register.\n");
     while(1) {
         uint16_t registerAddress;
         std::vector<RegisterValue> values;
@@ -329,13 +328,6 @@ void ModbusIpProcess::thread_process(ModbusIpProcess* me) {
                             CoilQueryData& queryData = (*coilIter);
                             ++sequenceNumber;
                             auto query = ModbusIP::construct_read_coils(sequenceNumber, me->config.slaveAddress, queryData.startAddress, queryData.coilCount);
-                            /*
-                            printf("writing:");
-                            for(unsigned i = 0; i < query.first.size(); ++i) {
-                                printf("[%02X]", query.first[i]);
-                            }
-                            printf("\n");
-                            */
                             if(!me->socket.write(query.first)) {
                                 printf("Read coil failed!\n");
                                 me->threadData.mainState = 20; //close socket
@@ -405,7 +397,7 @@ void ModbusIpProcess::thread_process(ModbusIpProcess* me) {
                 this_thread::sleep_for(1s);
                 break;
         }
-        this_thread::sleep_for(20ms);
+        this_thread::sleep_for(100ms);
     }
     printf("Thread stop.\n");
 }

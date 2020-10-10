@@ -2,7 +2,7 @@
 #define _AlarmStorage_H_
 #include "../../MyLib/Sqlite/Sqlite3.h"
 #include "AlarmDefinition.h"
-#include "../Basic/HashKey.h"
+#include "../../MyLib/Basic/HashKey.h"
 #include <vector>
 #include <unordered_map>
 #include <utility>

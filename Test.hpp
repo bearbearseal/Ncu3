@@ -1,6 +1,6 @@
 //#include "TreeTemplate.h"
 #include "VariableTree/VariableTree.h"
-#include "Basic/RamVariable.h"
+#include "../MyLib/Basic/RamVariable.h"
 #include "VariableTree/TcpTalker.h"
 #include "Modbus/ModbusIpProcess.h"
 #include "Alarm/AlarmHandler.h"
@@ -330,19 +330,7 @@ namespace Test {
 		}
 	}
 
-	void run_alarm_logic() {
-		/*
-		UdpSocket udpSocket(false);
-		while(1) {
-			udpSocket.write("dsfdsfdsf\n", UdpSocket::to_address("127.0.0.1", 11111));
-			this_thread::sleep_for(2s);
-		}
-		*/
-		UdpSocket aSocket(false);
-		aSocket.write("111", UdpSocket::to_address("127.0.0.1", 11111));
-		aSocket.write("222", UdpSocket::to_address("127.0.0.1", 11111));
-		aSocket.write("333", UdpSocket::to_address("127.0.0.1", 11111));
-
+	void run_modbus_ip_and_alarm_logic() {
 		unique_ptr<ModbusIpProcess> modbusIp1 = make_unique<ModbusIpProcess>("192.168.43.151", 502, 1, 16, 64, true, std::chrono::milliseconds(100));
 		shared_ptr<Variable> coil1 = modbusIp1->get_coil_status_variable(1);
 		shared_ptr<Variable> coil2 = modbusIp1->get_coil_status_variable(2);
@@ -352,24 +340,26 @@ namespace Test {
 		shared_ptr<Variable> register20 = modbusIp1->get_holding_register_variable(20,ModbusRegisterValue::DataType::INT32_ML);
 
 		shared_ptr<VariableTree> variableTree = make_shared<VariableTree>();
-		auto device1 = variableTree->create_branch("Device1");
-		auto device2 = variableTree->create_branch("Device2");
-		device1->create_leaf("coil0", modbusIp1->get_coil_status_variable(0));
-		device1->create_leaf("coil1", coil1);
-		device1->create_leaf("coil2", coil2);
-		device1->create_leaf("coil10", coil10);
-		device2->create_leaf("register0", modbusIp1->get_holding_register_variable(0, ModbusRegisterValue::DataType::INT16));
-		device2->create_leaf("register1", register1);
-		device2->create_leaf("register10", register10);
-		device2->create_leaf("register20", register20);
+		auto device1 = variableTree->create_branch(1);
+		auto device2 = variableTree->create_branch(2);
+		auto device3 = variableTree->create_branch(3);
+		device1->create_leaf(1, modbusIp1->get_holding_register_variable(0, ModbusRegisterValue::DataType::INT16));
+		device1->create_leaf(2, modbusIp1->get_holding_register_variable(1, ModbusRegisterValue::DataType::INT16));
+		device1->create_leaf(3, modbusIp1->get_holding_register_variable(2, ModbusRegisterValue::DataType::INT16));
+		device2->create_leaf(1, modbusIp1->get_holding_register_variable(10, ModbusRegisterValue::DataType::INT16));
+		device2->create_leaf(2, modbusIp1->get_holding_register_variable(11, ModbusRegisterValue::DataType::INT16));
+		device1->create_leaf(3, modbusIp1->get_holding_register_variable(12, ModbusRegisterValue::DataType::INT16));
+		device3->create_leaf(1, modbusIp1->get_holding_register_variable(20, ModbusRegisterValue::DataType::INT16));
+		device3->create_leaf(2, modbusIp1->get_holding_register_variable(21, ModbusRegisterValue::DataType::INT16));
+		device1->create_leaf(3, modbusIp1->get_holding_register_variable(22, ModbusRegisterValue::DataType::INT16));
 
 		shared_ptr<AlarmLogic> alarmLogic1 = make_shared<AlarmLogic>();
 		shared_ptr<AlarmLogic> alarmLogic2 = make_shared<AlarmLogic>();
-		alarmLogic1->add_logic("register0", Value(0), AlarmLogic::Comparison::GREATER, 1, "register0 greater than 0", 10);
-		alarmLogic1->add_logic("register0", HashKey::EitherKey("register1"), AlarmLogic::Comparison::NOT_EQUAL, 2, "register0 not equal register1", 8);
-		alarmLogic1->add_logic("register10", Value(20.5), AlarmLogic::Comparison::SMALLER_EQUAL, 1, "register10 smaller equal 20.5", 4);
-		alarmLogic2->add_logic("coil0", HashKey::EitherKey("coil1"), AlarmLogic::Comparison::SMALLER, 2, "coil0 smaller than coil1", 6);
-		alarmLogic2->add_logic("coil9", Value(23), AlarmLogic::Comparison::GREATER_EQUAL, 1, "coil9 greater equal 23", 0);
+		alarmLogic1->add_logic(1, Value(0), AlarmLogic::Comparison::GREATER, 1, "register0 greater than 0", 10);
+		alarmLogic1->add_logic(1, HashKey::EitherKey(2), AlarmLogic::Comparison::NOT_EQUAL, 2, "register0 not equal register1", 8);
+		alarmLogic1->add_logic(2, Value(20.5), AlarmLogic::Comparison::SMALLER_EQUAL, 1, "register1 smaller equal 20.5", 4);
+		alarmLogic2->add_logic(2, HashKey::EitherKey(1), AlarmLogic::Comparison::SMALLER, 2, "register1 smaller than register2", 6);
+		alarmLogic2->add_logic(3, Value(23), AlarmLogic::Comparison::GREATER_EQUAL, 1, "register2 greater equal 23", 0);
 
 		unique_ptr<AlarmStorage> alarmStorage = make_unique<AlarmStorage>("/var/sqlite/NcuAlarm.db");
 		shared_ptr<AlarmDetector> alarmDetector = make_shared<AlarmDetector>();
@@ -377,7 +367,6 @@ namespace Test {
 		alarmDetector->add_root_alarm_pair("Device1", device1, alarmLogic2, alarmStorage->get_active_condition("Device1"));
 		shared_ptr<AlarmHandler> alarmHandler = make_shared<AlarmHandler>("127.0.0.1", 11111, alarmStorage);
 		alarmDetector->set_listener(alarmHandler);
-
 
 		alarmHandler->start();
 		modbusIp1->start();

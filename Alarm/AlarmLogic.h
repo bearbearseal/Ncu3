@@ -6,7 +6,7 @@
 #include <shared_mutex>
 #include <vector>
 #include "../VariableTree/VariableTree.h"
-#include "../Basic/HashKey.h"
+#include "../../MyLib/Basic/HashKey.h"
 #include "AlarmDefinition.h"
 
 //Check logic with bigger priority number 1st.

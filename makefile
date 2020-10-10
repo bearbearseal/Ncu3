@@ -1,7 +1,7 @@
 OBJS = main.o TcpSocket.o TcpListener.o TcpTalker.o TreeBrowser.o Value.o Variable.o VariableTree.o
 OBJS += ModbusIP.o ModbusIpProcess.o ModbusRtu.o ModbusRtuProcess.o ModbusRegisterValue.o
 OBJS += SerialPort.o SyncedSerialPort.o PrioritizedValue.o AlarmLogic.o AlarmDetector.o
-OBJS += AlarmHandler.o AlarmStorage.o UdpSocket.o Sqlite3.o
+OBJS += AlarmHandler.o AlarmStorage.o UdpSocket.o Sqlite3.o Builder.o
 CC = g++ -std=c++17
 CFLAGS = -Wall -c
 LFLAGS = -Wall
@@ -12,7 +12,7 @@ binaries = theMain.out
 main : $(OBJS)
 	$(CC) $(LFLAGS) $(OBJS) $(LIBS) -o $(binaries)
 
-main.o : main.cpp Test.hpp
+main.o : main.cpp Test.hpp Deploy.hpp
 	$(CC) $(CFLAGS) main.cpp
 
 TcpSocket.o : ../MyLib/TcpSocket/TcpSocket.h ../MyLib/TcpSocket/TcpSocket.cpp
@@ -27,14 +27,14 @@ TcpTalker.o: VariableTree/TcpTalker.h VariableTree/TcpTalker.cpp
 TreeBrowser.o: VariableTree/TreeBrowser.h VariableTree/TreeBrowser.cpp
 	$(CC) $(CFLAGS) VariableTree/TreeBrowser.cpp
 
-Value.o: Basic/Value.h Basic/Value.cpp
-	$(CC) $(CFLAGS) Basic/Value.cpp
+Value.o: ../MyLib/Basic/Value.h ../MyLib/Basic/Value.cpp
+	$(CC) $(CFLAGS) ../MyLib/Basic/Value.cpp
 
-PrioritizedValue.o: Basic/PrioritizedValue.h Basic/PrioritizedValue.cpp
-	$(CC) $(CFLAGS) Basic/PrioritizedValue.cpp
+PrioritizedValue.o: ../MyLib/Basic/PrioritizedValue.h ../MyLib/Basic/PrioritizedValue.cpp
+	$(CC) $(CFLAGS) ../MyLib/Basic/PrioritizedValue.cpp
 
-Variable.o: Basic/Variable.h Basic/Variable.cpp
-	$(CC) $(CFLAGS) Basic/Variable.cpp
+Variable.o: ../MyLib/Basic/Variable.h ../MyLib/Basic/Variable.cpp
+	$(CC) $(CFLAGS) ../MyLib/Basic/Variable.cpp
 
 VariableTree.o: VariableTree/VariableTree.h VariableTree/VariableTree.cpp
 	$(CC) $(CFLAGS) VariableTree/VariableTree.cpp
@@ -77,6 +77,9 @@ UdpSocket.o: ../MyLib/UdpSocket/UdpSocket.h ../MyLib/UdpSocket/UdpSocket.cpp
 
 Sqlite3.o: ../MyLib/Sqlite/Sqlite3.h ../MyLib/Sqlite/Sqlite3.cpp
 	$(CC) $(CFLAGS) ../MyLib/Sqlite/Sqlite3.cpp
+
+Builder.o: Builder/Builder.h Builder/Builder.cpp
+	$(CC) $(CFLAGS) Builder/Builder.cpp
 
 clean:
 	rm -f $(binaries) *.o

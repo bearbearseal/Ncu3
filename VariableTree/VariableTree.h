@@ -4,8 +4,8 @@
 #include <mutex>
 #include <vector>
 #include <chrono>
-#include "../Basic/Variable.h"
-#include "../Basic/HashKey.h"
+#include "../../MyLib/Basic/Variable.h"
+#include "../../MyLib/Basic/HashKey.h"
 
 class VariableTree
 {

@@ -1,7 +1,7 @@
 #ifndef _ModbusRtuProcess_H_
 #define _ModbusRtuProcess_H_
 #include "../../MyLib/SerialPort/SyncedSerialPort.h"
-#include "../Basic/Variable.h"
+#include "../../MyLib/Basic/Variable.h"
 #include "ModbusRegisterValue.h"
 #include <map>
 #include <vector>

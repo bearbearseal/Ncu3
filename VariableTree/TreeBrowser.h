@@ -2,7 +2,7 @@
 #ifndef _TREEBROWSER_H_
 #define _TREEBROWSER_H_
 #include "VariableTree.h"
-#include "../Basic/HashKey.h"
+#include "../../MyLib/Basic/HashKey.h"
 #include <vector>
 #include <list>
 #include <functional>
