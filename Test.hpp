@@ -5,7 +5,7 @@
 #include "Modbus/ModbusIpProcess.h"
 #include "Alarm/AlarmHandler.h"
 #include "Alarm/AlarmDetector.h"
-#include "Alarm/AlarmLogic.h"
+//#include "Alarm_point/AlarmLogic.h"
 #include <thread>
 #include <list>
 
@@ -353,23 +353,46 @@ namespace Test {
 		device3->create_leaf(2, modbusIp1->get_holding_register_variable(21, ModbusRegisterValue::DataType::INT16));
 		device1->create_leaf(3, modbusIp1->get_holding_register_variable(22, ModbusRegisterValue::DataType::INT16));
 
-		shared_ptr<AlarmLogic> alarmLogic1 = make_shared<AlarmLogic>();
-		shared_ptr<AlarmLogic> alarmLogic2 = make_shared<AlarmLogic>();
-		alarmLogic1->add_logic(1, Value(0), AlarmLogic::Comparison::GREATER, 1, "register0 greater than 0", 10);
-		alarmLogic1->add_logic(1, HashKey::EitherKey(2), AlarmLogic::Comparison::NOT_EQUAL, 2, "register0 not equal register1", 8);
-		alarmLogic1->add_logic(2, Value(20.5), AlarmLogic::Comparison::SMALLER_EQUAL, 1, "register1 smaller equal 20.5", 4);
-		alarmLogic2->add_logic(2, HashKey::EitherKey(1), AlarmLogic::Comparison::SMALLER, 2, "register1 smaller than register2", 6);
-		alarmLogic2->add_logic(3, Value(23), AlarmLogic::Comparison::GREATER_EQUAL, 1, "register2 greater equal 23", 0);
-
-		unique_ptr<AlarmStorage> alarmStorage = make_unique<AlarmStorage>("/var/sqlite/NcuAlarm.db");
-		shared_ptr<AlarmDetector> alarmDetector = make_shared<AlarmDetector>();
-		alarmDetector->add_root_alarm_pair("Device2", device2, alarmLogic1, alarmStorage->get_active_condition("Device2"));
-		alarmDetector->add_root_alarm_pair("Device1", device1, alarmLogic2, alarmStorage->get_active_condition("Device1"));
-		shared_ptr<AlarmHandler> alarmHandler = make_shared<AlarmHandler>("127.0.0.1", 11111, alarmStorage);
-		alarmDetector->set_listener(alarmHandler);
-
-		alarmHandler->start();
 		modbusIp1->start();
+		TcpTalker tcpTalker(56789);
+		tcpTalker.set_target(variableTree);
+		tcpTalker.start();
+		while(1) {
+			this_thread::sleep_for(1s);
+		}
+	}
+
+	void run_alarm_logic() {
+		shared_ptr<AlarmDetector> alarmDetector1 = make_shared<AlarmDetector>(1, 1);
+		alarmDetector1->add_logic(1, {AlarmDefinition::Comparison::GREATER_EQUAL, 101.1, {AlarmDefinition::ConditionType::Alarm, 10}, "Greater Equal 101.1"});
+		alarmDetector1->add_logic(2, {AlarmDefinition::Comparison::GREATER, 50, {AlarmDefinition::ConditionType::Alarm, 9}, "Greater than 50"});
+		alarmDetector1->add_logic(3, {AlarmDefinition::Comparison::SMALLER_EQUAL, -101.1, {AlarmDefinition::ConditionType::Alarm, 7}, "Smaller Equal -101.1"});
+		alarmDetector1->add_logic(4, {AlarmDefinition::Comparison::SMALLER, -50, {AlarmDefinition::ConditionType::Alarm, 8}, "Smaller than -50"});
+		alarmDetector1->add_logic(5, {AlarmDefinition::Comparison::NOT_EQUAL, 0, {AlarmDefinition::ConditionType::Alarm, 6}, "Not Equal 0"});
+
+		shared_ptr<AlarmHandler> alarmHandler = make_shared<AlarmHandler>("/var/sqlite/NcuAlarm,db");
+		alarmDetector1->set_alarm_listener(alarmHandler);
+
+		shared_ptr<VariableTree> variableTree = make_shared<VariableTree>();
+		auto device1 = variableTree->create_branch(1);
+		auto device2 = variableTree->create_branch(2);
+		auto device3 = variableTree->create_branch(3);
+
+		auto ram1 = make_shared<RamVariable>();
+		auto ram2 = make_shared<RamVariable>();
+		auto ram3 = make_shared<RamVariable>();
+		auto ram4 = make_shared<RamVariable>();
+		auto ram5 = make_shared<RamVariable>();
+		auto ram6 = make_shared<RamVariable>();
+
+		auto leaf1 = device1->create_leaf(1, ram1);
+		leaf1->add_value_change_listener(alarmDetector1);
+		device1->create_leaf(2, ram2);
+		device2->create_leaf(1, ram3);
+		device2->create_leaf(2, ram4);
+		device3->create_leaf(1, ram5);
+		device3->create_leaf(2, ram6);
+
 		TcpTalker tcpTalker(56789);
 		tcpTalker.set_target(variableTree);
 		tcpTalker.start();

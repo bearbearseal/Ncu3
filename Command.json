@@ -51,7 +51,13 @@
   },
   {"Command":"MoveDown", "Id":"1"}
   ,
-  {"Command": "Write","Branch": {"Id": "1","Branch": {"Id": "1"}},"Value":100}
+  {"Command": "Write","Branch": {"Id": 1,"Branch": {"Id": 1}},"Value":100}
+  ,
+  {"Command": "Write","Branch": {"Id": 1,"Branch": {"Id": 1}},"Value":101.1}
+  ,
+  {"Command": "Write","Branch": {"Id": 1,"Branch": {"Id": 1}},"Value":108.4}
+  ,
+  {"Command": "Write","Branch": {"Id": 1,"Branch": {"Id": 1}},"Value":0.4}
   ,
   {"Command": "Write","Branch": {"Id": "1","Branch": {"Id": "2"}},"Value":200}
   ,
@@ -61,15 +67,20 @@
   ,
   {"Command": "Write","Branch": {"Id": "3","Branch": {"Id": "1"}},"Value":0.87}
   ,
-  {"Command": "Write","Branch": {"Id": "3","Branch": {"Id": "2"}},"Value":52.4}
+  {"Command": "Write","Branch": {"Id": 8,"Branch": {"Id": 1}},"Value":1}
   ,
-  {"Command": "Read","Branch": {"Id": "1","Branch": {"Id": "2"}}}
+  {"Command": "Read","Branch": {"Id": 8,"Branch": {"Id": 1}}}
+  ,
+  {"Command": "Read","Branch": {"Id": 8,"Branch": {"Id": 2}}}
+  ,
+  {"Command": "Read","Branch": {"Id": 8,"Branch": {"Id": 3}}}
+  ,
+  {"Command": "Read","Branch": {"Id": 8,"Branch": {"Id": 4}}}
   ,
   {"Command":"Write", "Id":"2", "Value":"234"}
   ,
-  {
-    "Command": "MoveToTop"
-  },
+  {"Command": "MoveToTop"}
+  ,
   {
     "Command": "BackToTop"
   }

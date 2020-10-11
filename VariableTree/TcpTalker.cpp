@@ -38,7 +38,7 @@ next_while:
 					goto next_while;
 				}
 				else{
-					printf("Cannot find handle: %u\n");
+					printf("Cannot find handle: %lu\n", handle);
 				}
 			}
 		}

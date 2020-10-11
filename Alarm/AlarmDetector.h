@@ -1,50 +1,23 @@
-#ifndef _AlarmDetector_H_
-#define _AlarmDetector_H_
+#pragma once
 #include <memory>
-#include <unordered_map>
-#include "AlarmLogic.h"
-#include "../../MyLib/Basic/HashKey.h"
+#include <map>
+#include "AlarmLogicConstant.h"
 #include "AlarmDefinition.h"
 #include "AlarmListener.h"
 #include "../VariableTree/VariableTree.h"
 
-//Doesnt support remove of pair map yet, which would need more mutex
-class AlarmDetector {
-    friend class ValueListener;
+class AlarmDetector : public VariableTree::ValueChangeListener {
 public:
-    class ValueListener : public VariableTree::ValueChangeListener {
-    public:
-        ValueListener(AlarmDetector& _master, const std::pair<size_t, size_t>& _pairId) : master(_master), pairId(_pairId) {}
-        virtual ~ValueListener() {}
-		virtual void catch_value_change_event(const std::vector<HashKey::EitherKey>& branch, const Value& newValue, std::chrono::time_point<std::chrono::system_clock> theMoment) {
-            master.handle_value_change(branch.front(), pairId);
-        }
+    AlarmDetector(const HashKey::EitherKey& equipmentId, const HashKey::EitherKey& propertyId);
+    AlarmDetector(const AlarmDefinition::PointId& _myId);
+    ~AlarmDetector();
 
-    private:
-        AlarmDetector& master;
-        const std::pair<size_t, size_t> pairId;
-    };
-
-    AlarmDetector();
-    virtual ~AlarmDetector();
-    void set_listener(std::shared_ptr<AlarmListener> _listener);
-    void add_root_alarm_pair(const HashKey::EitherKey& equipment, std::shared_ptr<VariableTree> root, std::shared_ptr<AlarmLogic> alarmLogic, 
-        const std::unordered_map<HashKey::EitherKey, AlarmDefinition::Condition, HashKey::EitherKey>& _conditionMap);
+    void set_alarm_listener(std::shared_ptr<AlarmListener> _listener);
+    void add_logic(uint8_t priority, const AlarmDefinition::AlarmLogicConstant& logicData);
+	void catch_value_change_event(const std::vector<HashKey::EitherKey>& branch, const Value& newValue, std::chrono::time_point<std::chrono::system_clock> theMoment);
 
 private:
-    void handle_value_change(const HashKey::EitherKey& property, std::pair<size_t, size_t> pairId);
-
-    struct PairData {
-        HashKey::EitherKey equipment;
-        std::weak_ptr<VariableTree> root;
-        std::weak_ptr<AlarmLogic> alarmLogic;
-        std::shared_ptr<ValueListener> valueListener;
-        std::mutex conditionMutex;
-        std::unordered_map<HashKey::EitherKey, AlarmDefinition::Condition, HashKey::EitherKey> conditions;
-    };
-    //root id, logic id
-    std::unordered_map<size_t, std::unordered_map<size_t, PairData>> pairMap;
+    const AlarmDefinition::PointId myId;
     std::weak_ptr<AlarmListener> listener;
+    std::map<uint8_t, AlarmLogicConstant> logicMap;
 };
-
-#endif

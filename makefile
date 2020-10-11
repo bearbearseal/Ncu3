@@ -1,7 +1,7 @@
 OBJS = main.o TcpSocket.o TcpListener.o TcpTalker.o TreeBrowser.o Value.o Variable.o VariableTree.o
 OBJS += ModbusIP.o ModbusIpProcess.o ModbusRtu.o ModbusRtuProcess.o ModbusRegisterValue.o
-OBJS += SerialPort.o SyncedSerialPort.o PrioritizedValue.o AlarmLogic.o AlarmDetector.o
-OBJS += AlarmHandler.o AlarmStorage.o UdpSocket.o Sqlite3.o Builder.o
+OBJS += SerialPort.o SyncedSerialPort.o PrioritizedValue.o AlarmLogicConstant.o AlarmDetector.o
+OBJS += AlarmHandler.o UdpSocket.o Sqlite3.o Builder.o
 CC = g++ -std=c++17
 CFLAGS = -Wall -c
 LFLAGS = -Wall
@@ -60,17 +60,14 @@ SerialPort.o: ../MyLib/SerialPort/SerialPort.h ../MyLib/SerialPort/SerialPort.cp
 SyncedSerialPort.o: ../MyLib/SerialPort/SyncedSerialPort.h ../MyLib/SerialPort/SyncedSerialPort.cpp
 	$(CC) $(CFLAGS) ../MyLib/SerialPort/SyncedSerialPort.cpp
 
-AlarmLogic.o: Alarm/AlarmLogic.h Alarm/AlarmLogic.cpp
-	$(CC) $(CFLAGS) Alarm/AlarmLogic.cpp
+AlarmLogicConstant.o: Alarm/AlarmLogicConstant.h Alarm/AlarmLogicConstant.cpp Alarm/AlarmDefinition.h
+	$(CC) $(CFLAGS) Alarm/AlarmLogicConstant.cpp
 
-AlarmDetector.o: Alarm/AlarmDetector.h Alarm/AlarmDetector.cpp
+AlarmDetector.o: Alarm/AlarmDetector.h Alarm/AlarmDetector.cpp Alarm/AlarmDefinition.h
 	$(CC) $(CFLAGS) Alarm/AlarmDetector.cpp
 
-AlarmHandler.o: Alarm/AlarmHandler.h Alarm/AlarmHandler.cpp Alarm/AlarmDefinition.h
+AlarmHandler.o: Alarm/AlarmHandler.h Alarm/AlarmHandler.cpp Alarm/AlarmDefinition.h ../MyLib/Basic/Helper.hpp
 	$(CC) $(CFLAGS) Alarm/AlarmHandler.cpp
-
-AlarmStorage.o: Alarm/AlarmStorage.h Alarm/AlarmStorage.cpp Alarm/AlarmDefinition.h
-	$(CC) $(CFLAGS) Alarm/AlarmStorage.cpp
 
 UdpSocket.o: ../MyLib/UdpSocket/UdpSocket.h ../MyLib/UdpSocket/UdpSocket.cpp
 	$(CC) $(CFLAGS) ../MyLib/UdpSocket/UdpSocket.cpp

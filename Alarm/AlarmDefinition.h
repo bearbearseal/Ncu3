@@ -1,10 +1,7 @@
-#ifndef _AlarmCondition_H_
-#define _AlarmCondition_H_
-#include <stdint.h>
+#pragma once
 #include <string>
+#include "../../MyLib/Basic/HashKey.h"
 #include "../../MyLib/Basic/Value.h"
-//#include <iostream>
-//#include <sstream>
 
 namespace AlarmDefinition {
     enum class ConditionType {
@@ -13,17 +10,33 @@ namespace AlarmDefinition {
         Event = 2,
         Error = 3
     };
-    enum class ErrorCode {
-        PropertyNotFound = 1,
-        ObjectDeleted = 2
+    enum class Comparison {
+        GREATER = 1,
+        GREATER_EQUAL = 2,
+        EQUAL = 3,
+        SMALLER_EQUAL = 4,
+        SMALLER = 5,
+        NOT_EQUAL = 6
     };
-
     struct Condition {
         Condition() {}
         Condition(ConditionType _type, uint32_t _code) { type=_type; code=_code; }
         Condition(const Condition& theOther) { type=theOther.type; code=theOther.code; }
-        bool operator==(const Condition& theOther) { return ((type == theOther.type) && (code == theOther.code));}
-        bool operator!=(const Condition& theOther) { return ((type != theOther.type) || (code != theOther.code));}
+        bool operator==(const Condition& theOther) const { return ((type == theOther.type) && (code == theOther.code));}
+        bool operator!=(const Condition& theOther) const { return ((type != theOther.type) || (code != theOther.code));}
+        std::string type_to_string() const {
+            switch(type) {
+                case ConditionType::Alarm:
+                    return "Alarm";
+                case ConditionType::Event:
+                    return "Event";
+                case ConditionType::Error:
+                    return "Error";
+                case ConditionType::None:
+                default:
+                    return "None";
+            }
+        }
         std::string to_string() const {
             char buffer[32];
             switch(type) {
@@ -46,17 +59,22 @@ namespace AlarmDefinition {
         ConditionType type;
         uint32_t code;
     };
-
+    struct PointId {
+        HashKey::EitherKey equipmentId;
+        HashKey::EitherKey propertyId;
+    };
     struct AlarmMessage {
-        const HashKey::EitherKey equipment;
-        const HashKey::EitherKey source; 
-        const Value leftValue;
-        const HashKey::EitherKey right;
-        const Value rightValue;
-        const std::string message; 
-        const std::chrono::time_point<std::chrono::system_clock> theMoment;
-        const AlarmDefinition::Condition condition;
+        PointId pointId;
+        Value value;
+        Value rightValue;
+        Condition condition;
+        uint64_t milliSecTime;
+        std::string message;
+    };
+    struct AlarmLogicConstant {
+        Comparison compare;
+        Value rightValue;
+        Condition condition;
+        std::string message;
     };
 }
-
-#endif
