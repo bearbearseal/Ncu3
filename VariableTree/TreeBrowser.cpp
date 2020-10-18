@@ -36,7 +36,7 @@ string TreeBrowser::process_command(const string& input) {
 	{
 		theJson = nlohmann::json::parse(input);
 	}
-	catch (nlohmann::json::parse_error)
+	catch (nlohmann::json::parse_error& error)
 	{
 		theReply["Status"] = "Bad";
 		theReply["Message"] = "Parse error";
@@ -173,7 +173,7 @@ string TreeBrowser::process_command_show_branches() {
 	retVal["Status"] = "Good";
 	auto result = shared->list_all_children();
 	nlohmann::json& jBranches = retVal["Branches"];
-	jBranches.array();
+	jBranches = jBranches.array();
 	for (auto i : result) {
 		nlohmann::json entry;
 		if (i.first.is_integer()) {

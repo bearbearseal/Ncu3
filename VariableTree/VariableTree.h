@@ -90,7 +90,7 @@ private:
 
 	struct BranchData {
 		mutable std::mutex dataMutex;
-		std::unordered_map<HashKey::EitherKey, std::shared_ptr<VariableTree>, HashKey::EitherKey> dataMap;
+		std::unordered_map<HashKey::EitherKey, std::shared_ptr<VariableTree>, HashKey::EitherKeyHash> dataMap;
 		std::mutex addRemoveListenerMutex;
 		std::unordered_map<void*, std::weak_ptr<AddRemoveListener>> addRemoveListeners;
 		std::mutex valueChangeListenerMutex;

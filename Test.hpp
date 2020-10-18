@@ -370,7 +370,7 @@ namespace Test {
 		alarmDetector1->add_logic(4, {AlarmDefinition::Comparison::SMALLER, -50, {AlarmDefinition::ConditionType::Alarm, 8}, "Smaller than -50"});
 		alarmDetector1->add_logic(5, {AlarmDefinition::Comparison::NOT_EQUAL, 0, {AlarmDefinition::ConditionType::Alarm, 6}, "Not Equal 0"});
 
-		shared_ptr<AlarmHandler> alarmHandler = make_shared<AlarmHandler>("/var/sqlite/NcuAlarm,db");
+		shared_ptr<AlarmHandler> alarmHandler = make_shared<AlarmHandler>("/var/sqlite/NcuAlarm.db", "127.0.0.1", 33333);
 		alarmDetector1->set_alarm_listener(alarmHandler);
 
 		shared_ptr<VariableTree> variableTree = make_shared<VariableTree>();
@@ -396,6 +396,7 @@ namespace Test {
 		TcpTalker tcpTalker(56789);
 		tcpTalker.set_target(variableTree);
 		tcpTalker.start();
+		alarmHandler->start();
 		while(1) {
 			this_thread::sleep_for(1s);
 		}

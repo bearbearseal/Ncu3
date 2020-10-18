@@ -257,9 +257,8 @@ bool VariableTree::write_value(const Value& value, uint8_t priority) {
 		return false;
 	}
 	bool result = leafData->variable->write_value(value, priority);
-	return true;
+	return result;
 }
-
 
 bool VariableTree::set_value(const Value& value, uint8_t priority) {
 	if (!isLeaf) {
@@ -294,7 +293,7 @@ bool VariableTree::set_value(const Value& value, uint8_t priority) {
 		}
 	}
 	*/
-	return true;
+	return result;
 }
 
 Value VariableTree::get_value() const {

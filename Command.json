@@ -59,7 +59,15 @@
   ,
   {"Command": "Write","Branch": {"Id": 1,"Branch": {"Id": 1}},"Value":0.4}
   ,
-  {"Command": "Write","Branch": {"Id": "1","Branch": {"Id": "2"}},"Value":200}
+  {"Command": "Write","Branch": {"Id": 1,"Branch": {"Id": 1}},"Value":-0.4}
+  ,
+  {"Command": "Write","Branch": {"Id": 1,"Branch": {"Id": 1}},"Value":-80.4}
+  ,
+  {"Command": "Write","Branch": {"Id": 1,"Branch": {"Id": 1}},"Value":-180.4}
+  ,
+  {"Command": "Write","Branch": {"Id": 1,"Branch": {"Id": 1}},"Value":0}
+  ,
+  {"Command": "Write","Branch": {"Id": 1,"Branch": {"Id": 2}},"Value":200}
   ,
   {"Command": "Write","Branch": {"Id": "2","Branch": {"Id": "1"}},"Value":1234}
   ,
