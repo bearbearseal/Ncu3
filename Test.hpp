@@ -5,6 +5,7 @@
 #include "Modbus/ModbusIpProcess.h"
 #include "Alarm/AlarmHandler.h"
 #include "Alarm/AlarmDetector.h"
+#include "Builder/Builder.h"
 //#include "Alarm_point/AlarmLogic.h"
 #include <thread>
 #include <list>
@@ -400,5 +401,9 @@ namespace Test {
 		while(1) {
 			this_thread::sleep_for(1s);
 		}
+	}
+
+	void run_alarm_logic_with_builder() {
+
 	}
 }

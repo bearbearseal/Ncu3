@@ -31,7 +31,7 @@ void TreeBrowser::forward_to_listener(const std::string& message) {
 string TreeBrowser::process_command(const string& input) {
 	nlohmann::json theReply;
 	nlohmann::json theJson;
-	printf("Parsing Message: %s\n", input.c_str());
+	//printf("Parsing Message: %s\n", input.c_str());
 	try
 	{
 		theJson = nlohmann::json::parse(input);

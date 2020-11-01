@@ -14,6 +14,7 @@
 #include "../../MyLib/Basic/Variable.h"
 #include "../Modbus/ModbusIpProcess.h"
 #include "../Modbus/ModbusRtuProcess.h"
+#include "../Alarm/AlarmDefinition.h"
 
 class Builder {
 public:
@@ -28,6 +29,13 @@ public:
 
     std::unordered_map<size_t, std::shared_ptr<Variable>> get_modbus_ip_variables(size_t deviceId, std::unique_ptr<ModbusIpProcess>& modbusIp);
     std::unordered_map<size_t, std::shared_ptr<Variable>> get_modbus_rtu_variables(size_t deviceId, std::unique_ptr<ModbusRtuProcess>& modbusRtu);
+
+    struct LogicInfo {
+        uint32_t logicId;
+        uint16_t priority;
+    };
+    std::unordered_map<int32_t, AlarmDefinition::AlarmLogicConstant> get_logic();
+    std::unordered_map<HashKey::DualKey, std::vector<LogicInfo>, HashKey::DualKeyHash> get_logic_pair();
 
 private:
     Sqlite3 theDb;

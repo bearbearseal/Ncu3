@@ -24,6 +24,7 @@ bool AlarmLogicConstant::condition_hit(const Value& leftValue) {
         case AlarmDefinition::Comparison::SMALLER:
             return leftValue < rightValue;
         case AlarmDefinition::Comparison::NOT_EQUAL:
+            printf("Testing %lu != %lu\n", leftValue.get_int(), rightValue.get_int());
             return leftValue != rightValue;
     }
     return false;

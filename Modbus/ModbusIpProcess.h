@@ -96,6 +96,7 @@ private:
         std::thread* theProcess = nullptr;
         uint8_t mainState;
 		uint8_t subState;
+		uint8_t failCount;
     }threadData;
 
 	struct ForceCoilData {
@@ -113,9 +114,9 @@ private:
 
 	void force_coil(uint16_t coilAddress, bool value);
 	void write_multiple_holding_register(uint16_t registerAddress, const std::vector<RegisterValue>& values);
-	std::pair<bool, std::string> query_holding_register_then_get_reply(const HoldingRegisterQueryData& queryData, uint16_t sequenceNumber);
-	bool do_write_coil_query(uint16_t& sequenceNumber);
-	bool do_write_holding_register_query(uint16_t& sequnceNumber);
+	std::pair<bool, std::string> query_holding_register_then_get_reply(const HoldingRegisterQueryData& queryData, uint16_t sequenceNumber, std::chrono::milliseconds waitTime);
+	bool do_write_coil_query(uint16_t& sequenceNumber, std::chrono::milliseconds waitTime);
+	bool do_write_holding_register_query(uint16_t& sequnceNumber, std::chrono::milliseconds waitTime);
 
 	class Shadow {
 		friend class CoilStatusVariable;
@@ -125,9 +126,10 @@ private:
 		virtual ~Shadow() {}
 		void force_coil(uint16_t coilAddress, bool value) { real.force_coil(coilAddress, value); }
 		void write_multiple_holding_register(uint16_t registerAddress, const std::vector<RegisterValue>& values) { real.write_multiple_holding_register(registerAddress, values); }
-		std::pair<bool, std::string> query_holding_register_then_get_reply(const HoldingRegisterQueryData& queryData, uint16_t sequenceNumber) { return real.query_holding_register_then_get_reply(queryData, sequenceNumber); }
-		bool do_write_coil_query(uint16_t& sequenceNumber) { return real.do_write_coil_query(sequenceNumber); }
-		bool do_write_holding_register_query(uint16_t& sequenceNumber) { return real.do_write_holding_register_query(sequenceNumber); }
+		std::pair<bool, std::string> query_holding_register_then_get_reply(const HoldingRegisterQueryData& queryData, uint16_t sequenceNumber, std::chrono::milliseconds waitTime)
+			{ return real.query_holding_register_then_get_reply(queryData, sequenceNumber, waitTime); }
+		bool do_write_coil_query(uint16_t& sequenceNumber, std::chrono::milliseconds waitTime) { return real.do_write_coil_query(sequenceNumber, waitTime); }
+		bool do_write_holding_register_query(uint16_t& sequenceNumber, std::chrono::milliseconds waitTime) { return real.do_write_holding_register_query(sequenceNumber, waitTime); }
 	private:
 		ModbusIpProcess& real;
 	};

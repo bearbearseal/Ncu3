@@ -19,7 +19,7 @@ void TcpTalker::set_target(shared_ptr<VariableTree> _variableTree) {
 }
 
 void TcpTalker::catch_message(string& message, size_t handle) {
-	printf("Caught message.\n");
+	//printf("Caught message.\n");
 next_while:
 	while (message.size()) {
 		for (unsigned i = 0; i < message.size(); ++i) {

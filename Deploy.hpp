@@ -11,6 +11,9 @@ namespace Deploy {
         unordered_map<size_t, unique_ptr<ModbusIpProcess>> modbusIpProcessMap;
         unordered_map<size_t, unique_ptr<ModbusRtuProcess>> modbusRtuProcessMap;
         unordered_map<size_t, vector<shared_ptr<Variable>>> allVariables;
+		shared_ptr<AlarmHandler> alarmHandler = make_shared<AlarmHandler>("/var/sqlite/NcuAlarm.db", "127.0.0.1", 33333);
+        //Create alarm detector
+        unordered_map<HashKey::DualKey, shared_ptr<AlarmDetector>, HashKey::DualKeyHash> key2Detector;
         {
             Builder aBuilder("/var/sqlite/NcuConfig.db");
             auto modbusIpIdList = aBuilder.get_modbus_ip_device_id();
@@ -33,6 +36,42 @@ namespace Deploy {
                     allVariables[i.first].push_back(j.second);
                 }
             }
+            auto alarmLogicMap = aBuilder.get_logic();
+            auto alarmLogicPair = aBuilder.get_logic_pair();
+            printf("Total logic: %lu\n", alarmLogicMap.size());
+            printf("Total logic pair: %lu\n", alarmLogicPair.size());
+            for(auto& i : alarmLogicPair) {
+                key2Detector.emplace(i.first, make_shared<AlarmDetector>(i.first.get_first(), i.first.get_second()));
+                for(auto& j : i.second) {
+                    auto theLogic = alarmLogicMap.find(j.logicId);
+                    if(theLogic != alarmLogicMap.end()) {
+                        key2Detector[i.first]->add_logic(j.priority, theLogic->second);
+                    }
+                }
+                /*
+                if(!key2Detector.count(i.first)) {
+                    key2Detector.emplace(i.first, make_shared<AlarmDetector>(i.first.get_first(), i.first.get_second()));
+                }
+                auto theLogic = alarmLogicMap.find(i.second.logicId);
+                if(theLogic != alarmLogicMap.end()) {
+                    key2Detector[i.first]->add_logic(i.second.priority, theLogic->second);
+                }
+                */
+            }
+            printf("No fault.\n");
+            for(auto& i : key2Detector) {
+                //Set listener for alarm detector
+                i.second->set_alarm_listener(alarmHandler);
+                //Add detector to each point
+                auto equipmentBranch = variableTree->get_child(i.first.get_first());
+                if(equipmentBranch != nullptr) {
+                    auto propertyLeaf = equipmentBranch->get_child(i.first.get_second());
+                    if(propertyLeaf != nullptr) {
+                        printf("Applying alarm logic to %s %s\n", i.first.get_first().to_string().c_str(), i.first.get_second().to_string().c_str());
+                        propertyLeaf->add_value_change_listener(i.second);
+                    }
+                }
+            }
         }
         for(auto& entry : modbusIpProcessMap) {
             entry.second->start();
@@ -43,6 +82,7 @@ namespace Deploy {
 		TcpTalker tcpTalker(56789);
 		tcpTalker.set_target(variableTree);
 		tcpTalker.start();
+		alarmHandler->start();
 		while(1) {
 			this_thread::sleep_for(1s);
 		}

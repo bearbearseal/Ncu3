@@ -318,9 +318,9 @@ pair<string, uint16_t> ModbusIP::construct_write_multiple_holding_registers(uint
 ModbusIP::ReplyData ModbusIP::decode_reply(const string& reply)
 {
 	ReplyData retVal;
-	retVal.sequenceNumber = reply[0];
+	retVal.sequenceNumber = uint8_t(reply[0]);
 	retVal.sequenceNumber<<=8;
-	retVal.sequenceNumber += reply[1];
+	retVal.sequenceNumber += uint8_t(reply[1]);
 	retVal.slaveAddress = reply[6];
 	retVal.functionCode = reply[7];
 	switch (retVal.functionCode)

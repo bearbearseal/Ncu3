@@ -161,9 +161,10 @@ void ModbusIpProcess::convert_variable_map_to_query() {
 
 pair<bool, string> get_reply(TcpSocket& socket, uint16_t expectedLength, chrono::milliseconds timeout) {
     string retVal;
-    chrono::time_point<chrono::steady_clock> beginTime = chrono::steady_clock::now();
-    do {
-        this_thread::sleep_for(10ms);
+    //chrono::time_point<chrono::steady_clock> beginTime = chrono::steady_clock::now();
+    //do {
+        //this_thread::sleep_for(10ms);
+        this_thread::sleep_for(timeout);
         auto reply = socket.read();
         if(!reply.first) {
             return {false, retVal};
@@ -174,20 +175,20 @@ pair<bool, string> get_reply(TcpSocket& socket, uint16_t expectedLength, chrono:
                 return {true, retVal};
             }
         }
-    }while(chrono::steady_clock::now() - beginTime < timeout);
+    //}while(chrono::steady_clock::now() - beginTime < timeout);
     return {false, retVal};
 }
 
-pair<bool, string> ModbusIpProcess::query_holding_register_then_get_reply(const HoldingRegisterQueryData& queryData, uint16_t sequenceNumber) {
+pair<bool, string> ModbusIpProcess::query_holding_register_then_get_reply(const HoldingRegisterQueryData& queryData, uint16_t sequenceNumber, chrono::milliseconds waitTime) {
     string retVal;
     auto query = ModbusIP::construct_read_multiple_holding_registers(sequenceNumber, config.slaveAddress, queryData.startAddress, queryData.registerCount);
     if(!socket.write(query.first)) {
         return {false, retVal};
     }
-    auto beginTime = chrono::steady_clock::now();
-    //chrono::duration<int, std::milli> theDuration;
-    do {
-        this_thread::sleep_for(10ms);
+    //auto beginTime = chrono::steady_clock::now();
+    //do {
+        //this_thread::sleep_for(10ms);
+        this_thread::sleep_for(waitTime);
         auto reply = socket.read();
         if(!reply.first) {
             return {false, retVal};
@@ -198,13 +199,13 @@ pair<bool, string> ModbusIpProcess::query_holding_register_then_get_reply(const 
                 return {true, retVal};
             }
         }
-    }while(chrono::duration_cast<chrono::milliseconds>(chrono::steady_clock::now() - beginTime) < 200ms);
+    //}while(chrono::duration_cast<chrono::milliseconds>(chrono::steady_clock::now() - beginTime) < waitTime);
     return {false, retVal};
 }
 
 //return false if socket got problem
-bool ModbusIpProcess::do_write_coil_query(uint16_t& sequenceNumber) {
-    while(1) {
+bool ModbusIpProcess::do_write_coil_query(uint16_t& sequenceNumber, chrono::milliseconds waitTime) {
+    //while(1) {
         uint16_t coilAddress;
         bool value;
         {
@@ -225,22 +226,24 @@ bool ModbusIpProcess::do_write_coil_query(uint16_t& sequenceNumber) {
             forceCoilData.valueMap.clear(); //Socket error, dunno when can connect back, discard all pending write
             return false;
         }
-        auto beginTime = chrono::steady_clock::now();
+        //auto beginTime = chrono::steady_clock::now();
         string reply;
         //chrono::duration<int, std::milli> delay(milliSecond);
-        do {
-            this_thread::sleep_for(10ms);
+        //do {
+            //this_thread::sleep_for(10ms);
+            this_thread::sleep_for(waitTime);
             auto replyData = socket.read();
             if(!replyData.first) {
                 return false;
             }
             reply += replyData.second;
-        }while(reply.size() < writeData.second && chrono::duration_cast<chrono::milliseconds>(chrono::steady_clock::now() - beginTime) < 200ms);
-    }
+            return true;
+        //}while(reply.size() < writeData.second && chrono::duration_cast<chrono::milliseconds>(chrono::steady_clock::now() - beginTime) < waitTime);
+    //}
 }
 
-bool ModbusIpProcess::do_write_holding_register_query(uint16_t& sequenceNumber) {
-    while(1) {
+bool ModbusIpProcess::do_write_holding_register_query(uint16_t& sequenceNumber, chrono::milliseconds waitTime) {
+    //while(1) {
         uint16_t registerAddress;
         std::vector<RegisterValue> values;
         {
@@ -265,17 +268,19 @@ bool ModbusIpProcess::do_write_holding_register_query(uint16_t& sequenceNumber) 
             writeHoldingRegisterData.valueMap.clear();
             return false;
         }
-        auto beginTime = chrono::steady_clock::now();
+        //auto beginTime = chrono::steady_clock::now();
         string reply;
-        do {
-            this_thread::sleep_for(10ms);
+        //do {
+            //this_thread::sleep_for(10ms);
+            this_thread::sleep_for(waitTime);
             auto replyData = socket.read();
             if(!replyData.first) {
                 return false;
             }
             reply += replyData.second;
-        }while(reply.size() < writeData.second && chrono::duration_cast<chrono::milliseconds>(chrono::steady_clock::now() - beginTime) < 200ms);
-    }
+            return true;
+        //}while(reply.size() < writeData.second && chrono::duration_cast<chrono::milliseconds>(chrono::steady_clock::now() - beginTime) < waitTime);
+    //}
 }
 
 void ModbusIpProcess::thread_process(ModbusIpProcess* me) {
@@ -308,15 +313,15 @@ void ModbusIpProcess::thread_process(ModbusIpProcess* me) {
             case 10:    //Routine operation
                 //cout<<"State 10\n";
                 //Do write coil if got any
-                if(!me->do_write_coil_query(sequenceNumber)) {
-                    me->threadData.mainState = 20; //close socket
-                    continue;
-                }
-                if(!me->do_write_holding_register_query(sequenceNumber)) {
+                if(!me->do_write_coil_query(sequenceNumber, me->config.timeout)) {
                     me->threadData.mainState = 20; //close socket
                     continue;
                 }
                 //Do write register if got any
+                if(!me->do_write_holding_register_query(sequenceNumber, me->config.timeout)) {
+                    me->threadData.mainState = 20; //close socket
+                    continue;
+                }
                 switch(me->threadData.subState) {
                     case 0: //Query Coil
                         //cout<<"SubState 0\n";
@@ -328,6 +333,8 @@ void ModbusIpProcess::thread_process(ModbusIpProcess* me) {
                             CoilQueryData& queryData = (*coilIter);
                             ++sequenceNumber;
                             auto query = ModbusIP::construct_read_coils(sequenceNumber, me->config.slaveAddress, queryData.startAddress, queryData.coilCount);
+                            //clear socket buffer
+                            me->socket.read(true);
                             if(!me->socket.write(query.first)) {
                                 printf("Read coil failed!\n");
                                 me->threadData.mainState = 20; //close socket
@@ -335,25 +342,28 @@ void ModbusIpProcess::thread_process(ModbusIpProcess* me) {
                             }
                             else {
                                 auto reply = get_reply(me->socket, query.second, me->config.timeout);
-                                if(!reply.first){
+                                if(!reply.first) {
+                                    ++me->threadData.failCount;
                                     printf("No read coil reply.\n");
-                                    me->threadData.mainState = 20;  //close socket
+                                    if(me->threadData.failCount > 3) {
+                                        me->threadData.mainState = 20;  //close socket
+                                    }
+                                    else {
+                                        this_thread::sleep_for(100ms);                                        
+                                    }
                                     continue;
                                 }
-                                /*
-                                printf("reply:");
-                                for(unsigned i = 0; i < reply.second.size(); ++i) {
-                                    printf("[%02X]", reply.second[i]);
-                                }
-                                printf("\n");
-                                */
                                 auto decoded = ModbusIP::decode_reply(reply.second);
                                 if(decoded.functionCode == ModbusIP::READ_COIL_CODE && decoded.sequenceNumber == sequenceNumber) {
+                                    me->threadData.failCount = 0;
                                     //distribute the reply.
-                                    //printf("Reply is valid.\n");
+                                    //printf("Read coil reply is valid.\nAddress:%05u Count:%03u.\n", queryData.startAddress, queryData.coilCount);
                                     for(auto i = queryData.variables.begin(); i != queryData.variables.end(); ++i) {
                                         (*i)->update_value_from_source(queryData.startAddress, decoded.get_coils());
                                     }
+                                }
+                                else {
+                                    printf("Error reply function code: %u vs %u sequence number %u vs %u.\n", decoded.functionCode, ModbusIP::READ_COIL_CODE, decoded.sequenceNumber, sequenceNumber);
                                 }
                                 //this_thread::sleep_for(10s);
                             }
@@ -369,18 +379,31 @@ void ModbusIpProcess::thread_process(ModbusIpProcess* me) {
                         else {
                             HoldingRegisterQueryData& queryData = (*registerIter);
                             ++sequenceNumber;
-                            auto reply = me->query_holding_register_then_get_reply(queryData, sequenceNumber);
+                            //clear socket buffer
+                            me->socket.read(true);
+                            auto reply = me->query_holding_register_then_get_reply(queryData, sequenceNumber, me->config.timeout);
                             if(!reply.first) {
                                 printf("No read register reply.\n");
-                                me->threadData.mainState = 20;  //close socket
+                                ++me->threadData.failCount;
+                                if(me->threadData.failCount > 3) {
+                                    me->threadData.mainState = 20;  //close socket
+                                }
+                                else {
+                                    this_thread::sleep_for(100ms);                                        
+                                }
                                 continue;
                             }
                             auto decoded = ModbusIP::decode_reply(reply.second);
                             if(decoded.functionCode == ModbusIP::READ_HOLDING_REGISTER_CODE && decoded.sequenceNumber == sequenceNumber) {
+                                me->threadData.failCount = 0;
                                 //distribute the reply
+                                //printf("Read register reply is valid.\nAddress:%05u Count:%03u.\n", queryData.startAddress, queryData.registerCount);
                                 for(auto i = queryData.variables.begin(); i != queryData.variables.end(); ++i) {
                                     (*i)->update_value_from_source(queryData.startAddress, decoded.get_holding_register());
                                 }
+                            }
+                            else {
+                                    printf("Error reply function code: %u vs %u sequence number %u vs %u.\n", decoded.functionCode, ModbusIP::READ_HOLDING_REGISTER_CODE, decoded.sequenceNumber, sequenceNumber);
                             }
                             //this_thread::sleep_for(10s);
                             ++registerIter;
@@ -394,10 +417,11 @@ void ModbusIpProcess::thread_process(ModbusIpProcess* me) {
                 cout<<"ModbusIp close socket.\n";
                 me->socket.close();
                 me->threadData.mainState = 0;
+                me->threadData.failCount = 0;
                 this_thread::sleep_for(1s);
                 break;
         }
-        this_thread::sleep_for(100ms);
+        this_thread::sleep_for(10ms);
     }
     printf("Thread stop.\n");
 }
@@ -431,10 +455,10 @@ void ModbusIpProcess::CoilStatusVariable::_write_value(const Value& newValue) {
 void ModbusIpProcess::CoilStatusVariable::update_value_from_source(uint16_t firstAddress, const vector<bool>& values) {
 	size_t index = coilAddress - firstAddress;
     //printf("My address %u, taking the %uth value.\n", coilAddress, index);
-	if (index >= values.size())
-	{
+	if (index >= values.size()) {
 		return;
 	}
+    //printf("Updating coil value to %u\n", values[index]);
     this->update_value_to_cache(values[index]);
 }
 
@@ -461,12 +485,12 @@ void ModbusIpProcess::HoldingRegisterVariable::_write_value(const Value& newValu
 void ModbusIpProcess::HoldingRegisterVariable::update_value_from_source(uint16_t _registerAddress, const vector<RegisterValue>& values) {
     //cout<<"Holding register updating value.\n";
 	size_t index = firstAddress - _registerAddress;
-	if (index >= values.size())
-	{
+	if (index >= values.size()) {
 		return;
 	}
 	ModbusRegisterValue modbusValue(type, smallEndian);
     modbusValue.set_register_value(values, index);
     //cout<<"Register setting value to "<<modbusValue.get_value().to_string()<<endl;
+    //printf("Updating register value to %lu\n", modbusValue.get_value().get_int());
     this->update_value_to_cache(modbusValue.get_value());
 }
