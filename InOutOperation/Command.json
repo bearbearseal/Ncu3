@@ -1,0 +1,18 @@
+[
+	{
+		"Id":"some function",
+		"Variables": [
+			{"Id":"Var1", "Value":123},
+			{"Id":"Var2", "Value":2.4}
+		],
+		"Instructions":[
+		]
+	},
+	{
+		"Id":"another function",
+		"Variables": [
+		],
+		"Instructions":[
+		]
+	}
+]

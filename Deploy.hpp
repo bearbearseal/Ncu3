@@ -48,15 +48,6 @@ namespace Deploy {
                         key2Detector[i.first]->add_logic(j.priority, theLogic->second);
                     }
                 }
-                /*
-                if(!key2Detector.count(i.first)) {
-                    key2Detector.emplace(i.first, make_shared<AlarmDetector>(i.first.get_first(), i.first.get_second()));
-                }
-                auto theLogic = alarmLogicMap.find(i.second.logicId);
-                if(theLogic != alarmLogicMap.end()) {
-                    key2Detector[i.first]->add_logic(i.second.priority, theLogic->second);
-                }
-                */
             }
             printf("No fault.\n");
             for(auto& i : key2Detector) {

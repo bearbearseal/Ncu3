@@ -1,5 +1,6 @@
 OBJS = main.o TcpSocket.o TcpListener.o TcpTalker.o TreeBrowser.o Value.o Variable.o VariableTree.o
 OBJS += ModbusIP.o ModbusIpProcess.o ModbusRtu.o ModbusRtuProcess.o ModbusRegisterValue.o
+OBJS += OperationalLogic.o
 OBJS += SerialPort.o SyncedSerialPort.o PrioritizedValue.o AlarmLogicConstant.o AlarmDetector.o
 OBJS += AlarmHandler.o UdpSocket.o Sqlite3.o Builder.o
 CC = g++ -std=c++17
@@ -77,6 +78,9 @@ Sqlite3.o: ../MyLib/Sqlite/Sqlite3.h ../MyLib/Sqlite/Sqlite3.cpp
 
 Builder.o: Builder/Builder.h Builder/Builder.cpp
 	$(CC) $(CFLAGS) Builder/Builder.cpp
+
+OperationalLogic.o: InOutOperation/OperationalLogic.h InOutOperation/OperationalLogic.cpp
+	$(CC) $(CFLAGS) InOutOperation/OperationalLogic.cpp
 
 clean:
 	rm -f $(binaries) *.o
