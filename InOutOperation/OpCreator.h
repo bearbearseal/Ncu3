@@ -1,9 +1,9 @@
 #pragma once
-#include <unordered_set>
+#include <vector>
 #include <unordered_map>
 #include <memory>
 #include <utility>
-#include "../MyLib/Basic/Value.h"
+#include "../../MyLib/Basic/Value.h"
 #include "OperationalLogic.h"
 
 class OpCreator {
@@ -26,25 +26,36 @@ private:
     const std::string OpCode_JumpLessThan = "JLT";
     const std::string OpCode_JumpLessOrEqual = "JLE";
     const std::string OpCode_Return = "RTN";
+    const std::string VariableName_Input = "input";
 
 public:
     OpCreator();
     ~OpCreator();
-    bool add_operation(const std::string& sOpCode, const std::string& r1, const std::string& r2, const std::string& dest);
+    std::shared_ptr<OperationalLogic> load_logic(const std::string& logic);
     void clear();
 
 private:
+    bool add_instruction(const std::string& sOpCode, const std::string& dest, const std::string& r1, const std::string& r2);
+
     struct ValueData {
         bool isConstant;
         Value constantValue;
-        size_t volatileValueIndex;
     };
-    OperationalLogic::OpCode get_opcode(const std::string& sOpCode);
-    ValueData get_value(const std::string& value);
-    size_t get_dest_index(const std::string& dest);
+    struct InstructionData {
+        OperationalLogic::OpCode opCode;
+        size_t destIndex;
+        std::pair<bool, size_t> v1Id;
+        std::pair<bool, size_t> v2Id;
+    };
+    OperationalLogic::OpCode get_opcode(const std::string& sOpCode) const;
+    std::pair<bool, size_t> get_variable(const std::string& value);
+    Value get_constant_value(const std::string& value) const;
+    size_t get_volatile_value_index(const std::string& name);
 
 private:
-    std::unordered_set<std::string> variableNames;
-    std::unordered_map<std::string, size_t> valueName2Index;
+    size_t volatileValueCount;
+    //std::vector<std::string> volatileValue;
+    std::unordered_map<std::string, size_t> name2VolatileValueIndex;
     std::vector<Value> constantValue;
+    std::vector<InstructionData> instructionList;
 };

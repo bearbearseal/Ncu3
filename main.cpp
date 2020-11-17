@@ -13,5 +13,6 @@ int main() {
 	//Test::run_tcp_talker();
 	//Test::run_modbus_ip_and_alarm_logic();
 	//Test::run_alarm_logic();
-	Deploy::run_real_time_value();
+	Test::run_in_out_operation(80);
+	//Deploy::run_real_time_value();
 }

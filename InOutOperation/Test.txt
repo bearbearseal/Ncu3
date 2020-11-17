@@ -1,0 +1,9 @@
+ASN	retVal 9
+ADD	temp 5 retVal
+SUB	temp 17.5 temp
+MUL	temp temp 20
+DIV	temp temp 10
+JNE	7 temp 6.0
+RTN	temp
+SUB	input input temp
+RTN	input

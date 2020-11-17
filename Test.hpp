@@ -6,6 +6,8 @@
 #include "Alarm/AlarmHandler.h"
 #include "Alarm/AlarmDetector.h"
 #include "Builder/Builder.h"
+#include "../MyLib/File/FileIOer.h"
+#include "InOutOperation/OpCreator.h"
 //#include "Alarm_point/AlarmLogic.h"
 #include <thread>
 #include <list>
@@ -403,7 +405,16 @@ namespace Test {
 		}
 	}
 
-	void run_alarm_logic_with_builder() {
-
+	void run_in_out_operation(const Value& input) {
+		FileIOer aFile;
+		aFile.open("InOutOperation/Test.txt");
+		string content = aFile.read_data();
+		OpCreator opCreator;
+		auto operational = opCreator.load_logic(content);
+		if(operational == nullptr){
+			return;
+		}
+		auto result = operational->execute(input);
+		printf("%s\n", result.to_string().c_str());
 	}
 }

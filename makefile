@@ -1,6 +1,6 @@
 OBJS = main.o TcpSocket.o TcpListener.o TcpTalker.o TreeBrowser.o Value.o Variable.o VariableTree.o
 OBJS += ModbusIP.o ModbusIpProcess.o ModbusRtu.o ModbusRtuProcess.o ModbusRegisterValue.o
-OBJS += OperationalLogic.o
+OBJS += OperationalLogic.o OpCreator.o StringManipulator.o FileIOer.o
 OBJS += SerialPort.o SyncedSerialPort.o PrioritizedValue.o AlarmLogicConstant.o AlarmDetector.o
 OBJS += AlarmHandler.o UdpSocket.o Sqlite3.o Builder.o
 CC = g++ -std=c++17
@@ -81,6 +81,15 @@ Builder.o: Builder/Builder.h Builder/Builder.cpp
 
 OperationalLogic.o: InOutOperation/OperationalLogic.h InOutOperation/OperationalLogic.cpp
 	$(CC) $(CFLAGS) InOutOperation/OperationalLogic.cpp
+
+OpCreator.o: InOutOperation/OpCreator.h InOutOperation/OpCreator.cpp
+	$(CC) $(CFLAGS) InOutOperation/OpCreator.cpp
+
+StringManipulator.o: ../MyLib/StringManipulator/StringManipulator.h ../MyLib/StringManipulator/StringManipulator.cpp
+	$(CC) $(CFLAGS) ../MyLib/StringManipulator/StringManipulator.cpp
+
+FileIOer.o: ../MyLib/File/FileIOer.h ../MyLib/File/FileIOer.cpp
+	$(CC) $(CFLAGS) ../MyLib/File/FileIOer.cpp
 
 clean:
 	rm -f $(binaries) *.o

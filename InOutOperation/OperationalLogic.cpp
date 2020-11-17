@@ -5,14 +5,14 @@ using namespace std;
 OperationalLogic::OperationalLogic(const std::vector<Value>& _constantValue, size_t _volatileCount) {
     constantValue = _constantValue;
     volatileCount = _volatileCount;
-
+    printf("Volatile count: %lu.\n", volatileCount);
 }
 
 OperationalLogic::~OperationalLogic() {
 
 }
 
-void OperationalLogic::add_logic(OpCode opCode, size_t dIndex, std::pair<size_t, bool> v1, std::pair<size_t, bool> v2) {
+void OperationalLogic::add_logic(OpCode opCode, size_t dest, std::pair<bool, size_t> v1, std::pair<bool, size_t> v2) {
     switch(opCode) {
         case OpCode::Assign:
         case OpCode::Add:
@@ -25,46 +25,54 @@ void OperationalLogic::add_logic(OpCode opCode, size_t dIndex, std::pair<size_t,
         case OpCode::And:
         case OpCode::Or:
         case OpCode::Xor:
-            instructionList.push_back({InstructionType::Operation, Operation(opCode, ValueId{v1.second, v1.first}, ValueId{v2.second, v2.first}), dIndex});
+            instructionList.push_back({InstructionType::Operation, Operation(opCode, ValueId{v1.first, v1.second}, ValueId{v2.first, v2.second}), dest});
             break;
-        case OpCode::Jump:
         case OpCode::JumpEqual:
         case OpCode::JumpNotEqual:
         case OpCode::JumpGreater:
         case OpCode::JumpGreaterEqual:
         case OpCode::JumpLess:
         case OpCode::JumpLessEqual:
-            instructionList.push_back({InstructionType::Jump, Jump(opCode, ValueId{v1.second, v1.first}, ValueId{v2.second, v2.first}), dIndex});
+        case OpCode::Jump:
+            instructionList.push_back({InstructionType::Jump, Jump(opCode, ValueId{v1.first, v1.second}, ValueId{v2.first, v2.second}), dest});
             break;
         case OpCode::Return:
-            instructionList.push_back({InstructionType::Return, false, dIndex});
+            instructionList.push_back({InstructionType::Return, false, dest});
             break;
     }
 }
 
-Value OperationalLogic::execute() {
+Value OperationalLogic::execute(const Value& value) {
     vector<Value> volatileValue;
     volatileValue.resize(volatileCount);
+    volatileValue[0] = value;
     size_t instructionDone = 0;
     for(size_t i=0; i<instructionList.size();) {
         if(instructionList[i].type == InstructionType::Jump) {
+            printf("Executing Jump type.\n");
             const Jump& jumpInstruction = std::get<Jump>(instructionList[i].instruction);
             if(jumpInstruction.execute(volatileValue, constantValue)) {
                 //jump
-                i = instructionList[i].dIndex;
+                printf("Jumping to %lu\n", instructionList[i].index);
+                i = instructionList[i].index;
             }
             else {
+                printf("No jump.\n");
                 ++i;
             }
-            break;
         }
         else if(instructionList[i].type == InstructionType::Operation) {
+            printf("Executing operation type.\n");
             const Operation& operationInstruction = std::get<Operation>(instructionList[i].instruction);
-            volatileValue[instructionList[i].dIndex] = operationInstruction.execute(volatileValue, constantValue);
+            printf("Dest Index: %lu\n", instructionList[i].index);
+            volatileValue[instructionList[i].index] = operationInstruction.execute(volatileValue, constantValue);
+            printf("Value after operation: %s\n", volatileValue[instructionList[i].index].to_string().c_str());
             ++i;
         }
         else {
-            return volatileValue[instructionList[i].dIndex];
+            printf("Executing return type.\n");
+            printf("Return index: %lu\n", instructionList[i].index);
+            return volatileValue[instructionList[i].index];
         }
         ++instructionDone;
         if(instructionDone >= MaxInstruction) {
@@ -147,8 +155,6 @@ bool OperationalLogic::Jump::execute(const std::vector<Value>& volatileValue, co
         v2 = &volatileValue[v2Id.index];
     }
     switch(opCode) {
-        case OpCode::Jump:
-            return true;
         case OpCode::JumpEqual:
             return *v1 == *v2;
         case OpCode::JumpNotEqual:
@@ -161,6 +167,8 @@ bool OperationalLogic::Jump::execute(const std::vector<Value>& volatileValue, co
             return *v1 < *v2;
         case OpCode::JumpLessEqual:
             return *v1 <= *v2;
+        case OpCode::Jump:
+            return true;
         default:
             return false;
     }
