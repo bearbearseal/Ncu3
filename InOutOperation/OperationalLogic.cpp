@@ -66,7 +66,7 @@ Value OperationalLogic::execute(const Value& value) {
             const Operation& operationInstruction = std::get<Operation>(instructionList[i].instruction);
             printf("Dest Index: %lu\n", instructionList[i].index);
             volatileValue[instructionList[i].index] = operationInstruction.execute(volatileValue, constantValue);
-            printf("Value after operation: %s\n", volatileValue[instructionList[i].index].to_string().c_str());
+            printf("Value after operation: %s, index %lu\n", volatileValue[instructionList[i].index].to_string().c_str(), instructionList[i].index);
             ++i;
         }
         else {

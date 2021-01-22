@@ -10,7 +10,7 @@
 class VariableTree
 {
 	friend class Parent;
-private:
+protected:
 	class Parent {
 	public:
 		Parent(VariableTree& _parent);
@@ -40,21 +40,22 @@ public:
 
 public:
 	VariableTree(const HashKey::EitherKey& _myId, std::shared_ptr<Parent> parentProxy, bool isLeaf);
-	VariableTree();
+	VariableTree(bool isLeaf=false);
 	virtual ~VariableTree();
 
-	std::shared_ptr<VariableTree> create_branch(const HashKey::EitherKey& key);
-	std::shared_ptr<VariableTree> create_leaf(const HashKey::EitherKey& key, std::shared_ptr<Variable> _variable);
-	std::shared_ptr<VariableTree> force_create_branch(const HashKey::EitherKey& key);
-	std::shared_ptr<VariableTree> force_create_leaf(const HashKey::EitherKey& key, std::shared_ptr<Variable> _variable);
+	virtual bool add_child(const HashKey::EitherKey& key, std::shared_ptr<VariableTree> newChild);
+	virtual std::shared_ptr<VariableTree> create_branch(const HashKey::EitherKey& key);
+	virtual std::shared_ptr<VariableTree> create_leaf(const HashKey::EitherKey& key, std::shared_ptr<Variable> _variable);
+	virtual std::shared_ptr<VariableTree> force_create_branch(const HashKey::EitherKey& key);
+	virtual std::shared_ptr<VariableTree> force_create_leaf(const HashKey::EitherKey& key, std::shared_ptr<Variable> _variable);
 	std::vector<std::pair<HashKey::EitherKey, bool>> list_all_children() const;
 	bool remove_child(const HashKey::EitherKey& key);
 
 	std::shared_ptr<VariableTree> get_child(const HashKey::EitherKey& key) const;
 
-	bool write_value(const Value& value, uint8_t priority = 0);
-	bool set_value(const Value& value, uint8_t priority = 0);
-	Value get_value() const;
+	virtual bool write_value(const Value& value, uint8_t priority = 0);
+	virtual bool set_value(const Value& value, uint8_t priority = 0);
+	virtual Value get_value() const;
 
 	void add_add_remove_listener(std::shared_ptr<AddRemoveListener> listener);
 	void remove_add_remove_listener(std::shared_ptr<AddRemoveListener> listener);
@@ -64,8 +65,8 @@ public:
 
 	const bool isLeaf;
 
-private:
-	void catch_value_change(const Value& newValue, std::chrono::time_point<std::chrono::system_clock> theMoment);
+protected:
+	virtual void catch_value_change(const Value& newValue, std::chrono::time_point<std::chrono::system_clock> theMoment);
 	void catch_child_add_offspring(std::vector<HashKey::EitherKey>& branches, const HashKey::EitherKey& key);
 	void catch_child_lost_offspring(std::vector<HashKey::EitherKey>& branches, const HashKey::EitherKey& key);
 	void catch_child_value_change(std::vector<HashKey::EitherKey>& branches, const Value& newValue, std::chrono::time_point<std::chrono::system_clock> theMoment);
@@ -81,13 +82,13 @@ public:
 	};
 	std::shared_ptr<VariableListener> variableListener;
 
-private:
+protected:
 	static const Value empty;
-
-	const HashKey::EitherKey myId;
+	HashKey::EitherKey myId;
 	std::shared_ptr<Parent> toChildren;
 	std::weak_ptr<Parent> fromParent;
 
+private:
 	struct BranchData {
 		mutable std::mutex dataMutex;
 		std::unordered_map<HashKey::EitherKey, std::shared_ptr<VariableTree>, HashKey::EitherKeyHash> dataMap;

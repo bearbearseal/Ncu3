@@ -124,10 +124,11 @@ bool OpCreator::add_instruction(const std::string& sOpCode, const std::string& d
             }
             else {
                 int64_t destValue = stoll(dest);
-                if(destValue<0) {
+                //line number starts at 1, so offset by -1
+                if(destValue<1) {
                     return false;
                 }
-                instructionData.destIndex = destValue;
+                instructionData.destIndex = destValue - 1;
                 //constantValue.push_back(destValue);
             }
             //need r1, r2 if not direct jump
@@ -139,7 +140,6 @@ bool OpCreator::add_instruction(const std::string& sOpCode, const std::string& d
         else if(OperationalLogic::is_operation_type(instructionData.opCode)) {
             //dest has to be volatile value
             if(!string_is_variable(dest)) {
-                printf("Dest is not variable.\n");
                 return false;
             }
             instructionData.destIndex = get_volatile_value_index(dest);
@@ -172,6 +172,8 @@ void OpCreator::clear() {
     name2VolatileValueIndex.clear();
     constantValue.clear();
     instructionList.clear();
+    name2VolatileValueIndex.emplace(VariableName_Input, 0);
+    volatileValueCount = 1;
 }
 
 OperationalLogic::OpCode OpCreator::get_opcode(const std::string& sOpCode) const {

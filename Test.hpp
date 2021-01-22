@@ -7,8 +7,7 @@
 #include "Alarm/AlarmDetector.h"
 #include "Builder/Builder.h"
 #include "../MyLib/File/FileIOer.h"
-#include "InOutOperation/OpCreator.h"
-//#include "Alarm_point/AlarmLogic.h"
+#include "InOutOperation/OpStorage.h"
 #include <thread>
 #include <list>
 
@@ -406,15 +405,18 @@ namespace Test {
 	}
 
 	void run_in_out_operation(const Value& input) {
-		FileIOer aFile;
-		aFile.open("InOutOperation/Test.txt");
-		string content = aFile.read_data();
-		OpCreator opCreator;
-		auto operational = opCreator.load_logic(content);
-		if(operational == nullptr){
-			return;
+		//Create a thread to listen for changes to edit in out operation folder
+		OpStorage opStorage("/var/sqlite/NcuConfig.db", "/var/InOutOpt");
+		auto logic1 = opStorage.get_logic(1);
+		auto logic2 = opStorage.get_logic(2);
+		if(logic1 != nullptr) {
+			auto result1 = logic1->execute(input);
+			printf("Result1: %s\n", result1.to_string().c_str());
 		}
-		auto result = operational->execute(input);
-		printf("%s\n", result.to_string().c_str());
+		if(logic2 != nullptr) {
+			auto result2 = logic2->execute(input);
+			printf("Result2: %s\n", result2.to_string().c_str());
+		}
 	}
+
 }

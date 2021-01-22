@@ -3,7 +3,7 @@
 
 
 int main() {
-	printf("Begin.\n");
+	printf("Begin 2.\n");
 	//Test::run_tree_template();
 	//Test::run_multi_thread();
 	//Test::run_tree_browser();
@@ -13,6 +13,7 @@ int main() {
 	//Test::run_tcp_talker();
 	//Test::run_modbus_ip_and_alarm_logic();
 	//Test::run_alarm_logic();
-	Test::run_in_out_operation(80);
+	Test::run_in_out_operation(30);
+	//Test::run_sqlite_udp();
 	//Deploy::run_real_time_value();
 }

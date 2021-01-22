@@ -10,7 +10,7 @@ VariableTree::VariableTree(bool _isLeaf) : isLeaf(_isLeaf) {
 }
 */
 
-VariableTree::VariableTree() : isLeaf(false) {
+VariableTree::VariableTree(bool _isLeaf) : isLeaf(_isLeaf) {
 	toChildren = make_shared<Parent>(*this);
 	branchData = make_unique<BranchData>();
 }
@@ -39,6 +39,45 @@ VariableTree::~VariableTree() {
 		this_thread::yield();
 	}
 }
+
+bool VariableTree::add_child(const HashKey::EitherKey& key, std::shared_ptr<VariableTree> newChild) {
+	if (isLeaf) {
+		return false;
+	}
+	{
+		lock_guard<mutex> lock(branchData->dataMutex);
+		if(branchData->dataMap.count(key)) {
+			return false;
+		}
+		newChild->fromParent = toChildren;
+		newChild->myId = key;
+		branchData->dataMap[key] = newChild;
+	}
+	{
+		lock_guard<mutex> listenerLock(branchData->addRemoveListenerMutex);
+		for (auto i = branchData->addRemoveListeners.begin(); i != branchData->addRemoveListeners.end();) {
+			auto shared = i->second.lock();
+			if (shared == nullptr) {
+				auto temp = i++;
+				branchData->addRemoveListeners.erase(temp);
+			}
+			else {
+				shared->catch_add_child_event(vector<HashKey::EitherKey>(), key);
+				++i;
+			}
+		}
+	}
+	{
+		vector<HashKey::EitherKey> branches;
+		branches.push_back(myId);
+		auto shared = fromParent.lock();
+		if (shared != nullptr) {
+			shared->catch_child_add_offspring(branches, key);
+		}
+	}
+	return true;
+}
+
 
 shared_ptr<VariableTree> VariableTree::create_branch(const HashKey::EitherKey& key) {
 	if (isLeaf) {
@@ -80,14 +119,12 @@ shared_ptr<VariableTree> VariableTree::create_branch(const HashKey::EitherKey& k
 
 shared_ptr<VariableTree> VariableTree::create_leaf(const HashKey::EitherKey& key, std::shared_ptr<Variable> _variable) {
 	if (isLeaf) {
-		printf("Leaf cannot have leaf.\n");
 		return nullptr;
 	}
 	shared_ptr<VariableTree> newLeaf;
 	{
 		lock_guard<mutex> lock(branchData->dataMutex);
 		if (branchData->dataMap.count(key)) {
-			printf("Key already exist.\n");
 			return nullptr;
 		}
 		newLeaf = make_shared<VariableTree>(key, toChildren, true);
@@ -117,7 +154,6 @@ shared_ptr<VariableTree> VariableTree::create_leaf(const HashKey::EitherKey& key
 			shared->catch_child_add_offspring(branches, key);
 		}
 	}
-	printf("New leaf created.\n");
 	return newLeaf;
 }
 

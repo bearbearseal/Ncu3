@@ -1,8 +1,11 @@
+BUILDDIR = Built
 OBJS = main.o TcpSocket.o TcpListener.o TcpTalker.o TreeBrowser.o Value.o Variable.o VariableTree.o
 OBJS += ModbusIP.o ModbusIpProcess.o ModbusRtu.o ModbusRtuProcess.o ModbusRegisterValue.o
-OBJS += OperationalLogic.o OpCreator.o StringManipulator.o FileIOer.o
+OBJS += OperationalLogic.o OpCreator.o StringManipulator.o FileIOer.o OpStorage.o
 OBJS += SerialPort.o SyncedSerialPort.o PrioritizedValue.o AlarmLogicConstant.o AlarmDetector.o
-OBJS += AlarmHandler.o UdpSocket.o Sqlite3.o Builder.o
+OBJS += Sqlite3.o Sqlite3JsonTalker.o Sqlite3UdpListener.o
+OBJS += AlarmHandler.o UdpSocket.o UdpListener.o Builder.o
+OBJS += Equipment.o
 CC = g++ -std=c++17
 CFLAGS = -Wall -c
 LFLAGS = -Wall
@@ -73,8 +76,17 @@ AlarmHandler.o: Alarm/AlarmHandler.h Alarm/AlarmHandler.cpp Alarm/AlarmDefinitio
 UdpSocket.o: ../MyLib/UdpSocket/UdpSocket.h ../MyLib/UdpSocket/UdpSocket.cpp
 	$(CC) $(CFLAGS) ../MyLib/UdpSocket/UdpSocket.cpp
 
+UdpListener.o: ../MyLib/UdpSocket/UdpListener.h ../MyLib/UdpSocket/UdpListener.cpp
+	$(CC) $(CFLAGS) ../MyLib/UdpSocket/UdpListener.cpp
+
 Sqlite3.o: ../MyLib/Sqlite/Sqlite3.h ../MyLib/Sqlite/Sqlite3.cpp
 	$(CC) $(CFLAGS) ../MyLib/Sqlite/Sqlite3.cpp
+
+Sqlite3JsonTalker.o: ../MyLib/Sqlite/Sqlite3JsonTalker.h ../MyLib/Sqlite/Sqlite3JsonTalker.cpp
+	$(CC) $(CFLAGS) ../MyLib/Sqlite/Sqlite3JsonTalker.cpp
+
+Sqlite3UdpListener.o: ../MyLib/Sqlite/Sqlite3UdpListener.h ../MyLib/Sqlite/Sqlite3UdpListener.cpp
+	$(CC) $(CFLAGS) ../MyLib/Sqlite/Sqlite3UdpListener.cpp
 
 Builder.o: Builder/Builder.h Builder/Builder.cpp
 	$(CC) $(CFLAGS) Builder/Builder.cpp
@@ -85,11 +97,17 @@ OperationalLogic.o: InOutOperation/OperationalLogic.h InOutOperation/Operational
 OpCreator.o: InOutOperation/OpCreator.h InOutOperation/OpCreator.cpp
 	$(CC) $(CFLAGS) InOutOperation/OpCreator.cpp
 
+OpStorage.o: InOutOperation/OpStorage.h InOutOperation/OpStorage.cpp
+	$(CC) $(CFLAGS) InOutOperation/OpStorage.cpp
+
 StringManipulator.o: ../MyLib/StringManipulator/StringManipulator.h ../MyLib/StringManipulator/StringManipulator.cpp
 	$(CC) $(CFLAGS) ../MyLib/StringManipulator/StringManipulator.cpp
 
 FileIOer.o: ../MyLib/File/FileIOer.h ../MyLib/File/FileIOer.cpp
 	$(CC) $(CFLAGS) ../MyLib/File/FileIOer.cpp
+
+Equipment.o: Equipment/Equipment.h Equipment/Equipment.cpp
+	$(CC) $(CFLAGS) Equipment/Equipment.cpp
 
 clean:
 	rm -f $(binaries) *.o
