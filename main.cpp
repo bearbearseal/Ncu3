@@ -13,7 +13,7 @@ int main() {
 	//Test::run_tcp_talker();
 	//Test::run_modbus_ip_and_alarm_logic();
 	//Test::run_alarm_logic();
-	Test::run_in_out_operation(30);
+	//Test::run_in_out_operation(30);
 	//Test::run_sqlite_udp();
-	//Deploy::run_real_time_value();
+	Deploy::run_real_time_value();
 }
