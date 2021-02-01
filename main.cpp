@@ -15,5 +15,6 @@ int main() {
 	//Test::run_alarm_logic();
 	//Test::run_in_out_operation(30);
 	//Test::run_sqlite_udp();
-	Deploy::run_real_time_value();
+	Test::run_equipment();
+	//Deploy::run_real_time_value();
 }

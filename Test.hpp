@@ -8,6 +8,7 @@
 #include "Builder/Builder.h"
 #include "../MyLib/File/FileIOer.h"
 #include "InOutOperation/OpStorage.h"
+#include "Equipment/Equipment.h"
 #include <thread>
 #include <list>
 
@@ -60,7 +61,7 @@ namespace Test {
 		std::shared_ptr<RamVariable> variable1 = make_shared<RamVariable>();
 		variableTree.create_leaf(123, variable1);
 		for (unsigned i = 0; i < 5; ++i) {
-			variable1->write_value(i * 3, 0);
+			variable1->write_value(i * 3);
 			std::this_thread::sleep_for(1s);
 			printf("Loop %u\n", i);
 		}
@@ -220,9 +221,6 @@ namespace Test {
 		printf("%s\n", treeBrowser.process_command("{\"Command\":\"Read\"}").c_str());
 	}
 
-	//This test 1st populate the tree with some data.
-	//Then creates a TcpTalker which takes the tree
-	//Then runs the TcpTalker
 	void run_tcp_talker() {
 		printf("tcp talker running.\n");
 		shared_ptr<VariableTree> variableTree = make_shared<VariableTree>();
@@ -406,7 +404,7 @@ namespace Test {
 
 	void run_in_out_operation(const Value& input) {
 		//Create a thread to listen for changes to edit in out operation folder
-		OpStorage opStorage("/var/sqlite/NcuConfig.db", "/var/InOutOpt");
+		OpStorage opStorage("/var/sqlite/NcuConfig.db", "/var/InOutOp");
 		auto logic1 = opStorage.get_logic(1);
 		auto logic2 = opStorage.get_logic(2);
 		if(logic1 != nullptr) {
@@ -419,4 +417,29 @@ namespace Test {
 		}
 	}
 
+	void run_equipment() {
+		ModbusIpProcess modbusIp1("192.168.56.1", 502, 1, 16, 64, true, std::chrono::milliseconds(100));
+		auto coil1 = modbusIp1.get_coil_status_variable(0);
+		auto register1 = modbusIp1.get_holding_register_variable(0, ModbusRegisterValue::DataType::INT16);
+
+		OpStorage opStorage("/var/sqlite/NcuConfig.db", "/var/InOutOp");
+		auto logic3 = opStorage.get_logic(3);
+		auto logic4 = opStorage.get_logic(4);
+
+		shared_ptr<VariableTree> root = make_shared<VariableTree>();
+		shared_ptr<Equipment> equipment1 = make_shared<Equipment>();
+		equipment1->VariableTree::create_leaf("Coil1", coil1);
+		equipment1->create_leaf("Coil1_aug", coil1, logic3, logic4);
+		equipment1->VariableTree::create_leaf("Register1", register1);
+		equipment1->create_leaf("Register1_aug", register1, logic3, logic4);
+		root->add_child("Equipment1", equipment1);
+
+		TcpTalker tcpTalker(10520);
+		tcpTalker.set_target(root);
+		tcpTalker.start();
+		modbusIp1.start();
+		while(1) {
+			this_thread::sleep_for(1s);
+		}
+	}
 }

@@ -301,11 +301,13 @@ void ModbusRtuProcess::CoilStatusVariable::update_value_from_source(uint16_t fir
 	this->update_value_to_cache(values[index]);
 }
 
-void ModbusRtuProcess::CoilStatusVariable::_write_value(const Value& newValue) {
+bool ModbusRtuProcess::CoilStatusVariable::write_value(const Value& newValue) {
     auto shared = master.lock();
     if(shared != nullptr) {
         shared->add_force_coil_status(coilAddress, (bool) newValue.get_int());
+		return true;
     }
+	return false;
 }
 
 //}
@@ -332,13 +334,15 @@ void ModbusRtuProcess::HoldingRegisterVariable::update_value_from_source(uint16_
 	this->update_value_to_cache(modbusValue.get_value());
 }
 
-void ModbusRtuProcess::HoldingRegisterVariable::_write_value(const Value& newValue) {
+bool ModbusRtuProcess::HoldingRegisterVariable::write_value(const Value& newValue) {
 	ModbusRegisterValue setValue(type, isSmallEndian);
 	std::vector<RegisterValue> converted = setValue.convert_to_register_value(newValue);
     auto shared = master.lock();
     if(shared != nullptr) {
         shared->add_write_holding_register(firstAddress, converted);
+		return true;
     }
+	return false;
 }
 
 //}

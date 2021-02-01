@@ -129,7 +129,7 @@ shared_ptr<VariableTree> VariableTree::create_leaf(const HashKey::EitherKey& key
 		}
 		newLeaf = make_shared<VariableTree>(key, toChildren, true);
 		newLeaf->leafData->variable = _variable;
-		_variable->set_listener(newLeaf->variableListener);
+		_variable->add_listener(newLeaf->variableListener);
 		branchData->dataMap[key] = newLeaf;
 	}
 	{
@@ -292,7 +292,7 @@ bool VariableTree::write_value(const Value& value, uint8_t priority) {
 	if(!isLeaf) {
 		return false;
 	}
-	bool result = leafData->variable->write_value(value, priority);
+	bool result = leafData->variable->write_value(value);
 	return result;
 }
 
@@ -301,7 +301,7 @@ bool VariableTree::set_value(const Value& value, uint8_t priority) {
 		return false;
 	}
 	//lock_guard<mutex> lock(dataMutex);
-	bool result = leafData->variable->set_value(value, priority);
+	bool result = leafData->variable->write_value(value);
 	/*
 	if (!result) {
 		return false;

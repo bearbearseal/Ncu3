@@ -445,11 +445,13 @@ ModbusIpProcess::CoilStatusVariable::~CoilStatusVariable() {
 
 }
 
-void ModbusIpProcess::CoilStatusVariable::_write_value(const Value& newValue) {
+bool ModbusIpProcess::CoilStatusVariable::write_value(const Value& newValue) {
     auto shared = master.lock();
     if(shared != nullptr) {
         shared->force_coil(coilAddress, (bool) newValue.get_int());
+        return true;
     }
+    return false;
 }
 
 void ModbusIpProcess::CoilStatusVariable::update_value_from_source(uint16_t firstAddress, const vector<bool>& values) {
@@ -473,13 +475,15 @@ ModbusIpProcess::HoldingRegisterVariable::~HoldingRegisterVariable() {
 
 }
 
-void ModbusIpProcess::HoldingRegisterVariable::_write_value(const Value& newValue) {
+bool ModbusIpProcess::HoldingRegisterVariable::write_value(const Value& newValue) {
 	ModbusRegisterValue setValue(type, smallEndian);
 	std::vector<RegisterValue> converted = setValue.convert_to_register_value(newValue);
     auto shared = master.lock();
     if(shared != nullptr) {
         shared->write_multiple_holding_register(firstAddress, converted);
+        return true;
     }
+    return false;
 }
 
 void ModbusIpProcess::HoldingRegisterVariable::update_value_from_source(uint16_t _registerAddress, const vector<RegisterValue>& values) {

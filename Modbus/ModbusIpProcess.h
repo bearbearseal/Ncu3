@@ -25,9 +25,9 @@ public:
 	public:
 		CoilStatusVariable(std::shared_ptr<Shadow> _master, uint16_t _coilAddress);
 		virtual ~CoilStatusVariable();
+		bool write_value(const Value& newValue);
 
 	private:
-		virtual void _write_value(const Value& newValue);
 		void update_value_from_source(uint16_t firstAddress, const std::vector<bool>& values);
 		std::weak_ptr<Shadow> master;
 		uint16_t coilAddress;
@@ -43,11 +43,11 @@ public:
 			ModbusRegisterValue::DataType _type,
 			bool smallEndian);
 		virtual ~HoldingRegisterVariable();
+		bool write_value(const Value& newValue);
 
 	private:
 		void update_value_from_source(uint16_t _registerAddress, const std::vector<RegisterValue>& values);
 		inline uint8_t register_count() { return ModbusRegisterValue::get_register_count(type); }
-		virtual void _write_value(const Value& newValue);
 
 		std::weak_ptr<Shadow> master;
 		uint16_t firstAddress;

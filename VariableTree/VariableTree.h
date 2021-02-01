@@ -39,15 +39,15 @@ public:
 	};
 
 public:
-	VariableTree(const HashKey::EitherKey& _myId, std::shared_ptr<Parent> parentProxy, bool isLeaf);
+	VariableTree(const HashKey::EitherKey& _myId, std::shared_ptr<Parent> parentProxy = nullptr, bool isLeaf = false);
 	VariableTree(bool isLeaf=false);
 	virtual ~VariableTree();
 
-	virtual bool add_child(const HashKey::EitherKey& key, std::shared_ptr<VariableTree> newChild);
-	virtual std::shared_ptr<VariableTree> create_branch(const HashKey::EitherKey& key);
-	virtual std::shared_ptr<VariableTree> create_leaf(const HashKey::EitherKey& key, std::shared_ptr<Variable> _variable);
-	virtual std::shared_ptr<VariableTree> force_create_branch(const HashKey::EitherKey& key);
-	virtual std::shared_ptr<VariableTree> force_create_leaf(const HashKey::EitherKey& key, std::shared_ptr<Variable> _variable);
+	bool add_child(const HashKey::EitherKey& key, std::shared_ptr<VariableTree> newChild);
+	std::shared_ptr<VariableTree> create_branch(const HashKey::EitherKey& key);
+	std::shared_ptr<VariableTree> create_leaf(const HashKey::EitherKey& key, std::shared_ptr<Variable> _variable);
+	std::shared_ptr<VariableTree> force_create_branch(const HashKey::EitherKey& key);
+	std::shared_ptr<VariableTree> force_create_leaf(const HashKey::EitherKey& key, std::shared_ptr<Variable> _variable);
 	std::vector<std::pair<HashKey::EitherKey, bool>> list_all_children() const;
 	bool remove_child(const HashKey::EitherKey& key);
 
@@ -82,9 +82,9 @@ public:
 	};
 	std::shared_ptr<VariableListener> variableListener;
 
-protected:
-	static const Value empty;
+private:
 	HashKey::EitherKey myId;
+	static const Value empty;
 	std::shared_ptr<Parent> toChildren;
 	std::weak_ptr<Parent> fromParent;
 

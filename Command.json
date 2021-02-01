@@ -51,6 +51,28 @@
   },
   {"Command":"MoveDown", "Id":"1"}
   ,
+  {"Command":"MoveDown", "Id":"Equipment"}
+  ,
+  {"Command":"MoveDown", "Id":"Coil"}
+  ,
+  {"Command": "Write","Branch": {"Id": "Equipment", "Branch":{"Id": "Holding Register", "Branch":{"Id":"0001"}}},"Value":2}
+  ,
+  {"Command": "Write","Branch": {"Id": "Equipment1", "Branch":{"Id": "Register1"}},"Value":2}
+  ,
+  {"Command": "Write","Branch": {"Id": "Equipment1", "Branch":{"Id": "Register1_aug"}},"Value":2}
+  ,
+  {"Command": "Write","Branch": {"Id": "Equipment1", "Branch":{"Id": "Coil1"}},"Value":2}
+  ,
+  {"Command": "Write","Branch": {"Id": "Equipment1", "Branch":{"Id": "Coil1_aug"}},"Value":2}
+  ,
+  {"Command": "Write","Branch": {"Id": "Equipment", "Branch":{"Id": "Holding Register", "Branch":{"Id":"0001_aug"}}},"Value":100}
+  ,
+  {"Command": "Write","Branch": {"Id": "Equipment", "Branch":{"Id": "Coil", "Branch":{"Id":"0001"}}},"Value":1}
+  ,
+  {"Command": "Write","Branch": {"Id": "Equipment", "Branch":{"Id": "Coil", "Branch":{"Id":"0001_aug"}}},"Value":100}
+  ,
+  {"Command": "Write","Branch": {"Id": 123}, "Value": 220}
+  ,
   {"Command": "Write","Branch": {"Id": 1,"Branch": {"Id": 1}},"Value":100}
   ,
   {"Command": "Write","Branch": {"Id": 1,"Branch": {"Id": 1}},"Value":101.1}
@@ -77,7 +99,27 @@
   ,
   {"Command": "Write","Branch": {"Id": 8,"Branch": {"Id": 1}},"Value":1}
   ,
+  {"Command": "Read","Branch": {"Id": "Equipment", "Branch":{"Id": "Holding Register", "Branch":{"Id":"0001"}}}}
+  ,
+  {"Command": "Read","Branch": {"Id": "Equipment", "Branch":{"Id": "Holding Register", "Branch":{"Id":"0001_aug"}}}}
+  ,
+  {"Command": "Read","Branch": {"Id": "Equipment", "Branch":{"Id": "Coil", "Branch":{"Id":"0001"}}}}
+  ,
+  {"Command": "Read","Branch": {"Id": "Equipment", "Branch":{"Id": "Coil", "Branch":{"Id":"0001_aug"}}}}
+  ,
+  {"Command": "Read","Branch": {"Id": 123}}
+  ,
+  {"Command": "Read","Branch": {"Id": "0001"}}
+  ,
   {"Command": "Read","Branch": {"Id": 8,"Branch": {"Id": 1}}}
+  ,
+  {"Command": "Read","Branch": {"Id": "Equipment1", "Branch": {"Id": "Coil1"}}}
+  ,
+  {"Command": "Read","Branch": {"Id": "Equipment1", "Branch": {"Id": "Coil1_aug"}}}
+  ,
+  {"Command": "Read","Branch": {"Id": "Equipment1", "Branch": {"Id": "Register1"}}}
+  ,
+  {"Command": "Read","Branch": {"Id": "Equipment1", "Branch": {"Id": "Register1_aug"}}}
   ,
   {"Command": "Read","Branch": {"Id": 8,"Branch": {"Id": 2}}}
   ,

@@ -5,7 +5,7 @@ OBJS += OperationalLogic.o OpCreator.o StringManipulator.o FileIOer.o OpStorage.
 OBJS += SerialPort.o SyncedSerialPort.o PrioritizedValue.o AlarmLogicConstant.o AlarmDetector.o
 OBJS += Sqlite3.o Sqlite3JsonTalker.o Sqlite3UdpListener.o
 OBJS += AlarmHandler.o UdpSocket.o UdpListener.o Builder.o
-OBJS += Equipment.o
+OBJS += Equipment.o Property.o
 CC = g++ -std=c++17
 CFLAGS = -Wall -c
 LFLAGS = -Wall
@@ -108,6 +108,9 @@ FileIOer.o: ../MyLib/File/FileIOer.h ../MyLib/File/FileIOer.cpp
 
 Equipment.o: Equipment/Equipment.h Equipment/Equipment.cpp
 	$(CC) $(CFLAGS) Equipment/Equipment.cpp
+
+Property.o: Equipment/Property.h Equipment/Property.cpp
+	$(CC) $(CFLAGS) Equipment/Property.cpp
 
 clean:
 	rm -f $(binaries) *.o
