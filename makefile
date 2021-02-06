@@ -6,6 +6,7 @@ OBJS += SerialPort.o SyncedSerialPort.o PrioritizedValue.o AlarmLogicConstant.o 
 OBJS += Sqlite3.o Sqlite3JsonTalker.o Sqlite3UdpListener.o
 OBJS += AlarmHandler.o UdpSocket.o UdpListener.o Builder.o
 OBJS += Equipment.o Property.o
+OBJS += ConfigStorage.o ChannelManager.o EquipmentManager.o SerialPortManager.o
 CC = g++ -std=c++17
 CFLAGS = -Wall -c
 LFLAGS = -Wall
@@ -111,6 +112,18 @@ Equipment.o: Equipment/Equipment.h Equipment/Equipment.cpp
 
 Property.o: Equipment/Property.h Equipment/Property.cpp
 	$(CC) $(CFLAGS) Equipment/Property.cpp
+
+ConfigStorage.o: Storage/ConfigStorage.h Storage/ConfigStorage.cpp
+	$(CC) $(CFLAGS) Storage/ConfigStorage.cpp
+
+ChannelManager.o: Integrator/ChannelManager.h Integrator/ChannelManager.cpp
+	$(CC) $(CFLAGS) Integrator/ChannelManager.cpp
+
+EquipmentManager.o: Integrator/EquipmentManager.h Integrator/EquipmentManager.cpp
+	$(CC) $(CFLAGS) Integrator/EquipmentManager.cpp
+
+SerialPortManager.o: Integrator/SerialPortManager.h Integrator/SerialPortManager.cpp
+	$(CC) $(CFLAGS) Integrator/SerialPortManager.cpp
 
 clean:
 	rm -f $(binaries) *.o

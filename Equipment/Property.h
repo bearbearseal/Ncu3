@@ -12,7 +12,7 @@ private:
     public:
         Shadow(Property& _me) : me(_me) {}
         virtual ~Shadow() {}
-		void catch_value_change(const Value& newValue, std::chrono::time_point<std::chrono::system_clock> theMoment) { printf("I'm called\n"); me.catch_value_change(newValue); }
+		void catch_value_change(const Value& newValue, std::chrono::time_point<std::chrono::system_clock> theMoment) { me.catch_value_change(newValue); }
         
     private:
         Property& me;

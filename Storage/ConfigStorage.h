@@ -42,7 +42,7 @@ public:
         uint8_t type;
     };
 
-    std::unordered_map<uint16_t, ModbusIpPoint> get_modbus_ip_point();
+    std::unordered_map<uint16_t, std::vector<ModbusIpPoint>> get_modbus_ip_point();
 
     struct ModbusRtuPoint {
         uint16_t pointId;
@@ -50,7 +50,7 @@ public:
         uint8_t type;
     };
 
-    std::unordered_map<uint16_t, ModbusRtuPoint> get_modbus_rtu_point();
+    std::unordered_map<uint16_t, std::vector<ModbusRtuPoint>> get_modbus_rtu_point();
 
     struct ModbusRtuChannelData {
         uint16_t deviceId;
@@ -80,7 +80,7 @@ public:
         uint16_t outOperation;
     };
 
-    std::unordered_map<uint16_t, PropertyData> get_property_data();
+    std::unordered_map<uint16_t, std::vector<PropertyData>> get_property_data();
 
 private:
     Sqlite3 theDb;

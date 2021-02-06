@@ -10,6 +10,7 @@ class ModbusRegisterValue
 public:
 	enum class DataType
 	{
+		UNKNOWN = 0,
 		COIL = 1,
 		INT16 = 11,
 		INT32_LM = 12,
@@ -34,6 +35,7 @@ public:
 	bool set_register_value(const std::vector<RegisterValue>& newValue, unsigned index=0);
 	std::vector<RegisterValue> convert_to_register_value(const Value& rawValue);
 	Value get_value() const;
+	static DataType convert_integer_to_data_type(uint16_t type);
 	static uint8_t get_register_count(DataType type);
 
 private:

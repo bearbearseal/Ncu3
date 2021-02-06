@@ -59,7 +59,7 @@
   ,
   {"Command": "Write","Branch": {"Id": "Equipment1", "Branch":{"Id": "Register1"}},"Value":2}
   ,
-  {"Command": "Write","Branch": {"Id": "Equipment1", "Branch":{"Id": "Register1_aug"}},"Value":2}
+  {"Command": "Write","Branch": {"Id": "Equipment1", "Branch":{"Id": "Register1_aug"}},"Value":4}
   ,
   {"Command": "Write","Branch": {"Id": "Equipment1", "Branch":{"Id": "Coil1"}},"Value":2}
   ,

@@ -259,10 +259,6 @@ bool ModbusIpProcess::do_write_holding_register_query(uint16_t& sequenceNumber, 
         ++sequenceNumber;
         //cout<<"Writing to holding registers\n";
         auto writeData = ModbusIP::construct_write_multiple_holding_registers(sequenceNumber, config.slaveAddress, registerAddress, values);
-        for(unsigned i = 0; i < writeData.first.size(); ++i) {
-            printf("[%03u]", uint8_t(writeData.first[i]));
-        }
-        printf("\n");
         if(!socket.write(writeData.first)) {
             lock_guard<mutex> lock(writeHoldingRegisterData.mapMutex);
             writeHoldingRegisterData.valueMap.clear();

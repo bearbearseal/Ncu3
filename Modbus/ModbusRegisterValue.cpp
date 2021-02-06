@@ -9,6 +9,7 @@ ModbusRegisterValue::ModbusRegisterValue(DataType _type, bool isSmallEndian)
 	smallEndian = isSmallEndian;
 	switch (type)
 	{
+	case DataType::UNKNOWN:
 	case DataType::COIL:
 	case DataType::INT16:
 	case DataType::UINT16:
@@ -77,6 +78,7 @@ uint8_t ModbusRegisterValue::get_register_count(DataType type)
 {
 	switch (type)
 	{
+	case DataType::UNKNOWN:	//Should not happen
 	case DataType::COIL:	//Should not happen
 		return 0;
 	case DataType::INT16:
@@ -441,8 +443,32 @@ Value ModbusRegisterValue::get_value() const
 		retVal.set_float(*((float*)&result));
 		break;
 	}
+	default:
+		break;
 	}
 	return retVal;
+}
+
+ModbusRegisterValue::DataType ModbusRegisterValue::convert_integer_to_data_type(uint16_t type) {
+	switch(type) {
+		case uint16_t(DataType::COIL):
+		case uint16_t(DataType::INT16):
+		case uint16_t(DataType::INT32_LM):
+		case uint16_t(DataType::INT32_ML):
+		case uint16_t(DataType::INT64_LM):
+		case uint16_t(DataType::INT64_ML):
+		case uint16_t(DataType::UINT16):
+		case uint16_t(DataType::UINT32_LM):
+		case uint16_t(DataType::UINT32_ML):
+		case uint16_t(DataType::UINT64_LM):
+		case uint16_t(DataType::UINT64_ML):
+		case uint16_t(DataType::FLOAT32_LM):
+		case uint16_t(DataType::FLOAT32_ML):
+		case uint16_t(DataType::FLOAT64_LM):
+		case uint16_t(DataType::FLOAT64_ML):
+		return DataType(type);
+	}
+	return DataType::UNKNOWN;
 }
 
 std::vector<RegisterValue> ModbusRegisterValue::convert_to_register_value(const Value& rawValue)
@@ -842,6 +868,8 @@ std::vector<RegisterValue> ModbusRegisterValue::convert_to_register_value(const 
 		}
 		break;
 	}
+	default:
+		break;
 	}
 	return retVal;
 }

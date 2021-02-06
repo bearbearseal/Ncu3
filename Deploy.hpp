@@ -1,6 +1,12 @@
 #include "VariableTree/VariableTree.h"
 #include "VariableTree/TcpTalker.h"
 #include "Builder/Builder.h"
+#include "Storage/ConfigStorage.h"
+#include "Integrator/ChannelManager.h"
+#include "Integrator/EquipmentManager.h"
+#include "Integrator/SerialPortManager.h"
+#include "InOutOperation/OpStorage.h"
+
 #include <thread>
 
 using namespace std;
@@ -77,5 +83,23 @@ namespace Deploy {
 		while(1) {
 			this_thread::sleep_for(1s);
 		}
+    }
+
+    void run_equipment() {
+        ConfigStorage configData("/var/sqlite/NcuConfig.db");
+        SerialPortManager serialPortManager(configData);
+        ChannelManager channelManager(configData, serialPortManager);
+        OpStorage opStorage("/var/sqlite/NcuConfig.db", "/var/InOutOp");
+        EquipmentManager equipmentManager(configData, channelManager, opStorage);
+
+        shared_ptr<VariableTree> root = make_shared<VariableTree>();
+        equipmentManager.attach_equipments(root, true, true);
+        TcpTalker tcpTalker(10520);
+        tcpTalker.set_target(root);
+        tcpTalker.start();
+        channelManager.start();
+        while(1) {
+            this_thread::sleep_for(1s);
+        }
     }
 };

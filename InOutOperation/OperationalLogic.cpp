@@ -5,7 +5,6 @@ using namespace std;
 OperationalLogic::OperationalLogic(const std::vector<Value>& _constantValue, size_t _volatileCount) {
     constantValue = _constantValue;
     volatileCount = _volatileCount;
-    printf("Volatile count: %lu.\n", volatileCount);
 }
 
 OperationalLogic::~OperationalLogic() {
@@ -49,29 +48,21 @@ Value OperationalLogic::execute(const Value& value) {
     size_t instructionDone = 0;
     for(size_t i=0; i<instructionList.size();) {
         if(instructionList[i].type == InstructionType::Jump) {
-            printf("Executing Jump type.\n");
             const Jump& jumpInstruction = std::get<Jump>(instructionList[i].instruction);
             if(jumpInstruction.execute(volatileValue, constantValue)) {
                 //jump
-                printf("Jumping to %lu\n", instructionList[i].index);
                 i = instructionList[i].index;
             }
             else {
-                printf("No jump.\n");
                 ++i;
             }
         }
         else if(instructionList[i].type == InstructionType::Operation) {
-            printf("Executing operation type.\n");
             const Operation& operationInstruction = std::get<Operation>(instructionList[i].instruction);
-            printf("Dest Index: %lu\n", instructionList[i].index);
             volatileValue[instructionList[i].index] = operationInstruction.execute(volatileValue, constantValue);
-            printf("Value after operation: %s, index %lu\n", volatileValue[instructionList[i].index].to_string().c_str(), instructionList[i].index);
             ++i;
         }
         else {
-            printf("Executing return type.\n");
-            printf("Return index: %lu\n", instructionList[i].index);
             return volatileValue[instructionList[i].index];
         }
         ++instructionDone;
