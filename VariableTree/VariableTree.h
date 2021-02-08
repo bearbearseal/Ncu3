@@ -6,6 +6,7 @@
 #include <chrono>
 #include "../../MyLib/Basic/Variable.h"
 #include "../../MyLib/Basic/HashKey.h"
+#include "../../MyLib/Basic/PrioritizedValue.h"
 
 class VariableTree
 {
@@ -53,9 +54,11 @@ public:
 
 	std::shared_ptr<VariableTree> get_child(const HashKey::EitherKey& key) const;
 
-	virtual bool write_value(const Value& value, uint8_t priority = 0);
-	virtual bool set_value(const Value& value, uint8_t priority = 0);
-	virtual Value get_value() const;
+	bool write_value(const Value& value, uint8_t priority = 1);
+	bool set_value(const Value& value, uint8_t priority = 1);
+	bool unset_value(uint8_t priority);
+	Value get_value() const;
+	uint8_t get_out_priority() const;
 
 	void add_add_remove_listener(std::shared_ptr<AddRemoveListener> listener);
 	void remove_add_remove_listener(std::shared_ptr<AddRemoveListener> listener);
@@ -100,7 +103,8 @@ private:
 	std::unique_ptr<BranchData> branchData;
 
 	struct LeafData {
-		//mutable std::mutex dataMutex;
+		mutable std::mutex dataMutex;
+		PrioritizedValue outValue;
 		std::shared_ptr<Variable> variable;
 		std::mutex listenerMutex;
 		std::unordered_map<void*, std::weak_ptr<ValueChangeListener>> valueChangeListeners;

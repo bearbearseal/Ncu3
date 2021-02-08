@@ -83,6 +83,12 @@ string TreeBrowser::process_command(const string& input) {
 	else if (!command.compare(COMMAND_SetValue)) {
 		return process_command_set_value(theJson);
 	}
+	else if (!command.compare(COMMAND_UnsetValue)) {
+		return process_command_unset_value(theJson);
+	}
+	else if (!command.compare(COMMAND_GetPriority)) {
+		return process_command_get_priority(theJson);
+	}
 	else if (!command.compare(COMMAND_CreateBranch)) {
 		return process_command_create_branch(theJson);
 	}
@@ -320,7 +326,7 @@ string TreeBrowser::process_command_read_value(const nlohmann::json& jData) {
 	return retVal.dump() + '\n';
 }
 
-std::string TreeBrowser::process_command_set_value(const nlohmann::json& jData) {
+string TreeBrowser::process_command_set_value(const nlohmann::json& jData) {
 	nlohmann::json retVal;
 	auto shared = cursor.lock();
 	if (shared == nullptr) {
@@ -352,6 +358,19 @@ std::string TreeBrowser::process_command_set_value(const nlohmann::json& jData) 
 		retVal["Message"] = "Invalid value type";
 		return retVal.dump() + '\n';
 	}
+	uint8_t priority = 1;
+	if(jData.contains("Priority")) {
+		const nlohmann::json& jPriority = jData["Priority"];
+		if(jPriority.is_number_unsigned()) {
+			uint64_t rawPriority = jPriority.get<uint64_t>();
+			if(rawPriority > 255) {
+				priority = 255;
+			}
+			else {
+				priority = rawPriority;
+			}
+		}
+	}
 	auto target = recursive_move_to_branch(jData, shared);
 	if (target == nullptr) {
 		retVal["Status"] = "Bad";
@@ -363,7 +382,7 @@ std::string TreeBrowser::process_command_set_value(const nlohmann::json& jData) 
 		retVal["Message"] = "Target is not a leaf";
 		return retVal.dump() + '\n';
 	}
-	if (target->set_value(value)) {
+	if (target->set_value(value, priority)) {
 		retVal["Status"] = "Good";
 	}
 	else {
@@ -371,6 +390,73 @@ std::string TreeBrowser::process_command_set_value(const nlohmann::json& jData) 
 		retVal["Message"] = "Set value rejected";
 	}
 	retVal["Status"] = "Good";
+	return retVal.dump() + '\n';
+}
+
+string TreeBrowser::process_command_unset_value(const nlohmann::json& jData) {
+	nlohmann::json retVal;
+	auto shared = cursor.lock();
+	if (shared == nullptr) {
+		retVal["Status"] = "Bad";
+		retVal["Message"] = "Branch deleted";
+		return retVal.dump() + '\n';
+	}
+	uint8_t priority = 1;
+	if(jData.contains("Priority")) {
+		const nlohmann::json& jPriority = jData["Priority"];
+		if(jPriority.is_number_unsigned()) {
+			uint64_t rawPriority = jPriority.get<uint64_t>();
+			if(rawPriority > 255) {
+				priority = 255;
+			}
+			else {
+				priority = rawPriority;
+			}
+		}
+	}
+	auto target = recursive_move_to_branch(jData, shared);
+	if (target == nullptr) {
+		retVal["Status"] = "Bad";
+		retVal["Message"] = "Branch not found";
+		return retVal.dump() + '\n';
+	}
+	if (!target->isLeaf) {
+		retVal["Status"] = "Bad";
+		retVal["Message"] = "Target is not a leaf";
+		return retVal.dump() + '\n';
+	}
+	if (target->unset_value(priority)) {
+		retVal["Status"] = "Good";
+	}
+	else {
+		retVal["Status"] = "Bad";
+		retVal["Message"] = "Set value rejected";
+	}
+	retVal["Status"] = "Good";
+	return retVal.dump() + '\n';
+}
+
+string TreeBrowser::process_command_get_priority(const nlohmann::json& jData) {
+	nlohmann::json retVal;
+	auto shared = cursor.lock();
+	if (shared == nullptr) {
+		retVal["Status"] = "Bad";
+		retVal["Message"] = "Branch deleted";
+		return retVal.dump() + '\n';
+	}
+	auto target = recursive_move_to_branch(jData, shared);
+	if (target == nullptr) {
+		retVal["Status"] = "Bad";
+		retVal["Message"] = "Branch not found";
+		return retVal.dump() + '\n';
+	}
+	if (!target->isLeaf) {
+		retVal["Status"] = "Bad";
+		retVal["Message"] = "Target is not a leaf";
+		return retVal.dump() + '\n';
+	}
+	retVal["Status"] = "Good";
+	retVal["Priority"] = target->get_out_priority();
 	return retVal.dump() + '\n';
 }
 
@@ -406,6 +492,19 @@ string TreeBrowser::process_command_write_value(const nlohmann::json& jData) {
 		retVal["Message"] = "Invalid value type";
 		return retVal.dump() + '\n';
 	}
+	uint8_t priority = 1;
+	if(jData.contains("Priority")) {
+		const nlohmann::json& jPriority = jData["Priority"];
+		if(jPriority.is_number_unsigned()) {
+			uint64_t rawPriority = jPriority.get<uint64_t>();
+			if(rawPriority > 255) {
+				priority = 255;
+			}
+			else {
+				priority = rawPriority;
+			}
+		}
+	}
 	auto target = recursive_move_to_branch(jData, shared);
 	if (target == nullptr) {
 		retVal["Status"] = "Bad";
@@ -417,7 +516,7 @@ string TreeBrowser::process_command_write_value(const nlohmann::json& jData) {
 		retVal["Message"] = "Target is not a leaf";
 		return retVal.dump() + '\n';
 	}
-	if (target->write_value(value)) {
+	if (target->write_value(value, priority)) {
 		retVal["Status"] = "Good";
 	}
 	else {

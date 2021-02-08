@@ -1,65 +1,21 @@
 [
   {"Command": "Show"}
   ,
-  {
-    "Command": "Read",
-    "Id": "LeafId"
-  },
-  {
-    "Command": "ListenValue",
-    "Tag": "AnyValue",
-    "Branch": {
-      "Id": "BranchId",
-      "Branch": {
-        "Id": 0
-      }
-    }
-  },
-  {
-    "Command": "ListenValue",
-    "Tag": "AnyValue",
-    "Id": "BranchId"
-  },
-  {
-    "Command": "ListenValue",
-    "Tag": "AnyValue"
-  },
-  {
-    "Command": "ListenBranch"
-  },
-  {"Command": "Read","Id": "1"}
-  ,
-  {"Command":"Write", "Id":"1", "Value":23}
-  ,
-  {
-    "Command": "Read",
-    "Branch": {
-      "Id": "BranchId",
-      "Branch": {
-        "Id": 0
-      }
-    }
-  },
-  {
-    "Command": "Write",
-    "Value": "Value"
-  },
-  {
-    "Command": "Write",
-    "Id": "BranchId",
-    "Value": "Value"
-  },
   {"Command":"MoveDown", "Id":"1"}
   ,
-  {"Command":"MoveDown", "Id":"Equipment"}
+  {"Command":"MoveDown", "Id":"Equipment1"}
   ,
   {"Command":"MoveDown", "Id":"Coil"}
   ,
   {"Command": "Write","Branch": {"Id": "Equipment", "Branch":{"Id": "Holding Register", "Branch":{"Id":"0001"}}},"Value":2}
   ,
-  {"Command": "Write","Branch": {"Id": "Equipment1", "Branch":{"Id": "Register1"}},"Value":2}
+  {"Command": "Write","Branch": {"Id": "Equipment1", "Branch":{"Id": "Register1"}},"Value":6}
   ,
-  {"Command": "Write","Branch": {"Id": "Equipment1", "Branch":{"Id": "Register1_aug"}},"Value":4}
+  {"Command": "Write","Branch": {"Id": "Equipment1", "Branch":{"Id": "Register2"}},"Value":100}
+  ,
+  {"Command": "Write","Branch": {"Id": "Equipment1", "Branch":{"Id": "Register3"}},"Value":100}
+  ,
+  {"Command": "Write","Branch": {"Id": "Equipment1", "Branch":{"Id": "Register4"}},"Value":12}
   ,
   {"Command": "Write","Branch": {"Id": "Equipment1", "Branch":{"Id": "Coil1"}},"Value":2}
   ,
@@ -119,7 +75,11 @@
   ,
   {"Command": "Read","Branch": {"Id": "Equipment1", "Branch": {"Id": "Register1"}}}
   ,
-  {"Command": "Read","Branch": {"Id": "Equipment1", "Branch": {"Id": "Register1_aug"}}}
+  {"Command": "Read","Branch": {"Id": "Equipment1", "Branch": {"Id": "Register2"}}}
+  ,
+  {"Command": "Read","Branch": {"Id": "Equipment1", "Branch": {"Id": "Register3"}}}
+  ,
+  {"Command": "Read","Branch": {"Id": "Equipment1", "Branch": {"Id": "Register4"}}}
   ,
   {"Command": "Read","Branch": {"Id": 8,"Branch": {"Id": 2}}}
   ,
@@ -130,8 +90,4 @@
   {"Command":"Write", "Id":"2", "Value":"234"}
   ,
   {"Command": "MoveToTop"}
-  ,
-  {
-    "Command": "BackToTop"
-  }
 ]
