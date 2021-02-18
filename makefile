@@ -7,6 +7,7 @@ OBJS += Sqlite3.o Sqlite3JsonTalker.o Sqlite3UdpListener.o
 OBJS += AlarmHandler.o UdpSocket.o UdpListener.o Builder.o
 OBJS += Equipment.o Property.o
 OBJS += ConfigStorage.o ChannelManager.o EquipmentManager.o SerialPortManager.o
+OBJS += TimeEventGun.o
 CC = g++ -std=c++17
 CFLAGS = -Wall -c
 LFLAGS = -Wall
@@ -124,6 +125,9 @@ EquipmentManager.o: Integrator/EquipmentManager.h Integrator/EquipmentManager.cp
 
 SerialPortManager.o: Integrator/SerialPortManager.h Integrator/SerialPortManager.cpp
 	$(CC) $(CFLAGS) Integrator/SerialPortManager.cpp
+
+TimeEventGun.o: Schedule/TimeEventGun.h Schedule/TimeEventGun.cpp
+	$(CC) $(CFLAGS) Schedule/TimeEventGun.cpp
 
 clean:
 	rm -f $(binaries) *.o
