@@ -41,9 +41,9 @@ public:
 
     bool applicable_today() const;
     bool applicable(uint16_t year, uint8_t month, uint8_t day) const;
+    bool applicable(const struct tm& theTm) const;
 
 private:
-    bool applicable(const struct tm& theTm) const;
     bool examine(const Condition& condition, const struct tm& theTm) const;
     bool condition_check(uint16_t subject, Comparison compare, uint16_t value) const;
 
