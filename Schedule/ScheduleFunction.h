@@ -20,7 +20,11 @@ namespace ScheduleFunction
 
     HourMinuteSecond day_time_to_hms(uint32_t theTime);
 
-    time_t hms_to_local_time_t(uint8_t hour, uint8_t minute, uint8_t second);
+    time_t today_hms_to_local_time_t(uint8_t hour, uint8_t minute, uint8_t second);
+
+    time_t today_second_to_local_time_t(uint32_t daySecond);
+
+    uint32_t get_day_second_of(time_t theTime);
 }
 
 #endif

@@ -40,13 +40,14 @@ void Schedule::add_listener(std::weak_ptr<Listener> listener)
 void Schedule::start()
 {
     time_t nowInSec = chrono::system_clock::to_time_t(chrono::system_clock::now());
-    uint32_t daySec = uint32_t(nowInSec % (24 * 3600));
+    uint32_t daySec = ScheduleFunction::get_day_second_of(nowInSec);
+    time_t today0Second = ScheduleFunction::today_hms_to_local_time_t(0, 0, 0);
     activeTimeTable = get_applicable_time_table();
     if (activeTimeTable == nullptr)
     {
         printf("Active time table is null.\n");
         //Set an event, tomolo 00:00:00
-        time_t tomolo = nowInSec - daySec + 24 * 3600;
+        time_t tomolo = today0Second + 24 * 3600;
         timer->add_time_event(tomolo, timerListener, 0); //0 for tomolo event
     }
     else
@@ -81,8 +82,8 @@ void Schedule::start()
         {
             printf("Got an event.\n");
             //Set an event to be call at theEvent time
-            time_t nextEventTime = nowInSec - daySec + theEvent.first;
-            timer->add_time_event(nextEventTime, timerListener, 1);
+            time_t nextEventTime = ScheduleFunction::today_second_to_local_time_t(theEvent.first);//nowInSec - daySec + theEvent.first;
+            timer->add_time_event(nextEventTime - nowInSec, timerListener, 1);
         }
     }
 }
@@ -247,8 +248,10 @@ std::shared_ptr<TimeTable> Schedule::get_applicable_time_table()
     {
         if (i->second.scheduleRule.applicable(timeStruct))
         {
+            printf("would follow time table %p\n", i->second.timeTable.get());
             return i->second.timeTable;
         }
     }
+    printf("would follow default time table %p\n", defaultTimeTable.get());
     return defaultTimeTable;
 }
