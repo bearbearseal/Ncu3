@@ -1,6 +1,6 @@
 /****************************************************
  * Bug: Interval should be inclusive of the end
- ****************************************************/ 
+ ****************************************************/
 
 #ifndef _TimeTable_H_
 #define _TimeTable_H_
@@ -13,40 +13,48 @@
 #include "../../MyLib/ITC/ITC.h"
 
 //Has information of what day what schedule to follow
-class TimeTable {
+class TimeTable
+{
 public:
-    struct IntervalData {
+    struct IntervalData
+    {
         uint32_t endSecond;
         Value value;
     };
-    struct DayTime {
+    struct DayTime
+    {
         uint8_t hour;
         uint8_t minute;
         uint8_t second;
     };
-    enum class EventType {
+    enum class EventType
+    {
         StartInterval,
         EndInterval,
         WriteValue,
-        None
+        Invalid
     };
-    struct EventData {
+    static bool is_event_type(int eventType) { return (eventType >= int(EventType::StartInterval) && eventType <= int(EventType::Invalid)); }
+    static bool is_valid_event_type(int eventType) { return (eventType >= int(EventType::StartInterval) && eventType <= int(EventType::WriteValue)); }
+    static EventType string_to_event_type(const std::string& eventType);
+    struct EventData
+    {
         EventType type;
         Value value;
     };
     TimeTable();
     virtual ~TimeTable();
 
-    bool add_write_event(const Value& value, const DayTime& eventTime);
+    bool add_write_event(const Value &value, const DayTime &eventTime);
     //Bug, should be inclusive of begin and end
-    bool add_interval(const Value& value, const DayTime& begin, const DayTime& end);
+    bool add_interval(const Value &value, const DayTime &begin, const DayTime &end);
 
     //Return endSecond max value if no interval found
-    const IntervalData& get_interval_value(uint32_t daySecond) const;
-    std::pair<uint32_t, const EventData&> get_the_event_after(uint32_t daySecond) const;
-    std::pair<uint32_t, const EventData&> get_the_event_at_or_after(uint32_t daySecond) const;
-    std::pair<uint32_t, const EventData&> get_first_event() const;
-    const EventData& get_event_data(uint32_t dataSecond) const;
+    const IntervalData &get_interval_value(uint32_t daySecond) const;
+    std::pair<uint32_t, const EventData &> get_the_event_after(uint32_t daySecond) const;
+    std::pair<uint32_t, const EventData &> get_the_event_at_or_after(uint32_t daySecond) const;
+    std::pair<uint32_t, const EventData &> get_first_event() const;
+    const EventData &get_event_data(uint32_t dataSecond) const;
     //excluding same value, strictly > and <, not >= and <=
     //std::pair<const std::pair<uint32_t, EventData>&, const std::pair<uint32_t, EventData>&> get_bound_events(uint32_t daySecond) const;
 

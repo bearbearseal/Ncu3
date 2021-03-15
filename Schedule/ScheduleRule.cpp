@@ -15,7 +15,8 @@ ScheduleRule::~ScheduleRule()
 
 void ScheduleRule::add_conditions(const std::vector<Condition> &_conditions)
 {
-    if(_conditions.size()) {
+    if (_conditions.size())
+    {
         conditionsList.push_back(_conditions);
     }
 }
@@ -173,6 +174,8 @@ bool ScheduleRule::examine(const Condition &condition, const struct tm &theTm) c
             ++subject;
         }
         break;
+    default:
+        return false;
     }
     return condition_check(subject, condition.compare, condition.value);
 }
@@ -194,6 +197,110 @@ bool ScheduleRule::condition_check(uint16_t subject, Comparison compare, uint16_
         return subject <= value;
     case Comparison::SMALLER:
         return subject < value;
+    default:
+        return false;
     }
     return false;
+}
+
+ScheduleRule::Subject ScheduleRule::string_to_subject(const std::string &stringForm)
+{
+    string converted = stringForm;
+    transform(converted.begin(), converted.end(), converted.begin(), [](unsigned char c) { return std::tolower(c); });
+    if (!converted.compare("weekday"))
+    {
+        return Subject::WEEK_DAY;
+    }
+    else if (!converted.compare("month"))
+    {
+        return Subject::MONTH;
+    }
+    else if (!converted.compare("monthday"))
+    {
+        return Subject::MONTH_DAY;
+    }
+    else if (!converted.compare("monthweek"))
+    {
+        return Subject::MONTH_WEEK;
+    }
+    else if (!converted.compare("monthsunday"))
+    {
+        return Subject::MONTH_SUNDAY;
+    }
+    else if (!converted.compare("monthmonday"))
+    {
+        return Subject::MONTH_MONDAY;
+    }
+    else if (!converted.compare("monthtuesday"))
+    {
+        return Subject::MONTH_TUESDAY;
+    }
+    else if (!converted.compare("monthwednesday"))
+    {
+        return Subject::MONTH_WEDNESDAY;
+    }
+    else if (!converted.compare("monththursday"))
+    {
+        return Subject::MONTH_THURSDAY;
+    }
+    else if (!converted.compare("monthfriday"))
+    {
+        return Subject::MONTH_FRIDAY;
+    }
+    else if (!converted.compare("monthsaturday"))
+    {
+        return Subject::MONTH_SATURDAY;
+    }
+    else if (!converted.compare("year"))
+    {
+        return Subject::YEAR;
+    }
+    else if (!converted.compare("yearday"))
+    {
+        return Subject::YEAR_DAY;
+    }
+    else if (!converted.compare("yearweek"))
+    {
+        return Subject::YEAR_WEEK;
+    }
+    return Subject::INVALID;
+}
+
+ScheduleRule::Comparison ScheduleRule::string_to_comparison(const std::string &stringForm)
+{
+    string converted = stringForm;
+    transform(converted.begin(), converted.end(), converted.begin(), [](unsigned char c) { return std::tolower(c); });
+    if (!converted.compare(">"))
+    {
+        return Comparison::GREATER;
+    }
+    else if (!converted.compare(">="))
+    {
+        return Comparison::GREATER_EQUAL;
+    }
+    else if (!converted.compare("=="))
+    {
+        return Comparison::EQUAL;
+    }
+    else if (!converted.compare("="))
+    {
+        return Comparison::EQUAL;
+    }
+    else if (!converted.compare("!="))
+    {
+        return Comparison::NOT_EQUAL;
+    }
+    else if (!converted.compare("<>"))
+    {
+        return Comparison::NOT_EQUAL;
+    }
+    else if (!converted.compare("<="))
+    {
+        return Comparison::SMALLER_EQUAL;
+    }
+    else if (!converted.compare("<"))
+    {
+        return Comparison::SMALLER;
+    }
+    return Comparison::INVALID;
 }

@@ -133,3 +133,70 @@ unordered_map<uint16_t, vector<ConfigStorage::PropertyData>> ConfigStorage::get_
     }
     return retVal;
 }
+
+unordered_map<uint16_t, vector<ConfigStorage::ScheduleRuleConditionData>> ConfigStorage::get_schedule_condition_data()
+{
+    unordered_map<uint16_t, vector<ConfigStorage::ScheduleRuleConditionData>> retVal;
+    auto result = theDb.execute_query("Select ConditionId, Subject, Comparison, Value from ScheduleCondition");
+    for (size_t i = 0; i < result->get_row_count(); ++i)
+    {
+        uint16_t conditionId = result->get_integer(i, "ConditionId").second;
+        vector<ScheduleRuleConditionData>& theList = retVal[conditionId];
+        ScheduleRuleConditionData entry;
+        entry.subject = result->get_string(i, "Subject").second;
+        entry.comparison = result->get_string(i, "Comparison").second;
+        entry.value = result->get_integer(i, "Value").second;
+        theList.push_back(entry);
+    }
+    return retVal;
+}
+
+unordered_map<uint16_t, vector<uint16_t>> ConfigStorage::get_schedule_rule_and_condition_data()
+{
+    unordered_map<uint16_t, vector<uint16_t>> retVal;
+    auto result = theDb.execute_query("Select RuleId, ConditionId from ScheduleRule");
+    for (size_t i = 0; i < result->get_row_count(); ++i)
+    {
+        uint16_t ruleId = result->get_integer(i, "RuleId").second;
+        vector<uint16_t>& theList = retVal[ruleId];
+        uint16_t scheduleId = result->get_integer(i, "ConditionId").second;
+        theList.push_back(scheduleId);
+    }
+    return retVal;
+}
+
+unordered_map<uint16_t, vector<ConfigStorage::ScheduleData>> ConfigStorage::get_schedule_data()
+{
+    unordered_map<uint16_t, vector<ScheduleData>> retVal;
+    auto result = theDb.execute_query("Select ScheduleId, RuleId, TimeTableId, Priority from Schedule");
+    for (size_t i = 0; i < result->get_row_count(); ++i)
+    {
+        uint16_t ruleId = result->get_integer(i, "ScheduleId").second;
+        vector<ScheduleData>& theList = retVal[ruleId];
+        ScheduleData entry;
+        entry.ruleId = result->get_integer(i, "RuleId").second;
+        entry.timeTableId = result->get_integer(i, "TimeTableId").second;
+        entry.priority = result->get_integer(i, "Priority").second;
+        theList.push_back(entry);
+    }
+    return retVal;
+}
+
+unordered_map<uint16_t, vector<ConfigStorage::TimeTableData>> ConfigStorage::get_time_table_data()
+{
+    unordered_map<uint16_t, vector<TimeTableData>> retVal;
+    auto result = theDb.execute_query("Select TimeTableId, EventType, Hour, Minute, Second, Value from TimeTable");
+    for (size_t i = 0; i < result->get_row_count(); ++i)
+    {
+        uint16_t timeTableId = result->get_integer(i, "TimeTableId").second;
+        vector<TimeTableData>& theList = retVal[timeTableId];
+        TimeTableData entry;
+        entry.eventType = result->get_string(i, "EventType").second;
+        entry.hour = result->get_integer(i, "Hour").second;
+        entry.minute = result->get_integer(i, "Minute").second;
+        entry.second = result->get_integer(i, "Second").second;
+        entry.valueString = result->get_string(i, "Value").second;
+        theList.push_back(entry);
+    }
+    return retVal;
+}

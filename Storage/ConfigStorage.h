@@ -82,6 +82,38 @@ public:
 
     std::unordered_map<uint16_t, std::vector<PropertyData>> get_property_data();
 
+    struct ScheduleRuleConditionData {
+        //size_t subject;
+        std::string subject;
+        //size_t comparison;
+        std::string comparison;
+        uint16_t value;
+    };
+
+    std::unordered_map<uint16_t, std::vector<ScheduleRuleConditionData>> get_schedule_condition_data();
+
+    //Get conditions of each scheduleRule
+    std::unordered_map<uint16_t, std::vector<uint16_t>> get_schedule_rule_and_condition_data();
+
+    struct ScheduleData {
+        uint16_t ruleId;
+        uint8_t priority;
+        uint16_t timeTableId;
+    };
+
+    std::unordered_map<uint16_t, std::vector<ScheduleData>> get_schedule_data();
+
+    struct TimeTableData {
+        uint8_t hour;
+        uint8_t minute;
+        uint8_t second;
+        std::string eventType;
+        //size_t eventType;
+        std::string valueString;
+    };
+
+    std::unordered_map<uint16_t, std::vector<TimeTableData>> get_time_table_data();
+
 private:
     Sqlite3 theDb;
 };

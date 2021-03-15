@@ -1,5 +1,6 @@
 OBJS = main.o ScheduleRule.o Schedule.o
-OBJS += TimeTable.o Timer.o ScheduleFunction.o
+OBJS += TimeTable.o Timer.o ScheduleManager.o ScheduleFunction.o
+OBJS += ConfigStorage.o Sqlite3.o
 OBJS += Value.o
 
 CC = g++ -std=c++2a
@@ -30,8 +31,17 @@ Timer.o: Timer.h Timer.cpp
 ScheduleFunction.o: ScheduleFunction.h ScheduleFunction.cpp
 	$(CC) $(CFLAGS) ScheduleFunction.cpp
 
+ScheduleManager.o: ScheduleManager.h ScheduleManager.cpp
+	$(CC) $(CFLAGS) ScheduleManager.cpp
+
 Value.o: ../../MyLib/Basic/Value.h ../../MyLib/Basic/Value.cpp
 	$(CC) $(CFLAGS) ../../MyLib/Basic/Value.cpp
+
+ConfigStorage.o: ../Storage/ConfigStorage.h ../Storage/ConfigStorage.cpp
+	$(CC) $(CFLAGS) ../Storage/ConfigStorage.cpp
+
+Sqlite3.o: ../../MyLib/Sqlite/Sqlite3.h ../../MyLib/Sqlite/Sqlite3.cpp
+	$(CC) $(CFLAGS) ../../MyLib/Sqlite/Sqlite3.cpp
 
 clean:
 	rm -f $(binaries) *.o

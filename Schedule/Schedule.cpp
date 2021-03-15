@@ -21,7 +21,7 @@ void Schedule::set_default_time_table(std::shared_ptr<TimeTable> timeTable)
     defaultTimeTable = timeTable;
 }
 
-void Schedule::add_time_table(std::shared_ptr<TimeTable> timeTable, const ScheduleRule &rules, uint8_t priority)
+void Schedule::add_time_table(std::shared_ptr<TimeTable> timeTable, std::shared_ptr<ScheduleRule> rules, uint8_t priority)
 {
     TimeTableData &entry = priority2TimeTableMap[priority];
     entry.timeTable = timeTable;
@@ -246,7 +246,7 @@ std::shared_ptr<TimeTable> Schedule::get_applicable_time_table()
     localtime_r(&timePoint_t, &timeStruct);
     for (auto i = priority2TimeTableMap.begin(); i != priority2TimeTableMap.end(); ++i)
     {
-        if (i->second.scheduleRule.applicable(timeStruct))
+        if (i->second.scheduleRule->applicable(timeStruct))
         {
             printf("would follow time table %p\n", i->second.timeTable.get());
             return i->second.timeTable;

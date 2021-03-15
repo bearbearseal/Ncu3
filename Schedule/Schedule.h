@@ -33,7 +33,7 @@ public:
     virtual ~Schedule();
 
     void set_default_time_table(std::shared_ptr<TimeTable> timeTable);
-    void add_time_table(std::shared_ptr<TimeTable> timeTable, const ScheduleRule& rules, uint8_t priority);
+    void add_time_table(std::shared_ptr<TimeTable> timeTable, std::shared_ptr<ScheduleRule> rules, uint8_t priority);
     void add_listener(std::weak_ptr<Listener> listener);
     void start();
 
@@ -42,7 +42,7 @@ public:
 
 private:
     struct TimeTableData {
-        ScheduleRule scheduleRule;
+        std::shared_ptr<ScheduleRule> scheduleRule;
         std::shared_ptr<TimeTable> timeTable;
     };
     std::shared_ptr<TimerListener> timerListener;

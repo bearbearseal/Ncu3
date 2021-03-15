@@ -1,10 +1,11 @@
 #include "TimeTable.h"
 #include "ScheduleFunction.h"
+#include <algorithm>
 
 using namespace std;
 
 //pair<uint32_t, Value> emptyEvent = {0, Value()};
-const std::pair<uint32_t, TimeTable::EventData> emptyEventEntry = {0, {TimeTable::EventType::None, Value()}};
+const std::pair<uint32_t, TimeTable::EventData> emptyEventEntry = {0, {TimeTable::EventType::Invalid, Value()}};
 TimeTable::IntervalData emptyInterval = {0, Value()};
 TimeTable::EventData emptyEvent;
 
@@ -101,50 +102,26 @@ const TimeTable::IntervalData &TimeTable::get_interval_value(uint32_t daySecond)
     printf("Returning valid result.\n");
     return lowerBound->second;
 }
-/*
-std::pair<uint32_t, TimeTable::EventData> TimeTable::get_the_event_after(const chrono::time_point<std::chrono::system_clock> &timePoint) const
-{
-    uint32_t daySecond = ScheduleFunction::chrono_time_to_day_second(timePoint);
-    auto i = eventMap.upper_bound(daySecond);
-    auto j = intervalMap.upper_bound(daySecond);
-    if (i == eventMap.end() && j == intervalMap.end())
-    {
-        EventData data;
-        data.type = EventType::None;
-        data.value = Value();
-        return {0, data};
-    }
-    else if(i == eventMap.end()) {
-        EventData data;
-        if(j->second.) {
 
-        }
-        data.type
+TimeTable::EventType TimeTable::string_to_event_type(const std::string& eventType)
+{
+    string converted = eventType;
+    transform(converted.begin(), converted.end(), converted.begin(), [](unsigned char c){ return std::tolower(c); });
+    if(!converted.compare("start"))
+    {
+        return EventType::StartInterval;
     }
-    return *i;
+    else if(!eventType.compare("end"))
+    {
+        return EventType::EndInterval;
+    }
+    else if(!eventType.compare("write"))
+    {
+        return EventType::WriteValue;
+    }
+    return EventType::Invalid;
 }
 
-std::pair<uint32_t, TimeTable::EventData> TimeTable::get_the_event_after(const DayTime &dayTime) const
-{
-    uint32_t daySecond = ScheduleFunction::hour_minute_second_to_day_second(dayTime.hour, dayTime.minute, dayTime.second);
-    auto i = eventMap.upper_bound(daySecond);
-    if (i == eventMap.end())
-    {
-        return emptyResult;
-    }
-    return *i;
-}
-
-std::pair<uint32_t, TimeTable::EventData> TimeTable::get_the_event_after(uint32_t daySecond) const
-{
-    auto i = eventMap.upper_bound(daySecond);
-    if (i == eventMap.end())
-    {
-        return emptyResult;
-    }
-    return *i;
-}
-*/
 pair<uint32_t, const TimeTable::EventData&> TimeTable::get_the_event_after(uint32_t daySecond) const
 {
     printf("In get event.\n");

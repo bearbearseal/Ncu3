@@ -1,5 +1,7 @@
+#include "../../MyLib/Sqlite/Sqlite3.h"
 #include "ScheduleRule.h"
 #include "ScheduleFunction.h"
+#include "ScheduleManager.h"
 #include "TimeTable.h"
 #include "Schedule.h"
 #include "Timer.h"
@@ -118,40 +120,40 @@ namespace Test
 
     void test_schedule()
     {
-        ScheduleRule sr1;
+        shared_ptr<ScheduleRule> sr1 = make_shared<ScheduleRule>();
         vector<ScheduleRule::Condition> conditionSunday;
         conditionSunday.push_back({ScheduleRule::Subject::WEEK_DAY, ScheduleRule::Comparison::GREATER_EQUAL, 0});
         conditionSunday.push_back({ScheduleRule::Subject::WEEK_DAY, ScheduleRule::Comparison::SMALLER, 5});
-        sr1.add_conditions(conditionSunday);
+        sr1->add_conditions(conditionSunday);
         vector<ScheduleRule::Condition> conditionSaturday;
         conditionSaturday.push_back({ScheduleRule::Subject::WEEK_DAY, ScheduleRule::Comparison::EQUAL, 6});
-        sr1.add_conditions(conditionSaturday);
+        sr1->add_conditions(conditionSaturday);
         vector<ScheduleRule::Condition> conditionChristmas;
         conditionChristmas.push_back({ScheduleRule::Subject::MONTH, ScheduleRule::Comparison::EQUAL, 12});
         conditionChristmas.push_back({ScheduleRule::Subject::MONTH_DAY, ScheduleRule::Comparison::EQUAL, 25});
-        sr1.add_conditions(conditionChristmas);
+        sr1->add_conditions(conditionChristmas);
         vector<ScheduleRule::Condition> conditionLaborDay;
         conditionLaborDay.push_back({ScheduleRule::Subject::MONTH, ScheduleRule::Comparison::EQUAL, 5});
         conditionLaborDay.push_back({ScheduleRule::Subject::MONTH_DAY, ScheduleRule::Comparison::EQUAL, 1});
-        sr1.add_conditions(conditionLaborDay);
+        sr1->add_conditions(conditionLaborDay);
 
-        ScheduleRule sr2;
+        shared_ptr<ScheduleRule> sr2 = make_shared<ScheduleRule>();
         vector<ScheduleRule::Condition> conditionSpring;
         conditionSpring.push_back({ScheduleRule::Subject::YEAR_DAY, ScheduleRule::Comparison::GREATER_EQUAL, 79});
         conditionSpring.push_back({ScheduleRule::Subject::YEAR_DAY, ScheduleRule::Comparison::SMALLER_EQUAL, 171});
-        sr2.add_conditions(conditionSpring);
+        sr2->add_conditions(conditionSpring);
         vector<ScheduleRule::Condition> conditionFall;
         conditionFall.push_back({ScheduleRule::Subject::YEAR_DAY, ScheduleRule::Comparison::GREATER_EQUAL, 64});
         conditionFall.push_back({ScheduleRule::Subject::YEAR_DAY, ScheduleRule::Comparison::SMALLER_EQUAL, 66});
-        sr2.add_conditions(conditionFall);
+        sr2->add_conditions(conditionFall);
 
-        ScheduleRule sr3;
+        shared_ptr<ScheduleRule> sr3;
         vector<ScheduleRule::Condition> condition1stSat;
         condition1stSat.push_back({ScheduleRule::Subject::MONTH_SATURDAY, ScheduleRule::Comparison::EQUAL, 1});
-        sr3.add_conditions(condition1stSat);
+        sr3->add_conditions(condition1stSat);
         vector<ScheduleRule::Condition> condition3rdSat;
         condition3rdSat.push_back({ScheduleRule::Subject::MONTH_SATURDAY, ScheduleRule::Comparison::EQUAL, 3});
-        sr3.add_conditions(condition3rdSat);
+        sr3->add_conditions(condition3rdSat);
 
         shared_ptr<TimeTable> timeTable1 = make_shared<TimeTable>();
         printf("Time table1 %p\n", timeTable1.get());
@@ -183,12 +185,23 @@ namespace Test
         schedule1.add_time_table(timeTable3, sr2, 2);
 
         shared_ptr<ScheduleListener> listener1 = make_shared<ScheduleListener>();
-        printf("Rule1 applicable: %s\n", sr1.applicable_today() ? "yes" : "no");
-        printf("Rule2 applicable: %s\n", sr2.applicable_today() ? "yes" : "no");
+        printf("Rule1 applicable: %s\n", sr1->applicable_today() ? "yes" : "no");
+        printf("Rule2 applicable: %s\n", sr2->applicable_today() ? "yes" : "no");
         //schedule1.add_listener(listener1);
         printf("Schedule1 starting.\n");
         schedule1.start();
         while (1)
+        {
+            this_thread::sleep_for(1s);
+        }
+    }
+
+    void test_schedule_manager()
+    {
+        ConfigStorage configStorage("/var/sqlite/NcuConfig.db");
+        ScheduleManager scheduleManager(configStorage);
+        scheduleManager.start();
+        while(1)
         {
             this_thread::sleep_for(1s);
         }
