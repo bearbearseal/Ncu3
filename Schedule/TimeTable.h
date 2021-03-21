@@ -60,8 +60,9 @@ public:
 
 private:
     std::map<uint32_t, EventData> eventMap;
-    //std::map<uint32_t, Value> eventMap;
     std::map<uint32_t, IntervalData> intervalMap;
+
+    void add_interval(const Value& value, uint32_t beginSecond, uint32_t endSecond);
 };
 
 #endif

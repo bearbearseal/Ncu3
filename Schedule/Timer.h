@@ -46,6 +46,7 @@ private:
     ITC<Message> itc;
     std::unique_ptr<ITC<Message>::FixedSocket> eventSocket;
     std::unique_ptr<ITC<Message>::FixedSocket> threadSocket;
+    size_t processState = 0;
 
     static void thread_process(Timer* me);
     void handle_add_event(const Message& message);

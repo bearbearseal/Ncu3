@@ -120,9 +120,10 @@ namespace Test
 
     void test_schedule()
     {
+        printf("Creating rule 1.\n");
         shared_ptr<ScheduleRule> sr1 = make_shared<ScheduleRule>();
         vector<ScheduleRule::Condition> conditionSunday;
-        conditionSunday.push_back({ScheduleRule::Subject::WEEK_DAY, ScheduleRule::Comparison::GREATER_EQUAL, 0});
+        conditionSunday.push_back({ScheduleRule::Subject::WEEK_DAY, ScheduleRule::Comparison::GREATER_EQUAL, 1});
         conditionSunday.push_back({ScheduleRule::Subject::WEEK_DAY, ScheduleRule::Comparison::SMALLER, 5});
         sr1->add_conditions(conditionSunday);
         vector<ScheduleRule::Condition> conditionSaturday;
@@ -137,6 +138,7 @@ namespace Test
         conditionLaborDay.push_back({ScheduleRule::Subject::MONTH_DAY, ScheduleRule::Comparison::EQUAL, 1});
         sr1->add_conditions(conditionLaborDay);
 
+        printf("Creating rule 2.\n");
         shared_ptr<ScheduleRule> sr2 = make_shared<ScheduleRule>();
         vector<ScheduleRule::Condition> conditionSpring;
         conditionSpring.push_back({ScheduleRule::Subject::YEAR_DAY, ScheduleRule::Comparison::GREATER_EQUAL, 79});
@@ -147,7 +149,8 @@ namespace Test
         conditionFall.push_back({ScheduleRule::Subject::YEAR_DAY, ScheduleRule::Comparison::SMALLER_EQUAL, 66});
         sr2->add_conditions(conditionFall);
 
-        shared_ptr<ScheduleRule> sr3;
+        printf("Creating rule 3.\n");
+        shared_ptr<ScheduleRule> sr3 = make_shared<ScheduleRule>();
         vector<ScheduleRule::Condition> condition1stSat;
         condition1stSat.push_back({ScheduleRule::Subject::MONTH_SATURDAY, ScheduleRule::Comparison::EQUAL, 1});
         sr3->add_conditions(condition1stSat);
@@ -156,27 +159,26 @@ namespace Test
         sr3->add_conditions(condition3rdSat);
 
         shared_ptr<TimeTable> timeTable1 = make_shared<TimeTable>();
-        printf("Time table1 %p\n", timeTable1.get());
-        timeTable1->add_interval(50, {11, 11, 11}, {11, 12, 12});
-        timeTable1->add_write_event(20, {11, 12, 30});
+        printf("Time table 1 %p.\n", timeTable1.get());
+        //timeTable1->add_interval(50, {11, 11, 11}, {11, 12, 12});
+        //timeTable1->add_write_event(20, {11, 12, 30});
 
         shared_ptr<TimeTable> timeTable2 = make_shared<TimeTable>();
         printf("Time table2 %p\n", timeTable2.get());
-        timeTable2->add_interval(0, {20, 00, 00}, {20, 00, 59});
-        timeTable2->add_interval(1, {20, 01, 00}, {20, 01, 59});
-        timeTable2->add_interval(0, {20, 02, 00}, {20, 02, 59});
-        timeTable2->add_interval(1, {20, 03, 00}, {20, 03, 59});
-        timeTable2->add_interval(0, {20, 04, 00}, {20, 04, 59});
-        timeTable2->add_interval(1, {20, 05, 00}, {20, 05, 59});
-        timeTable2->add_interval(0, {20, 06, 00}, {20, 06, 59});
-        timeTable2->add_interval(1, {20, 07, 00}, {20, 07, 59});
+        //timeTable2->add_interval(0, {23, 25, 00}, {23, 25, 30});
+        //timeTable2->add_interval(1, {23, 26, 00}, {23, 26, 30});
+        //timeTable2->add_interval(0, {23, 04, 00}, {23, 57, 30});
+        //timeTable2->add_interval(1, {23, 05, 00}, {23, 05, 30});
+        //timeTable2->add_interval(0, {23, 36, 00}, {23, 36, 30});
+        //timeTable2->add_interval(1, {23, 50, 00}, {23, 59, 30});
 
         shared_ptr<TimeTable> timeTable3 = make_shared<TimeTable>();
         printf("Time table3 %p\n", timeTable3.get());
-        timeTable3->add_interval(2, {20, 00, 30}, {20, 00, 50});
-        timeTable3->add_interval(3, {20, 01, 30}, {20, 01, 50});
-        timeTable3->add_interval(2, {20, 02, 30}, {20, 02, 50});
-        timeTable3->add_interval(3, {20, 03, 30}, {20, 03, 50});
+        timeTable3->add_interval(2, {22, 10, 30}, {22, 14, 50});
+        timeTable3->add_write_event(50, {22, 15, 50});
+        timeTable3->add_interval(3, {22, 15, 30}, {22, 16, 50});
+        //timeTable3->add_interval(2, {22, 02, 30}, {22, 02, 50});
+        //timeTable3->add_interval(3, {22, 03, 30}, {22, 03, 50});
 
         shared_ptr<Timer> timer = make_shared<Timer>();
         Schedule schedule1(timer);
@@ -187,7 +189,7 @@ namespace Test
         shared_ptr<ScheduleListener> listener1 = make_shared<ScheduleListener>();
         printf("Rule1 applicable: %s\n", sr1->applicable_today() ? "yes" : "no");
         printf("Rule2 applicable: %s\n", sr2->applicable_today() ? "yes" : "no");
-        //schedule1.add_listener(listener1);
+        schedule1.add_listener(listener1);
         printf("Schedule1 starting.\n");
         schedule1.start();
         while (1)
@@ -200,6 +202,8 @@ namespace Test
     {
         ConfigStorage configStorage("/var/sqlite/NcuConfig.db");
         ScheduleManager scheduleManager(configStorage);
+        shared_ptr<ScheduleListener> scheduleListener = make_shared<ScheduleListener>();
+        scheduleManager.schedule_add_listener(1, scheduleListener);
         scheduleManager.start();
         while(1)
         {

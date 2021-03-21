@@ -56,9 +56,10 @@ time_t ScheduleFunction::today_second_to_local_time_t(uint32_t daySecond)
     time_t secNow = chrono::system_clock::to_time_t(chrono::system_clock::now());
     tm localTime;
     localtime_r(&secNow, &localTime);
-    localTime.tm_hour = (daySecond/(24*3600))%24;
+    localTime.tm_hour = (daySecond/3600)%24;
     localTime.tm_min = (daySecond/60)%60;
     localTime.tm_sec = daySecond%60;
+    printf("The local time now: %02u:%02u:%02u\n", localTime.tm_hour, localTime.tm_min, localTime.tm_sec);
     return mktime(&localTime);
 }
 

@@ -83,8 +83,9 @@ bool ScheduleRule::examine(const Condition &condition, const struct tm &theTm) c
         }
         break;
     case Subject::MONTH_SUNDAY:
-        if (!theTm.tm_wday)
+        if (theTm.tm_wday)
         {
+            //printf("Not Sunday, not applicable.\n");
             return false;
         }
         subject = theTm.tm_mday / 7;
@@ -96,6 +97,7 @@ bool ScheduleRule::examine(const Condition &condition, const struct tm &theTm) c
     case Subject::MONTH_MONDAY:
         if (theTm.tm_wday != 1)
         {
+            //printf("Not Monday, not applicable.\n");
             return false;
         }
         subject = theTm.tm_mday / 7;
@@ -107,6 +109,7 @@ bool ScheduleRule::examine(const Condition &condition, const struct tm &theTm) c
     case Subject::MONTH_TUESDAY:
         if (theTm.tm_wday != 2)
         {
+            //printf("Not Tuesday, not applicable.\n");
             return false;
         }
         subject = theTm.tm_mday / 7;
@@ -118,6 +121,7 @@ bool ScheduleRule::examine(const Condition &condition, const struct tm &theTm) c
     case Subject::MONTH_WEDNESDAY:
         if (theTm.tm_wday != 3)
         {
+            //printf("Not Wednesday, not applicable.\n");
             return false;
         }
         subject = theTm.tm_mday / 7;
@@ -129,6 +133,7 @@ bool ScheduleRule::examine(const Condition &condition, const struct tm &theTm) c
     case Subject::MONTH_THURSDAY:
         if (theTm.tm_wday != 4)
         {
+            //printf("Not Thursday, not applicable.\n");
             return false;
         }
         subject = theTm.tm_mday / 7;
@@ -140,6 +145,7 @@ bool ScheduleRule::examine(const Condition &condition, const struct tm &theTm) c
     case Subject::MONTH_FRIDAY:
         if (theTm.tm_wday != 5)
         {
+            //printf("Not Friday, not applicable.\n");
             return false;
         }
         subject = theTm.tm_mday / 7;
@@ -151,6 +157,7 @@ bool ScheduleRule::examine(const Condition &condition, const struct tm &theTm) c
     case Subject::MONTH_SATURDAY:
         if (theTm.tm_wday != 6)
         {
+            //printf("Not Saturday, not applicable.\n");
             return false;
         }
         subject = theTm.tm_mday / 7;
@@ -175,13 +182,17 @@ bool ScheduleRule::examine(const Condition &condition, const struct tm &theTm) c
         }
         break;
     default:
+        //printf("Default, not applicable.\n");
         return false;
     }
-    return condition_check(subject, condition.compare, condition.value);
+    bool checkResult = condition_check(subject, condition.compare, condition.value);
+    //printf("Result is %s\n", checkResult ? "true" : "false");
+    return checkResult;
 }
 
 bool ScheduleRule::condition_check(uint16_t subject, Comparison compare, uint16_t value) const
 {
+    //printf("Condition check, subject %u compare %d value %u\n", subject, int(compare), value);
     switch (compare)
     {
     case Comparison::GREATER:
