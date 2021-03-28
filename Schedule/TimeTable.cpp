@@ -68,7 +68,7 @@ bool TimeTable::add_interval(const Value &value, const DayTime &begin, const Day
     uint32_t endSecond = ScheduleFunction::hour_minute_second_to_day_second(end.hour, end.minute, end.second);
     if (beginSecond >= endSecond)
     {
-        printf("Cannot add interval.\n");
+        printf("Cannot add interval 1.\n");
         return false;
     }
     if (!eventMap.size())
@@ -91,7 +91,7 @@ bool TimeTable::add_interval(const Value &value, const DayTime &begin, const Day
     if (beginSecond <= mapLow || endSecond >= mapHigh)
     {
         //Something in between
-        printf("Cannot add interval.\n");
+        printf("Cannot add interval 2.\n");
         return false;
     }
     auto lowerBound = eventMap.lower_bound(beginSecond);
@@ -104,7 +104,7 @@ bool TimeTable::add_interval(const Value &value, const DayTime &begin, const Day
             return true;
         }
     }
-    printf("Cannot add interval.\n");
+    printf("Cannot add interval 3.\n");
     return false;
 }
 
@@ -130,11 +130,11 @@ TimeTable::EventType TimeTable::string_to_event_type(const std::string &eventTyp
     {
         return EventType::StartInterval;
     }
-    else if (!eventType.compare("end"))
+    else if (!converted.compare("end"))
     {
         return EventType::EndInterval;
     }
-    else if (!eventType.compare("write"))
+    else if (!converted.compare("write"))
     {
         return EventType::WriteValue;
     }

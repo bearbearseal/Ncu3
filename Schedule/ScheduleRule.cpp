@@ -181,6 +181,19 @@ bool ScheduleRule::examine(const Condition &condition, const struct tm &theTm) c
             ++subject;
         }
         break;
+    case Subject::DDMM:
+        subject = theTm.tm_mday;
+        subject *= 100;
+        subject += (theTm.tm_mon + 1);
+        break;
+    case Subject::DDMMYYYY:
+        subject = theTm.tm_mday;
+        subject *= 100;
+        subject += (theTm.tm_mon + 1);
+        subject *= 10000;
+        subject += (theTm.tm_year + 1900);
+        break;
+
     default:
         //printf("Default, not applicable.\n");
         return false;
@@ -273,6 +286,14 @@ ScheduleRule::Subject ScheduleRule::string_to_subject(const std::string &stringF
     else if (!converted.compare("yearweek"))
     {
         return Subject::YEAR_WEEK;
+    }
+    else if (!converted.compare("ddmm"))
+    {
+        return Subject::DDMM;
+    }
+    else if (!converted.compare("ddmmyyyy"))
+    {
+        return Subject::DDMMYYYY;
     }
     return Subject::INVALID;
 }

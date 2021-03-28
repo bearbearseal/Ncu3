@@ -114,6 +114,15 @@ public:
 
     std::unordered_map<uint16_t, std::vector<TimeTableData>> get_time_table_data();
 
+    struct EquipmentScheduleData 
+    {
+        uint16_t equipmentId;
+        std::string propertyName;
+        uint16_t scheduleId;
+    };
+
+    std::vector<EquipmentScheduleData> get_equipment_schedule_data();
+
 private:
     Sqlite3 theDb;
 };

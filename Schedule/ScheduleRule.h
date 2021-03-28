@@ -23,6 +23,8 @@ public:
         YEAR,
         YEAR_DAY,  //1st day is 1 instead of 0
         YEAR_WEEK, //1st week is 1 instead of 0, weeks with < 7 days is counted.
+        DDMM,
+        DDMMYYYY,
         INVALID
     };
     static bool is_subject(int subject) { return (subject >= int(Subject::WEEK_DAY) && subject <= int(Subject::YEAR_WEEK)); }
@@ -47,7 +49,7 @@ public:
     {
         Subject subject;
         Comparison compare;
-        uint16_t value;
+        uint32_t value;
     };
     ScheduleRule();
     virtual ~ScheduleRule();

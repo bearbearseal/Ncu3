@@ -9,6 +9,7 @@
 #include "../MyLib/File/FileIOer.h"
 #include "InOutOperation/OpStorage.h"
 #include "Equipment/Equipment.h"
+#include "Schedule/ScheduleManager.h"
 #include <thread>
 #include <list>
 
@@ -441,5 +442,10 @@ namespace Test {
 		while(1) {
 			this_thread::sleep_for(1s);
 		}
+	}
+
+	void run_schedule()
+	{
+
 	}
 }

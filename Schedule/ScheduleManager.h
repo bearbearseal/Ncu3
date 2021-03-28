@@ -10,7 +10,8 @@ public:
     virtual ~ScheduleManager();
 
     void start();
-    void schedule_add_listener(uint16_t scheduleId, std::weak_ptr<Schedule::Listener> listener);
+    bool schedule_add_listener(uint16_t scheduleId, std::weak_ptr<Schedule::Listener> listener);
+    bool has_schedule(uint16_t scheduleId);
 
 private:
     ConfigStorage& configStorage;
