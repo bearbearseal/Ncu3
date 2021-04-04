@@ -358,7 +358,7 @@ string TreeBrowser::process_command_set_value(const nlohmann::json& jData) {
 		retVal["Message"] = "Invalid value type";
 		return retVal.dump() + '\n';
 	}
-	uint8_t priority = 1;
+	uint8_t priority = DefaultControlPriority;
 	if(jData.contains("Priority")) {
 		const nlohmann::json& jPriority = jData["Priority"];
 		if(jPriority.is_number_unsigned()) {
@@ -401,7 +401,7 @@ string TreeBrowser::process_command_unset_value(const nlohmann::json& jData) {
 		retVal["Message"] = "Branch deleted";
 		return retVal.dump() + '\n';
 	}
-	uint8_t priority = 1;
+	uint8_t priority = DefaultControlPriority;
 	if(jData.contains("Priority")) {
 		const nlohmann::json& jPriority = jData["Priority"];
 		if(jPriority.is_number_unsigned()) {
@@ -492,7 +492,7 @@ string TreeBrowser::process_command_write_value(const nlohmann::json& jData) {
 		retVal["Message"] = "Invalid value type";
 		return retVal.dump() + '\n';
 	}
-	uint8_t priority = 1;
+	uint8_t priority = DefaultControlPriority;
 	if(jData.contains("Priority")) {
 		const nlohmann::json& jPriority = jData["Priority"];
 		if(jPriority.is_number_unsigned()) {

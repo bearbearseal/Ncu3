@@ -2,6 +2,7 @@
 #include <chrono>
 #include <stdio.h>
 #include <string.h>
+#include <algorithm>
 
 using namespace std;
 

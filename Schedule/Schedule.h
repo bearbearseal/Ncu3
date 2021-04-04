@@ -29,7 +29,7 @@ public:
         Schedule& master;
     };
 
-    Schedule(std::shared_ptr<Timer> _timer);
+    Schedule(std::unique_ptr<Timer>& _timer);
     virtual ~Schedule();
 
     void set_default_time_table(std::shared_ptr<TimeTable> timeTable);
@@ -46,7 +46,7 @@ private:
         std::shared_ptr<TimeTable> timeTable;
     };
     std::shared_ptr<TimerListener> timerListener;
-    std::shared_ptr<Timer> timer;
+    std::unique_ptr<Timer>& timer;
     std::unordered_map<void*, std::weak_ptr<Listener>> listenerMap;
     std::map<uint8_t, TimeTableData> priority2TimeTableMap;
     std::shared_ptr<TimeTable> defaultTimeTable = nullptr;

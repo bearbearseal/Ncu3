@@ -204,7 +204,7 @@ unordered_map<uint16_t, vector<ConfigStorage::TimeTableData>> ConfigStorage::get
 vector<ConfigStorage::EquipmentScheduleData> ConfigStorage::get_equipment_schedule_data()
 {
     vector<EquipmentScheduleData> retVal;
-    auto result = theDb.execute_query("Select EquipmentId, PropertyName, ScheduleId from EquipmentSchedule");
+    auto result = theDb.execute_query("Select EquipmentId, PropertyName, ScheduleId from ScheduleEquipment");
     for(size_t i = 0; i< result->get_row_count(); ++i)
     {
         EquipmentScheduleData entry;

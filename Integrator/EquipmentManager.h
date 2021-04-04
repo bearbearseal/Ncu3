@@ -15,6 +15,7 @@ public:
     EquipmentManager(ConfigStorage& configStorage, ChannelManager& channelManager, OpStorage& opStorage);
     virtual ~EquipmentManager();
 
+    //attachId = true to attach tree with Id, attachName = true to attacj tree with name
     void attach_equipments(std::shared_ptr<VariableTree> theTree, bool attachId = true, bool attachName = true);
 
 private:

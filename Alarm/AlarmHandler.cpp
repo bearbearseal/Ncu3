@@ -37,7 +37,7 @@ void AlarmHandler::stop() {
         return;
     }
     //Send an empty string to break the wait_message
-    itcWriteSocket->send_message("");
+    itcWriteSocket->send_message(string());
     theThread->join();
     theThread.reset();
 }

@@ -9,7 +9,10 @@
 #include "../MyLib/File/FileIOer.h"
 #include "InOutOperation/OpStorage.h"
 #include "Equipment/Equipment.h"
-#include "Schedule/ScheduleManager.h"
+#include "Integrator/ScheduleManager.h"
+#include "Integrator/SerialPortManager.h"
+#include "Integrator/ChannelManager.h"
+#include "Integrator/EquipmentManager.h"
 #include <thread>
 #include <list>
 
@@ -446,6 +449,22 @@ namespace Test {
 
 	void run_schedule()
 	{
+        ConfigStorage configData("/var/sqlite/NcuConfig.db");
+        SerialPortManager serialPortManager(configData);
+        ChannelManager channelManager(configData, serialPortManager);
+        OpStorage opStorage("/var/sqlite/NcuConfig.db", "/var/InOutOp");
+        EquipmentManager equipmentManager(configData, channelManager, opStorage);
 
+        shared_ptr<VariableTree> root = make_shared<VariableTree>();
+        equipmentManager.attach_equipments(root, true, true);
+		ScheduleManager scheculeManager(configData, root);
+        TcpTalker tcpTalker(10520);
+        tcpTalker.set_target(root);
+        tcpTalker.start();
+        channelManager.start();
+        while(1) {
+            this_thread::sleep_for(1s);
+        }
+		printf("Normal termination.\n");
 	}
 }

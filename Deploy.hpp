@@ -94,6 +94,8 @@ namespace Deploy {
 
         shared_ptr<VariableTree> root = make_shared<VariableTree>();
         equipmentManager.attach_equipments(root, true, true);
+		ScheduleManager scheduleManager(configData, root);
+        scheduleManager.start();
         TcpTalker tcpTalker(10520);
         tcpTalker.set_target(root);
         tcpTalker.start();

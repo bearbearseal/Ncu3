@@ -342,6 +342,7 @@ shared_ptr<VariableTree> VariableTree::get_child(const HashKey::EitherKey &key) 
 
 bool VariableTree::write_value(const Value &value, uint8_t priority)
 {
+	printf("Variable Tree got write value.\n");
 	if (!isLeaf)
 	{
 		return false;
@@ -358,6 +359,7 @@ bool VariableTree::write_value(const Value &value, uint8_t priority)
 
 bool VariableTree::set_value(const Value &value, uint8_t priority)
 {
+	printf("Variable Tree got set value.\n");
 	if (!isLeaf)
 	{
 		return false;
@@ -475,7 +477,7 @@ void VariableTree::remove_value_change_listener(shared_ptr<ValueChangeListener> 
 
 void VariableTree::catch_value_change(const Value &newValue, std::chrono::time_point<std::chrono::system_clock> theMoment)
 {
-	//printf("Caught value change.\n");
+	//printf("Variable tree Caught value change.\n");
 	//Inform listener
 	{
 		lock_guard<mutex> lock(leafData->listenerMutex);
@@ -509,9 +511,12 @@ void VariableTree::catch_value_change(const Value &newValue, std::chrono::time_p
 		lock_guard<mutex> lock(leafData->dataMutex);
 		outValue = leafData->outValue.get_value();
 	}
-	if (outValue != newValue)
+	if(!outValue.is_empty())
 	{
-		leafData->variable->write_value(outValue);
+		if (outValue != newValue)
+		{
+			leafData->variable->write_value(outValue);
+		}
 	}
 }
 

@@ -3,11 +3,11 @@ OBJS = main.o TcpSocket.o TcpListener.o TcpTalker.o TreeBrowser.o Value.o Variab
 OBJS += ModbusIP.o ModbusIpProcess.o ModbusRtu.o ModbusRtuProcess.o ModbusRegisterValue.o
 OBJS += OperationalLogic.o OpCreator.o StringManipulator.o FileIOer.o OpStorage.o
 OBJS += SerialPort.o SyncedSerialPort.o PrioritizedValue.o AlarmLogicConstant.o AlarmDetector.o
-OBJS += ScheduleRule.o Schedule.o TimeTable.o Timer.o ScheduleManager.o ScheduleFunction.o
+OBJS += ScheduleRule.o Schedule.o TimeTable.o Timer.o ScheduleFunction.o
 OBJS += Sqlite3.o Sqlite3JsonTalker.o Sqlite3UdpListener.o
 OBJS += AlarmHandler.o UdpSocket.o UdpListener.o Builder.o
 OBJS += Equipment.o Property.o
-OBJS += ConfigStorage.o ChannelManager.o EquipmentManager.o SerialPortManager.o
+OBJS += ConfigStorage.o ChannelManager.o EquipmentManager.o SerialPortManager.o ScheduleManager.o
 CC = g++ -std=c++17
 CFLAGS = -Wall -c
 LFLAGS = -Wall
@@ -117,15 +117,6 @@ Property.o: Equipment/Property.h Equipment/Property.cpp
 ConfigStorage.o: Storage/ConfigStorage.h Storage/ConfigStorage.cpp
 	$(CC) $(CFLAGS) Storage/ConfigStorage.cpp
 
-ChannelManager.o: Integrator/ChannelManager.h Integrator/ChannelManager.cpp
-	$(CC) $(CFLAGS) Integrator/ChannelManager.cpp
-
-EquipmentManager.o: Integrator/EquipmentManager.h Integrator/EquipmentManager.cpp
-	$(CC) $(CFLAGS) Integrator/EquipmentManager.cpp
-
-SerialPortManager.o: Integrator/SerialPortManager.h Integrator/SerialPortManager.cpp
-	$(CC) $(CFLAGS) Integrator/SerialPortManager.cpp
-
 ScheduleRule.o: Schedule/ScheduleRule.h Schedule/ScheduleRule.cpp
 	$(CC) $(CFLAGS) Schedule/ScheduleRule.cpp
 
@@ -135,7 +126,23 @@ Schedule.o: Schedule/Schedule.h Schedule/Schedule.cpp
 TimeTable.o: Schedule/TimeTable.h Schedule/TimeTable.cpp
 	$(CC) $(CFLAGS) Schedule/TimeTable.cpp
 
- TimeTable.o Timer.o ScheduleManager.o ScheduleFunction.o
+Timer.o: Schedule/Timer.h Schedule/Timer.cpp
+	$(CC) $(CFLAGS) Schedule/Timer.cpp
+
+ScheduleFunction.o: Schedule/ScheduleFunction.h Schedule/ScheduleFunction.cpp
+	$(CC) $(CFLAGS) Schedule/ScheduleFunction.cpp
+
+ChannelManager.o: Integrator/ChannelManager.h Integrator/ChannelManager.cpp
+	$(CC) $(CFLAGS) Integrator/ChannelManager.cpp
+
+EquipmentManager.o: Integrator/EquipmentManager.h Integrator/EquipmentManager.cpp
+	$(CC) $(CFLAGS) Integrator/EquipmentManager.cpp
+
+SerialPortManager.o: Integrator/SerialPortManager.h Integrator/SerialPortManager.cpp
+	$(CC) $(CFLAGS) Integrator/SerialPortManager.cpp
+
+ScheduleManager.o: Integrator/ScheduleManager.h Integrator/ScheduleManager.cpp
+	$(CC) $(CFLAGS) Integrator/ScheduleManager.cpp
 
 clean:
 	rm -f $(binaries) *.o

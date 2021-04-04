@@ -14,6 +14,8 @@
 class TreeBrowser {
 	friend class BranchListener;
 	friend class ValueListener;
+public:
+	static const uint8_t DefaultControlPriority = 2;
 private:
 	static constexpr char COMMAND_BackToTop[] = "MoveToTop";
 	static constexpr char COMMAND_ShowBranches[] = "Show";
