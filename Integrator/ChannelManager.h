@@ -8,6 +8,8 @@
 #include "../Modbus/ModbusRtuProcess.h"
 #include "SerialPortManager.h"
 
+//Channel Manager manages channels, physical peripheral devices
+
 class ChannelManager {
 public:
     ChannelManager(ConfigStorage& configStorage, SerialPortManager& serialPortManager);

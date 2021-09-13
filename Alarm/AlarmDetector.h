@@ -6,6 +6,11 @@
 #include "AlarmListener.h"
 #include "../VariableTree/VariableTree.h"
 
+/*
+Listen for value change of a node,
+Do the logic processing whenever caught a value change
+*/
+
 class AlarmDetector : public VariableTree::ValueChangeListener {
 public:
     AlarmDetector(const HashKey::EitherKey& equipmentId, const HashKey::EitherKey& propertyId);

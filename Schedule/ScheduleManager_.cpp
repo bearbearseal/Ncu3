@@ -92,12 +92,12 @@ unordered_map<uint16_t, shared_ptr<TimeTable>> ScheduleManager::load_time_table(
     for (auto i = timeTableData.begin(); i != timeTableData.end(); ++i)
     {
         shared_ptr<TimeTable> entry = make_shared<TimeTable>();
-        printf("Time table created: %p\n", entry.get());
+        //printf("Time table created: %p\n", entry.get());
         TimeTable::DayTime intervalStartTime;
         Value intervalValue;
         for (size_t j = 0; j < i->second.size(); ++j)
         {
-            printf("In time table loop.\n");
+            //printf("In time table loop.\n");
             Value theValue;
             theValue.from_string(i->second[j].valueString);
             TimeTable::EventType eventType = TimeTable::string_to_event_type(i->second[j].eventType);
@@ -108,12 +108,12 @@ unordered_map<uint16_t, shared_ptr<TimeTable>> ScheduleManager::load_time_table(
                     intervalStartTime.minute = i->second[j].minute;
                     intervalStartTime.second = i->second[j].second;
                     intervalValue = theValue;
-                    printf("Creating an interval start at %02u:%02u:%02u value: %s.\n", intervalStartTime.hour, intervalStartTime.minute, intervalStartTime.second, intervalValue.to_string().c_str());
+                    //printf("Creating an interval start at %02u:%02u:%02u value: %s.\n", intervalStartTime.hour, intervalStartTime.minute, intervalStartTime.second, intervalValue.to_string().c_str());
                     break;
                 case TimeTable::EventType::EndInterval:
                     if (!intervalValue.is_empty())
                     {
-                        printf("Creating interval with end time at %02u:%02u:%02u.\n", i->second[j].hour, i->second[j].minute, i->second[j].second);
+                        //printf("Creating interval with end time at %02u:%02u:%02u.\n", i->second[j].hour, i->second[j].minute, i->second[j].second);
                         entry->add_interval(intervalValue, intervalStartTime, {i->second[j].hour, i->second[j].minute, i->second[j].second});
                         intervalValue.delete_data();
                     }

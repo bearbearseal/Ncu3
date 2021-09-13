@@ -10,6 +10,8 @@
 #include "../InOutOperation/OpStorage.h"
 #include "../VariableTree/VariableTree.h"
 
+
+//Equipment manager group points into equipments
 class EquipmentManager {
 public:
     EquipmentManager(ConfigStorage& configStorage, ChannelManager& channelManager, OpStorage& opStorage);

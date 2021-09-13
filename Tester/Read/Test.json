@@ -1,0 +1,11 @@
+[
+    {"Id":"Equipment1", "Branch":{"Id":"Register1"}},
+    {"Id":"Equipment1", "Branch":{"Id":"Register2"}},
+    {"Id":"Equipment1", "Branch":{"Id":"Register3"}},
+    {"Id":"Equipment1", "Branch":{"Id":"Register4"}},
+    {"Id":"Equipment1", "Branch":{"Id":"Coil1"}},
+    {"Id":"Equipment1", "Branch":{"Id":"Coil2"}},
+    {"Id":"Equipment1", "Branch":{"Id":"Coil3"}},
+    {"Id":"Equipment1", "Branch":{"Id":"Coil4"}}
+]
+

@@ -357,7 +357,7 @@ void ModbusIpProcess::thread_process(ModbusIpProcess *me)
             }
             else
             {
-                cout << "ModbusIp Cannot connect.\n";
+                //cout << "ModbusIp Cannot connect.\n";
                 this_thread::sleep_for(10s);
             }
             break;

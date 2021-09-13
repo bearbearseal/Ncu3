@@ -9,7 +9,7 @@ OBJS += AlarmHandler.o UdpSocket.o UdpListener.o Builder.o
 OBJS += Equipment.o Property.o
 OBJS += ConfigStorage.o ChannelManager.o EquipmentManager.o SerialPortManager.o ScheduleManager.o
 CC = g++ -std=c++17
-CFLAGS = -Wall -c
+CFLAGS = -Wall -O2 -c
 LFLAGS = -Wall
 LIBS = -lpthread -lsqlite3
 #INC = -I../Basic
@@ -21,7 +21,7 @@ main : $(OBJS)
 main.o : main.cpp Test.hpp Deploy.hpp
 	$(CC) $(CFLAGS) main.cpp
 
-TcpSocket.o : ../MyLib/TcpSocket/TcpSocket.h ../MyLib/TcpSocket/TcpSocket.cpp
+TcpSocket.o: ../MyLib/TcpSocket/TcpSocket.h ../MyLib/TcpSocket/TcpSocket.cpp
 	$(CC) $(CFLAGS) ../MyLib/TcpSocket/TcpSocket.cpp
 
 TcpListener.o: ../MyLib/TcpSocket/TcpListener.h ../MyLib/TcpSocket/TcpListener.cpp
@@ -42,7 +42,7 @@ PrioritizedValue.o: ../MyLib/Basic/PrioritizedValue.h ../MyLib/Basic/Prioritized
 Variable.o: ../MyLib/Basic/Variable.h ../MyLib/Basic/Variable.cpp
 	$(CC) $(CFLAGS) ../MyLib/Basic/Variable.cpp
 
-VariableTree.o: VariableTree/VariableTree.h VariableTree/VariableTree.cpp
+VariableTree.o: VariableTree/VariableTree.h VariableTree/VariableTree.cpp ../MyLib/Basic/RamVariable.h
 	$(CC) $(CFLAGS) VariableTree/VariableTree.cpp
 
 ModbusIP.o: Modbus/ModbusIP.h Modbus/ModbusIP.cpp

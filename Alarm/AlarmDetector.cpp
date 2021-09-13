@@ -52,13 +52,13 @@ void AlarmDetector::catch_value_change_event(const std::vector<HashKey::EitherKe
             alarmMessage.milliSecTime = std::chrono::duration_cast<std::chrono::milliseconds>(epoch).count();
             alarmMessage.condition = entry.second.get_condition();
             alarmMessage.message = entry.second.get_message();
-            printf("Found alarm.\n");
+            //printf("Found alarm.\n");
             shared->catch_alarm(alarmMessage);
             return;
         }
     }
     alarmMessage.condition = {AlarmDefinition::ConditionType::None, 0};
     shared->catch_alarm(alarmMessage);
-    printf("No alarm.\n");
+    //printf("No alarm.\n");
     return;
 }

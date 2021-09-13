@@ -38,6 +38,7 @@ string TreeBrowser::process_command(const string& input) {
 	}
 	catch (nlohmann::json::parse_error& error)
 	{
+		printf("Cannot parse message: %s\n", input.c_str());
 		theReply["Status"] = "Bad";
 		theReply["Message"] = "Parse error";
 		return theReply.dump() + '\n';

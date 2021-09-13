@@ -96,16 +96,16 @@ shared_ptr<OperationalLogic> OpCreator::load_logic(const string& logic) {
     for(size_t i=0; i<tokens.size(); ++i) {
         auto subTokens = innerTokenizer.tokenize_to_vector(tokens[i]);
         if(subTokens.size() > 4) {
-            printf("More than 4 tokens.\n");
+            //printf("More than 4 tokens.\n");
             return nullptr;
         }
         subTokens.resize(4);
         if(!add_instruction(subTokens[0], subTokens[1], subTokens[2], subTokens[3])) {
-            printf("Add failed %s.\n", subTokens[0].c_str());
+            //printf("Add failed %s.\n", subTokens[0].c_str());
             return nullptr;
         }
     }
-    printf("Volatile value count now: %lu\n", volatileValueCount);
+    //printf("Volatile value count now: %lu\n", volatileValueCount);
     shared_ptr<OperationalLogic> retVal = make_shared<OperationalLogic>(constantValue, volatileValueCount);
     for(size_t i=0; i<instructionList.size(); ++i) {
         retVal->add_logic(instructionList[i].opCode, instructionList[i].destIndex, instructionList[i].v1Id, instructionList[i].v2Id);

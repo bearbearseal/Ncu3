@@ -702,7 +702,7 @@ std::vector<RegisterValue> ModbusRegisterValue::convert_to_register_value(const 
 	}
 	case DataType::FLOAT64_LM:
 	{
-		float theFloat = (float)rawValue.get_float();
+		double theFloat = (double)rawValue.get_float();
 		uint8_t* result = ((uint8_t*)&theFloat);
 		//result[0] is the most significant
 		if (Sys::little_endian())
@@ -786,7 +786,7 @@ std::vector<RegisterValue> ModbusRegisterValue::convert_to_register_value(const 
 	}
 	case DataType::FLOAT64_ML:
 	{
-		float theFloat = (float)rawValue.get_float();
+		double theFloat = (double)rawValue.get_float();
 		uint8_t* result = ((uint8_t*)&theFloat);
 		//result[0] is the most significant
 		if (Sys::little_endian())

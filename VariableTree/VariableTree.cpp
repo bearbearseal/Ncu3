@@ -152,6 +152,7 @@ shared_ptr<VariableTree> VariableTree::create_leaf(const HashKey::EitherKey &key
 		}
 		newLeaf = make_shared<VariableTree>(key, toChildren, true);
 		newLeaf->leafData->variable = _variable;
+
 		_variable->add_listener(newLeaf->variableListener);
 		branchData->dataMap[key] = newLeaf;
 	}
@@ -331,45 +332,55 @@ shared_ptr<VariableTree> VariableTree::get_child(const HashKey::EitherKey &key) 
 	{
 		return nullptr;
 	}
-	lock_guard<mutex> lock(branchData->dataMutex);
-	auto i = branchData->dataMap.find(key);
-	if (i == branchData->dataMap.end())
+	std::shared_ptr<VariableTree> retVal = nullptr;
 	{
-		return nullptr;
+		lock_guard<mutex> lock(branchData->dataMutex);
+		auto i = branchData->dataMap.find(key);
+		if (i != branchData->dataMap.end())
+		{
+			retVal = i->second;
+		}
 	}
-	return i->second;
+	return retVal;
 }
 
 bool VariableTree::write_value(const Value &value, uint8_t priority)
 {
-	printf("Variable Tree got write value.\n");
 	if (!isLeaf)
 	{
 		return false;
 	}
-	lock_guard<mutex> lock(leafData->dataMutex);
-	leafData->outValue.clear_lower(priority);
-	if (leafData->outValue.set_value(priority, value))
 	{
+		lock_guard<mutex> lock(leafData->dataMutex);
+		leafData->outValue.clear_lower(priority);
+		if (!leafData->outValue.set_value(priority, value))
+		{
+			return false;
+		}
 		leafData->outValue.unset_value(priority);
-		return leafData->variable->write_value(value);
 	}
-	return false;
+	//Fixme, value should still be locked or the last outValue may not be equal to the last write value
+	//But since RAM variable returns immediately, it would then invoke catch value change which would again attempt to lock the mutex.
+	//Now relying on the catch value mechanism to force the value back if it is not equal to outValue
+	//For most of the time, multiple parties would not write to the same priority.
+	return leafData->variable->write_value(value);
+
 }
 
 bool VariableTree::set_value(const Value &value, uint8_t priority)
 {
-	printf("Variable Tree got set value.\n");
 	if (!isLeaf)
 	{
 		return false;
 	}
-	lock_guard<mutex> lock(leafData->dataMutex);
-	if (leafData->outValue.set_value(priority, value))
 	{
-		return leafData->variable->write_value(value);
+		lock_guard<mutex> lock(leafData->dataMutex);
+		if (!leafData->outValue.set_value(priority, value))
+		{
+			return false;
+		}
 	}
-	return false;
+	return leafData->variable->write_value(value);
 }
 
 bool VariableTree::unset_value(uint8_t priority)
@@ -399,7 +410,8 @@ Value VariableTree::get_value() const
 	{
 		return empty;
 	}
-	//lock_guard<mutex> lock(dataMutex);
+	//lock_guard<mutex> lock(leafData->dataMutex);
+	//No need locking, variable in leafData would not change, not allowed to change
 	return leafData->variable->read_value();
 }
 
@@ -477,7 +489,6 @@ void VariableTree::remove_value_change_listener(shared_ptr<ValueChangeListener> 
 
 void VariableTree::catch_value_change(const Value &newValue, std::chrono::time_point<std::chrono::system_clock> theMoment)
 {
-	//printf("Variable tree Caught value change.\n");
 	//Inform listener
 	{
 		lock_guard<mutex> lock(leafData->listenerMutex);

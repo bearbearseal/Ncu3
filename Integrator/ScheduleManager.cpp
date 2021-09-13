@@ -107,7 +107,7 @@ unordered_map<uint16_t, vector<ScheduleRule::Condition>> ScheduleManager::load_s
 {
     unordered_map<uint16_t, vector<ScheduleRule::Condition>> retVal;
     auto conditionData = configStorage.get_schedule_condition_data();
-    printf("Schedule manager loading condition.\n");
+    //printf("Schedule manager loading condition.\n");
     for (auto i = conditionData.begin(); i != conditionData.end(); ++i)
     {
         vector<ScheduleRule::Condition> entry;
@@ -119,13 +119,13 @@ unordered_map<uint16_t, vector<ScheduleRule::Condition>> ScheduleManager::load_s
             if (ScheduleRule::subject_is_valid(condition.subject) && ScheduleRule::comparison_is_valid(condition.compare))
             {
                 condition.value = i->second[j].value;
-                printf("Creating schedule condition: %s %s %u\n", i->second[j].subject.c_str(), i->second[j].comparison.c_str(), i->second[j].value);
+                //printf("Creating schedule condition: %s %s %u\n", i->second[j].subject.c_str(), i->second[j].comparison.c_str(), i->second[j].value);
                 entry.push_back(condition);
             }
         }
         if (entry.size())
         {
-            printf("Add to condition id %u\n", i->first);
+            //printf("Add to condition id %u\n", i->first);
             retVal[i->first] = move(entry);
         }
     }
@@ -134,7 +134,7 @@ unordered_map<uint16_t, vector<ScheduleRule::Condition>> ScheduleManager::load_s
 
 std::unordered_map<uint16_t, std::shared_ptr<ScheduleRule>> ScheduleManager::load_schedule_rules(unordered_map<uint16_t, vector<ScheduleRule::Condition>> &id2ConditionMap)
 {
-    printf("Schedule manager loading schedule rule.\n");
+    //printf("Schedule manager loading schedule rule.\n");
     unordered_map<uint16_t, shared_ptr<ScheduleRule>> retVal;
     auto rule2Conditions = configStorage.get_schedule_rule_and_condition_data();
     for (auto i = rule2Conditions.begin(); i != rule2Conditions.end(); ++i)
@@ -144,11 +144,11 @@ std::unordered_map<uint16_t, std::shared_ptr<ScheduleRule>> ScheduleManager::loa
         {
             if (id2ConditionMap.count(i->second[j]))
             {
-                printf("Schedule rule add condition id %u\n", i->second[j]);
+                //printf("Schedule rule add condition id %u\n", i->second[j]);
                 entry->add_conditions(id2ConditionMap[i->second[j]]);
             }
         }
-        printf("Schedule %u created.\n", i->first);
+        //printf("Schedule %u created.\n", i->first);
         retVal[i->first] = entry;
     }
     return retVal;
@@ -161,12 +161,12 @@ std::unordered_map<uint16_t, std::shared_ptr<TimeTable>> ScheduleManager::load_t
     for (auto i = timeTableData.begin(); i != timeTableData.end(); ++i)
     {
         shared_ptr<TimeTable> entry = make_shared<TimeTable>();
-        printf("Time table created: %p\n", entry.get());
+        //printf("Time table created: %p\n", entry.get());
         TimeTable::DayTime intervalStartTime;
         Value intervalValue;
         for (size_t j = 0; j < i->second.size(); ++j)
         {
-            printf("In time table loop.\n");
+            //printf("In time table loop.\n");
             Value theValue;
             theValue.from_string(i->second[j].valueString);
             TimeTable::EventType eventType = TimeTable::string_to_event_type(i->second[j].eventType);
@@ -177,12 +177,12 @@ std::unordered_map<uint16_t, std::shared_ptr<TimeTable>> ScheduleManager::load_t
                 intervalStartTime.minute = i->second[j].minute;
                 intervalStartTime.second = i->second[j].second;
                 intervalValue = theValue;
-                printf("Creating an interval start at %02u:%02u:%02u value: %s.\n", intervalStartTime.hour, intervalStartTime.minute, intervalStartTime.second, intervalValue.to_string().c_str());
+                //printf("Creating an interval start at %02u:%02u:%02u value: %s.\n", intervalStartTime.hour, intervalStartTime.minute, intervalStartTime.second, intervalValue.to_string().c_str());
                 break;
             case TimeTable::EventType::EndInterval:
                 if (!intervalValue.is_empty())
                 {
-                    printf("Creating interval with end time at %02u:%02u:%02u.\n", i->second[j].hour, i->second[j].minute, i->second[j].second);
+                    //printf("Creating interval with end time at %02u:%02u:%02u.\n", i->second[j].hour, i->second[j].minute, i->second[j].second);
                     entry->add_interval(intervalValue, intervalStartTime, {i->second[j].hour, i->second[j].minute, i->second[j].second});
                     intervalValue.delete_data();
                 }
@@ -192,11 +192,11 @@ std::unordered_map<uint16_t, std::shared_ptr<TimeTable>> ScheduleManager::load_t
                 }
                 break;
             case TimeTable::EventType::WriteValue:
-                printf("Creating write event at time %02u:%02u:%02u, value:%s.\n", i->second[j].hour, i->second[j].minute, i->second[j].second, theValue.to_string().c_str());
+                //printf("Creating write event at time %02u:%02u:%02u, value:%s.\n", i->second[j].hour, i->second[j].minute, i->second[j].second, theValue.to_string().c_str());
                 entry->add_write_event(theValue, {i->second[j].hour, i->second[j].minute, i->second[j].second});
                 break;
             case TimeTable::EventType::Invalid:
-                printf("Invalid event type.\n");
+                printf("Invalid schedule event type.\n");
                 break;
             }
         }

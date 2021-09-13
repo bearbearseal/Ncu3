@@ -1,0 +1,8 @@
+[
+	{"Point":{"Id":"Equipment1", "Branch":{"Id":"Register1"}}, "Values":[8, 255, 256, 511, -5]},
+	{"Point":{"Id":"Equipment1", "Branch":{"Id":"Register2"}}, "Values":[1, 2, 4, 8, 16, 17, 18, 20, 24, 25, 26, 30, 31]},
+	{"Point":{"Id":"Equipment1", "Branch":{"Id":"Register3"}}, "Values":[-1, -2, -3]},
+	{"Point":{"Id":"Equipment1", "Branch":{"Id":"Register4"}}, "Values":[-1, -2, -3, -4, -5]},
+	{"Point":{"Id":"Equipment1", "Branch":{"Id":"Coil1"}}, "Values":[0, 1]},
+	{"Point":{"Id":"Equipment1", "Branch":{"Id":"Coil4"}}, "Values":[1, 0]}
+]

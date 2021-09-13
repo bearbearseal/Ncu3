@@ -1,0 +1,5 @@
+[
+	{"Point":{"Id":"NewBranch", "Branch":{"Id":"123"}}, "Values":[1, 2, 3, 4, 5]},
+	{"Point":{"Id":"NewBranch", "Branch":{"Id":"aNode"}}, "Values":[100, 20]},
+	{"Point":{"Id":"OldBranch", "Branch":{"Id":"aNode"}}, "Values":[1, "dsre", 4.8]}
+]

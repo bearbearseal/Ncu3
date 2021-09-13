@@ -11,6 +11,10 @@
   ,
   {"Command": "Write","Branch": {"Id": "Equipment1", "Branch":{"Id": "Register1"}},"Value":6}
   ,
+  {"Command": "Set","Branch": {"Id": "Equipment1", "Branch":{"Id": "Register1"}},"Value":6}
+  ,
+  {"Command": "Unset","Branch": {"Id": "Equipment1", "Branch":{"Id": "Register1"}},"Value":6}
+  ,
   {"Command": "Write","Branch": {"Id": "Equipment1", "Branch":{"Id": "Register2"}},"Value":100}
   ,
   {"Command": "Write","Branch": {"Id": "Equipment1", "Branch":{"Id": "Register3"}},"Value":100}
@@ -90,4 +94,22 @@
   {"Command":"Write", "Id":"2", "Value":"234"}
   ,
   {"Command": "MoveToTop"}
+  ,
+  {"Command":"CreateLeaf", "NewId":123}
+  ,
+  {"Command":"Read","Branch":{"Id": "New Branch", "Branch":{"Id": 123}}}
+  ,
+  {"Command":"Write","Branch":{"Id":"New Branch", "Branch":{"Id":123}},"Value":"sgf_ rte UYHH&^%#$% 715"}
+  ,
+  {"Command":"Write","Branch":{"Id":"New Branch", "Branch":{"Id":123}},"Value":12345}
+  ,
+  {"Command":"CreateBranch","NewId":"NewBranch"}
+  ,
+  {"Command":"CreateBranch","NewId":"OldBranch"}
+  ,
+  {"Command":"CreateLeaf", "Branch":{"Id":"OldBranch"}, "NewId":"aNode"}
+  ,
+  {"Command":"ListenValue","Branch":{"Id":"Equipment1", "Branch":{"Id":"Register1"}}, "Tag":"Register1"}
+  ,
+  {"Command":"ListenValue","Branch":{"Id":"OldBranch", "Branch":{"Id":"aNode"}}, "Tag":"OldBranch 123"}
 ]

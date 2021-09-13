@@ -17,14 +17,14 @@ EquipmentManager::EquipmentManager(ConfigStorage &configStorage, ChannelManager 
         {
             id2EquipmentMap[i->first] = make_shared<Equipment>();
         }
-        printf("Number: %lu\n", i->second.size());
+        //printf("Number: %lu\n", i->second.size());
         for (size_t j = 0; j < i->second.size(); ++j)
         {
-            printf("Getting %u %u\n", i->second[j].deviceId, i->second[j].pointId);
+            //printf("Getting %u %u\n", i->second[j].deviceId, i->second[j].pointId);
             auto point = channelManager.get_point(i->second[j].deviceId, i->second[j].pointId);
             if (point != nullptr)
             {
-                printf("Creating leaf: %s\n", i->second[j].name.c_str());
+                //printf("Creating leaf: %s\n", i->second[j].name.c_str());
                 id2EquipmentMap[i->first]->create_leaf(i->second[j].name, point, opStorage.get_logic(i->second[j].inOperation), opStorage.get_logic(i->second[j].outOperation));
             }
         }

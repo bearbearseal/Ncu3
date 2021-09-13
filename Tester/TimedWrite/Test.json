@@ -1,0 +1,12 @@
+[
+    {"Delay":60, "Point":{"Id":"Equipment1", "Branch":{"Id":"Register1"}}, "Value":128},
+    {"Delay":60, "Point":{"Id":"Equipment1", "Branch":{"Id":"Register1"}}, "Value":0},
+    {"Delay":60, "Point":{"Id":"Equipment1", "Branch":{"Id":"Register2"}}, "Value":128},
+    {"Delay":60, "Point":{"Id":"Equipment1", "Branch":{"Id":"Register2"}}, "Value":0},
+    {"Delay":60, "Point":{"Id":"Equipment1", "Branch":{"Id":"Register1"}}, "Value":128},
+    {"Delay":10, "Point":{"Id":"Equipment1", "Branch":{"Id":"Register2"}}, "Value":128},
+    {"Delay":60, "Point":{"Id":"Equipment1", "Branch":{"Id":"Register1"}}, "Value":0},
+    {"Delay":10, "Point":{"Id":"Equipment1", "Branch":{"Id":"Register2"}}, "Value":0},
+    {"Delay":60, "Point":{"Id":"Equipment1", "Branch":{"Id":"Coil1"}}, "Value":1},
+    {"Delay":60, "Point":{"Id":"Equipment1", "Branch":{"Id":"Coil1"}}, "Value":0}
+]

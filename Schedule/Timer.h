@@ -37,9 +37,9 @@ private:
 
     struct Message {
         Command command;
-        time_t eventTime;
+        time_t eventTime = 0;
         std::weak_ptr<Listener> listener;
-        uint16_t token;
+        uint16_t token = 0;
     };
 
     std::unique_ptr<std::thread> theProcess;

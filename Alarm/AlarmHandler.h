@@ -9,9 +9,8 @@
 #include "../../MyLib/Basic/HashKey.h"
 #include "../../MyLib/ITC/ITC.h"
 #include "../../MyLib/Sqlite/Sqlite3.h"
-//#include "../../MyLib/UdpSocket/UdpSocket.h"
 
-class AlarmHandler : public AlarmListener{
+class AlarmHandler : public AlarmListener {
 public:
     static constexpr char COMMAND_ReportAlarm[] = "ReportAlarm";
 

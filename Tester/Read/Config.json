@@ -1,0 +1,6 @@
+[
+    {"Id":"NewBranch", "Branch":{"Id":"123"}},
+    {"Id":"NewBranch", "Branch":{"Id":"aNode"}},
+    {"Id":"OldBranch", "Branch":{"Id":"aNode"}}
+]
+
