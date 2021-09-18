@@ -63,14 +63,6 @@ namespace AlarmDefinition {
         HashKey::EitherKey equipmentId;
         HashKey::EitherKey propertyId;
     };
-    struct AlarmMessage {
-        PointId pointId;
-        Value value;
-        Value rightValue;
-        Condition condition;
-        uint64_t milliSecTime;
-        std::string message;
-    };
     struct AlarmLogicConstant {
         Comparison compare;
         Value rightValue;

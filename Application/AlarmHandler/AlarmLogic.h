@@ -1,1 +1,0 @@
-//Takes in input, verify if it's a true

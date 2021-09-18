@@ -104,4 +104,25 @@ namespace Deploy {
             this_thread::sleep_for(1s);
         }
     }
+
+    void run_equipment_and_alarm() {
+        ConfigStorage configData("/var/sqlite/NcuConfig.db");
+        SerialPortManager serialPortManager(configData);
+        ChannelManager channelManager(configData, serialPortManager);
+        OpStorage opStorage("/var/sqlite/NcuConfig.db", "/var/InOutOp");
+        EquipmentManager equipmentManager(configData, channelManager, opStorage);
+
+        shared_ptr<VariableTree> root = make_shared<VariableTree>();
+        equipmentManager.attach_equipments(root, true, true);
+
+		ScheduleManager scheduleManager(configData, root);
+        scheduleManager.start();
+        TcpTalker tcpTalker(10520);
+        tcpTalker.set_target(root);
+        tcpTalker.start();
+        channelManager.start();
+        while(1) {
+            this_thread::sleep_for(1s);
+        }
+    } 
 };

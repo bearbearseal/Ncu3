@@ -3,25 +3,21 @@
 
 using namespace std;
 
-AlarmDetector::AlarmDetector(const HashKey::EitherKey& equipmentId, const HashKey::EitherKey& propertyId) : myId({equipmentId, propertyId}) {
-
+AlarmDetector::AlarmDetector(const HashKey::EitherKey& equipmentId, const HashKey::EitherKey& propertyId, std::weak_ptr<Listener> _listener) : myId({equipmentId, propertyId}) {
+    listener = _listener;
 }
 
-AlarmDetector::AlarmDetector(const AlarmDefinition::PointId& _myId) : myId(_myId) {
-
+AlarmDetector::AlarmDetector(const AlarmDefinition::PointId& _myId, std::weak_ptr<Listener> _listener) : myId(_myId) {
+    listener = _listener;
 }
 
 AlarmDetector::~AlarmDetector() {
 
 }
 
-void AlarmDetector::set_alarm_listener(std::shared_ptr<AlarmListener> _listener) {
-    listener = _listener;
-}
-
 void AlarmDetector::add_logic(uint8_t priority, const AlarmDefinition::AlarmLogicConstant& logicData) {
     logicMap.emplace(priority, AlarmLogicConstant(logicData.compare, logicData.rightValue, logicData.message, logicData.condition));
-    printf("Total logic in map: %lu\n", logicMap.size());
+    //printf("Total logic in map: %lu\n", logicMap.size());
 }
 
 void AlarmDetector::catch_value_change_event(const std::vector<HashKey::EitherKey>& branch, const Value& newValue, std::chrono::time_point<std::chrono::system_clock> theMoment) {
@@ -29,7 +25,7 @@ void AlarmDetector::catch_value_change_event(const std::vector<HashKey::EitherKe
     if(newValue.is_empty()) {
         return;
     }
-    AlarmDefinition::AlarmMessage alarmMessage;
+    AlarmMessage alarmMessage;
     alarmMessage.pointId = myId;
     alarmMessage.value = newValue;
     auto milliSec = chrono::time_point_cast<chrono::milliseconds>(theMoment);
@@ -42,7 +38,7 @@ void AlarmDetector::catch_value_change_event(const std::vector<HashKey::EitherKe
     }
     for(auto& entry : logicMap) {
         if(entry.second.condition_hit(newValue)) {
-            AlarmDefinition::AlarmMessage alarmMessage;
+            AlarmMessage alarmMessage;
             alarmMessage.pointId = myId;
             alarmMessage.value = newValue;
             //printf("Value: %s\n", alarmMessage.value.to_string().c_str());
