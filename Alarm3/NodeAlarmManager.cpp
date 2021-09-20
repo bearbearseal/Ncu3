@@ -3,9 +3,8 @@
 
 using namespace std;
 
-NodeAlarmManager::NodeAlarmManager(std::shared_ptr<AlarmListener> _alarmListener)
+NodeAlarmManager::NodeAlarmManager(std::shared_ptr<AlarmPostHandler> _alarmPostHandler) : alarmPostHandler(_alarmPostHandler)
 {
-    alarmListener = _alarmListener;
     myShadow = make_shared<Shadow>(this);
 }
 
@@ -27,10 +26,13 @@ void NodeAlarmManager::add_alarm_logic(uint32_t logicId, AlarmDefinition::Compar
 void NodeAlarmManager::set_node_logic(const HashKey::EitherKey &equipmentId, const HashKey::EitherKey &nodeId, uint32_t logicId, uint16_t priority)
 {
     size_t entryIndex;
+    //Check if the equipment alreadt has node
     unordered_map<HashKey::EitherKey, size_t, HashKey::EitherKeyHash> &nodeMap = equipmentId2nodeId2IndexMap[equipmentId];
     if (!nodeMap.count(nodeId))
     {
+        //The equipment doesnt exist yet, the node data would be store to new item in vector/
         entryIndex = nodeDataList.size();
+        nodeMap.emplace(nodeId, entryIndex);
         nodeDataList.push_back({make_shared<VariableListener>(entryIndex, myShadow), std::map<uint16_t, uint32_t>(), AlarmDefinition::Normal, equipmentId, nodeId});
     }
     else
@@ -45,6 +47,7 @@ int NodeAlarmManager::attach_to_tree(std::shared_ptr<VariableTree> theTree)
     int failCount = 0;
     for (auto i = equipmentId2nodeId2IndexMap.begin(); i != equipmentId2nodeId2IndexMap.end(); ++i)
     {
+        printf("Trying to attach %zu items.\n", i->second.size());
         auto theBranch = theTree->get_child(i->first);
         if(theBranch == nullptr || theBranch->isLeaf)
         {
@@ -59,13 +62,16 @@ int NodeAlarmManager::attach_to_tree(std::shared_ptr<VariableTree> theTree)
                 ++failCount;
                 continue;
             }
+            printf("Adding value change listener.\n");
             theLeaf->add_value_change_listener(nodeDataList[j->second].variableListener);
         }
     }
     if(failCount)
     {
-        printf("NodeAlarmManager has %d alarm failed to attach.\n");
+        printf("NodeAlarmManager has %d alarm failed to attach.\n", failCount);
     }
+    printf("Done attach.\n");
+    return failCount;
 }
 
 void NodeAlarmManager::execute_check(uint32_t nodeDataIndex, const Value &theValue, std::chrono::time_point<std::chrono::system_clock> theMoment)
@@ -94,10 +100,19 @@ void NodeAlarmManager::execute_check(uint32_t nodeDataIndex, const Value &theVal
                 alarmMessage.oldState = nodeData.activeState;
                 alarmMessage.milliSecTime = chrono::time_point_cast<chrono::milliseconds>(theMoment).time_since_epoch().count();
                 //Send message
-                alarmListener->catch_alarm(alarmMessage);
+                alarmPostHandler->pickup_alarm(move(alarmMessage));
                 //Update state
                 nodeData.activeState = theLogic.state;
             }
         }
+    }
+}
+
+void NodeAlarmManager::VariableListener::catch_value_change_event(const std::vector<HashKey::EitherKey> &branch, const Value &newValue, std::chrono::time_point<std::chrono::system_clock> theMoment)
+{
+    auto shared = master.lock();
+    if(shared != nullptr)
+    {
+        shared->execute_check(nodeLogicGroupIndex, newValue, theMoment);
     }
 }

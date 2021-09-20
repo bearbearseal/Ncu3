@@ -1,4 +1,3 @@
-#include "Test.hpp"
 #include "Deploy.hpp"
 
 
@@ -18,5 +17,5 @@ int main() {
 	//Test::run_equipment();
 	//Test::run_schedule();
 	//Deploy::run_real_time_value();
-	Deploy::run_equipment();
+	Deploy::run_equipment_alarm();
 }

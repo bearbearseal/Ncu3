@@ -3,6 +3,7 @@
 #include "../VariableTree/VariableTree.h"
 #include "AlarmDefinition.h"
 #include "AlarmVerifier.h"
+#include "AlarmPostHandler.h"
 
 class NodeAlarmManager
 {
@@ -30,6 +31,11 @@ private:
     };
     struct LogicData
     {
+        LogicData() : verifier(AlarmDefinition::Comparison::NOT_EQUAL, 0) {}
+        LogicData(const std::string &_alarmMessage,
+                  AlarmDefinition::AlarmState _state,
+                  uint16_t _code,
+                  const AlarmVerifier &alarmVerifier) : alarmMessage(_alarmMessage), state(_state), code(_code), verifier(alarmVerifier) {}
         std::string alarmMessage;
         AlarmDefinition::AlarmState state;
         uint16_t code;
@@ -45,16 +51,8 @@ private:
     };
 
 public:
-    class AlarmListener
-    {
-    public:
-        AlarmListener() {}
-        virtual ~AlarmListener() {}
-        virtual void catch_alarm(const AlarmDefinition::AlarmMessage& alarm) { printf("Please override report_alarm method.\n of AlarmReporter.\n"); }
-    };
-
     //alarmReporter shall not be deleted b4 this class instance or weak_ptr shall be taken.
-    NodeAlarmManager(std::shared_ptr<AlarmListener> _alarmListener);
+    NodeAlarmManager(std::shared_ptr<AlarmPostHandler> _alarmPostHandler);
     virtual ~NodeAlarmManager();
     void add_alarm_logic(uint32_t logicId, AlarmDefinition::Comparison comparison, const Value &referenceValue, const std::string &message, AlarmDefinition::AlarmState state, uint16_t code);
     void set_node_logic(const HashKey::EitherKey &equipmentId, const HashKey::EitherKey &nodeId, uint32_t logicId, uint16_t priority);
@@ -63,7 +61,7 @@ public:
 private:
     void execute_check(uint32_t nodeDataIndex, const Value &theValue, std::chrono::time_point<std::chrono::system_clock> theMoment);
 
-    std::shared_ptr<AlarmListener> alarmListener;
+    std::shared_ptr<AlarmPostHandler> alarmPostHandler;
     std::shared_ptr<Shadow> myShadow;
     //integer hashkey speed is good
     //Collection of logic, could be referred with id

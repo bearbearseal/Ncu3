@@ -1,4 +1,5 @@
-#pragma once
+#ifndef _AlarmDefinition_H_
+#define _AlarmDefinition_H_
 #include <string>
 #include "../../MyLib/Basic/HashKey.h"
 #include "../../MyLib/Basic/Value.h"
@@ -32,6 +33,42 @@ namespace AlarmDefinition {
         HashKey::EitherKey propertyId;
     };
     struct AlarmMessage {
+        AlarmMessage() {}
+        AlarmMessage(
+            HashKey::EitherKey _equipmentId, 
+            HashKey::EitherKey _propertyId, 
+            AlarmState _activeState, 
+            AlarmState _oldState, 
+            std::string _message, 
+            Value _activeValue, 
+            Value _referenceValue, 
+            Comparison _comparison, 
+            uint32_t _code, 
+            uint64_t _milliSecTime) :
+            equipmentId(_equipmentId),
+            propertyId(_propertyId),
+            activeState(_activeState),
+            oldState(_oldState),
+            message(_message),
+            activeValue(_activeValue),
+            referenceValue(_referenceValue),
+            comparison(_comparison),
+            code(_code),
+            milliSecTime(_milliSecTime)
+        {}
+        AlarmMessage(AlarmMessage&& theOther)
+        {
+            equipmentId = std::move(theOther.equipmentId);
+            propertyId = std::move(theOther.propertyId);
+            activeState = theOther.activeState;
+            oldState = theOther.oldState;
+            message = std::move(theOther.message);
+            activeValue = std::move(theOther.activeValue);
+            referenceValue = std::move(theOther.referenceValue);
+            comparison = theOther.comparison;
+            code = theOther.code;
+            milliSecTime = theOther.milliSecTime;
+        }
         HashKey::EitherKey equipmentId;
         HashKey::EitherKey propertyId;
         AlarmState activeState;
@@ -44,3 +81,5 @@ namespace AlarmDefinition {
         uint64_t milliSecTime;
     };
 }
+
+#endif
