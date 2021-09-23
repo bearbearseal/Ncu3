@@ -6,7 +6,7 @@ OBJS += SerialPort.o SyncedSerialPort.o PrioritizedValue.o
 OBJS += ScheduleRule.o Schedule.o TimeTable.o Timer.o ScheduleFunction.o
 OBJS += Sqlite3.o Sqlite3JsonTalker.o Sqlite3UdpListener.o
 #OBJS += AlarmHandler.o AlarmLogicConstant.o AlarmDetector.o
-OBJS += NodeAlarmManager.o AlarmVerifier.o AlarmPostHandler.o
+OBJS += NodeAlarmManager.o AlarmVerifier.o AlarmPostHandler.o AlarmBuilder.o
 OBJS += UdpSocket.o UdpListener.o #Builder.o
 OBJS += Equipment.o Property.o
 OBJS += ConfigStorage.o ChannelManager.o EquipmentManager.o SerialPortManager.o ScheduleManager.o
@@ -85,6 +85,9 @@ AlarmVerifier.o: Alarm3/AlarmVerifier.h Alarm3/AlarmVerifier.cpp Alarm3/AlarmDef
 
 AlarmPostHandler.o: Alarm3/AlarmPostHandler.h Alarm3/AlarmPostHandler.cpp Alarm3/AlarmDefinition.h
 	$(CC) $(CFLAGS) Alarm3/AlarmPostHandler.cpp
+
+AlarmBuilder.o: Alarm3/AlarmBuilder.h Alarm3/AlarmBuilder.cpp
+	$(CC) $(CFLAGS) Alarm3/AlarmBuilder.cpp
 
 UdpSocket.o: ../MyLib/UdpSocket/UdpSocket.h ../MyLib/UdpSocket/UdpSocket.cpp
 	$(CC) $(CFLAGS) ../MyLib/UdpSocket/UdpSocket.cpp

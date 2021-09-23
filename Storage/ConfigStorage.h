@@ -5,6 +5,8 @@
 #include <unordered_map>
 
 #include "../../MyLib/Sqlite/Sqlite3.h"
+#include "../../MyLib/Basic/Value.h"
+#include "../../MyLib/Basic/HashKey.h"
 
 class ConfigStorage {
 public:
@@ -122,6 +124,34 @@ public:
     };
 
     std::vector<EquipmentScheduleData> get_equipment_schedule_data();
+
+    struct AlarmLogicData {
+        uint32_t id;
+        int32_t comparison;
+        Value referenceValue;
+        std::string message;
+        int32_t state;
+        int32_t code;
+    };
+
+    std::vector<AlarmLogicData> get_alarm_logic();
+
+    struct NodeAlarmData {
+        HashKey::EitherKey equipmentId;
+        HashKey::EitherKey propertyId;
+        uint32_t alarmLogicId;
+        uint16_t priority;
+    };
+
+    std::vector<NodeAlarmData> get_node_alarm();
+
+    struct NodeNormalMessage {
+        HashKey::EitherKey equipmentId;
+        HashKey::EitherKey propertyId;
+        std::string message;
+    };
+
+    std::vector<NodeNormalMessage> get_normal_message();
 
 private:
     Sqlite3 theDb;

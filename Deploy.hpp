@@ -9,6 +9,7 @@
 #include "Schedule/ScheduleManager.h"
 #include "Alarm3/NodeAlarmManager.h"
 #include "Alarm3/AlarmPostHandler.h"
+#include "Alarm3/AlarmBuilder.h"
 
 #include <thread>
 
@@ -143,22 +144,8 @@ namespace Deploy {
         equipmentManager.attach_equipments(root, true, true);
 
         shared_ptr<AlarmPostHandler> alarmPostHandler = make_shared<AlarmPostHandler>();
-        NodeAlarmManager nodeAlarmManager(alarmPostHandler);
-        nodeAlarmManager.add_alarm_logic(1, AlarmDefinition::Comparison::GREATER, 20, "Value is greater than 20", AlarmDefinition::AlarmState::OutOfRange, 100);
-        nodeAlarmManager.add_alarm_logic(2, AlarmDefinition::Comparison::GREATER, 10, "Value is greater than 10", AlarmDefinition::AlarmState::VeryHigh, 20);
-        nodeAlarmManager.add_alarm_logic(3, AlarmDefinition::Comparison::GREATER, 5, "Value is greater than 5", AlarmDefinition::AlarmState::High, 10);
-        nodeAlarmManager.add_alarm_logic(4, AlarmDefinition::Comparison::SMALLER, -5, "Value is less than -5", AlarmDefinition::AlarmState::Low, 11);
-        nodeAlarmManager.add_alarm_logic(5, AlarmDefinition::Comparison::SMALLER, -10, "Value is greater than -10", AlarmDefinition::AlarmState::VeryLow, 12);
-        nodeAlarmManager.add_alarm_logic(6, AlarmDefinition::Comparison::SMALLER, -20, "Value is greater than -20", AlarmDefinition::AlarmState::OutOfRange, 13);
-
-        nodeAlarmManager.set_node_logic("Equipment1", "Register1", 1, 1);
-        nodeAlarmManager.set_node_logic("Equipment1", "Register1", 2, 2);
-        nodeAlarmManager.set_node_logic("Equipment1", "Register1", 3, 3);
-        nodeAlarmManager.set_node_logic("Equipment1", "Register1", 6, 4);
-        nodeAlarmManager.set_node_logic("Equipment1", "Register1", 5, 5);
-        nodeAlarmManager.set_node_logic("Equipment1", "Register1", 4, 6);
-
-        nodeAlarmManager.attach_to_tree(root);
+        unique_ptr<NodeAlarmManager> nodeAlarmManager = AlarmBuilder::create_node_alarm_manager(configData, alarmPostHandler);
+        nodeAlarmManager->attach_to_tree(root);
 
         TcpTalker tcpTalker(10520);
         tcpTalker.set_target(root);

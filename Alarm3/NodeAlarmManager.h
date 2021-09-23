@@ -46,6 +46,7 @@ private:
         std::shared_ptr<VariableListener> variableListener;
         std::map<uint16_t, uint32_t> prioritzedLogicMap;
         AlarmDefinition::AlarmState activeState;
+        std::string normalMessage = "Normal";
         HashKey::EitherKey equipmentId;
         HashKey::EitherKey nodeId;
     };
@@ -56,6 +57,7 @@ public:
     virtual ~NodeAlarmManager();
     void add_alarm_logic(uint32_t logicId, AlarmDefinition::Comparison comparison, const Value &referenceValue, const std::string &message, AlarmDefinition::AlarmState state, uint16_t code);
     void set_node_logic(const HashKey::EitherKey &equipmentId, const HashKey::EitherKey &nodeId, uint32_t logicId, uint16_t priority);
+    void set_normal_message(const HashKey::EitherKey &equipmentId, const HashKey::EitherKey &nodeId, const std::string& message);
     int attach_to_tree(std::shared_ptr<VariableTree> theTree);
 
 private:

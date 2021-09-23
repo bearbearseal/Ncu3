@@ -21,12 +21,12 @@ namespace AlarmDefinition {
     };
     enum AlarmState
     {
-        VeryLow = -2,
-        Low = -1,
-        Normal = 0,
-        High = 1,
-        VeryHigh = 2,
-        OutOfRange = 3
+        VERY_LOW = -2,
+        LOW = -1,
+        NORMAL = 0,
+        HIGH = 1,
+        VERY_HIGH = 2,
+        OUT_OF_RANGE = 3
     };
     struct PointId {
         HashKey::EitherKey equipmentId;
