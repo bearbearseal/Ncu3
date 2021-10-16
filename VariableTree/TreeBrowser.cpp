@@ -48,6 +48,9 @@ string TreeBrowser::process_command(const string& input) {
 		theReply["Message"] = "Frame is not a json object";
 		return theReply.dump() + '\n';
 	}
+	if(theJson.contains("Sequence")) {
+		theReply["Sequence"] = theJson["Sequence"];
+	}
 	if (!theJson.contains("Command")) {
 		theReply["Status"] = "Bad";
 		theReply["Message"] = "No command";

@@ -134,18 +134,22 @@ namespace Deploy {
     } 
     */
    void run_equipment_alarm() {
+        //ConfigStorage configData("/home/bearbearseal/Desktop/sqlite/NcuConfig.db");
         ConfigStorage configData("/var/sqlite/NcuConfig.db");
         SerialPortManager serialPortManager(configData);
         ChannelManager channelManager(configData, serialPortManager);
-        OpStorage opStorage("/var/sqlite/NcuConfig.db", "/var/InOutOp");
-        EquipmentManager equipmentManager(configData, channelManager, opStorage);
+
+        //OpStorage opStorage("/home/bearbearseal/Desktop/sqlite/NcuConfig.db", "/var/InOutOp");
+        //OpStorage opStorage("/var/sqlite/NcuConfig.db", "/var/InOutOp");
+        //EquipmentManager equipmentManager(configData, channelManager, opStorage);
 
         shared_ptr<VariableTree> root = make_shared<VariableTree>();
-        equipmentManager.attach_equipments(root, true, true);
+        //equipmentManager.attach_equipments(root, true, true);
+        channelManager.attach_to_tree(root);
 
-        shared_ptr<AlarmPostHandler> alarmPostHandler = make_shared<AlarmPostHandler>();
-        unique_ptr<NodeAlarmManager> nodeAlarmManager = AlarmBuilder::create_node_alarm_manager(configData, alarmPostHandler);
-        nodeAlarmManager->attach_to_tree(root);
+        //shared_ptr<AlarmPostHandler> alarmPostHandler = make_shared<AlarmPostHandler>();
+        //unique_ptr<NodeAlarmManager> nodeAlarmManager = AlarmBuilder::create_node_alarm_manager(configData, alarmPostHandler);
+        //nodeAlarmManager->attach_to_tree(root);
 
         TcpTalker tcpTalker(10520);
         tcpTalker.set_target(root);

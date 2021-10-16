@@ -39,9 +39,12 @@ public:
     std::vector<ModbusIpChannelData> get_modbus_ip_channel_data();
 
     struct ModbusIpPoint {
-        uint16_t pointId;
-        uint16_t address;
+        uint32_t pointId;
+        uint32_t address;
         uint8_t type;
+        uint32_t inOp;
+        uint32_t outOp;
+        uint32_t alarmLogic;
     };
 
     std::unordered_map<uint16_t, std::vector<ModbusIpPoint>> get_modbus_ip_point();
@@ -50,6 +53,9 @@ public:
         uint16_t pointId;
         uint16_t address;
         uint8_t type;
+        uint32_t inOp;
+        uint32_t outOp;
+        uint32_t alarmLogic;
     };
 
     std::unordered_map<uint16_t, std::vector<ModbusRtuPoint>> get_modbus_rtu_point();
@@ -102,7 +108,6 @@ public:
         uint8_t priority;
         uint16_t timeTableId;
     };
-
     std::unordered_map<uint16_t, std::vector<ScheduleData>> get_schedule_data();
 
     struct TimeTableData {
@@ -113,7 +118,6 @@ public:
         //size_t eventType;
         std::string valueString;
     };
-
     std::unordered_map<uint16_t, std::vector<TimeTableData>> get_time_table_data();
 
     struct EquipmentScheduleData 
@@ -122,19 +126,18 @@ public:
         std::string propertyName;
         uint16_t scheduleId;
     };
-
     std::vector<EquipmentScheduleData> get_equipment_schedule_data();
 
     struct AlarmLogicData {
-        uint32_t id;
-        int32_t comparison;
-        Value referenceValue;
-        std::string message;
-        int32_t state;
-        int32_t code;
+        uint32_t compare;
+        double refValue;
+        uint32_t state;
     };
-
-    std::vector<AlarmLogicData> get_alarm_logic();
+    struct AlarmLogicsData {
+        uint32_t id;
+        std::vector<AlarmLogicData> logicData;
+    };
+    std::vector<AlarmLogicsData> get_alarm_logic();
 
     struct NodeAlarmData {
         HashKey::EitherKey equipmentId;
@@ -142,7 +145,6 @@ public:
         uint32_t alarmLogicId;
         uint16_t priority;
     };
-
     std::vector<NodeAlarmData> get_node_alarm();
 
     struct NodeNormalMessage {
@@ -150,8 +152,14 @@ public:
         HashKey::EitherKey propertyId;
         std::string message;
     };
-
     std::vector<NodeNormalMessage> get_normal_message();
+
+    struct PointAlarmPair {
+        uint32_t deviceId;
+        uint32_t pointId;
+        uint32_t logicGroupId;
+    };
+    std::vector<PointAlarmPair> get_alarm_point_pair();
 
 private:
     Sqlite3 theDb;

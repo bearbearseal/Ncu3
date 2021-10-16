@@ -6,6 +6,7 @@
 #include "../Storage/ConfigStorage.h"
 #include "../Modbus/ModbusIpProcess.h"
 #include "../Modbus/ModbusRtuProcess.h"
+#include "../VariableTree/VariableTree.h"
 #include "SerialPortManager.h"
 
 //Channel Manager manages channels, physical peripheral devices
@@ -16,6 +17,7 @@ public:
     virtual ~ChannelManager();
     
     std::shared_ptr<Variable> get_point(uint16_t deviceId, uint16_t pointId);
+    void attach_to_tree(std::shared_ptr<VariableTree> theTree);
     void start();
 
 private:

@@ -83,7 +83,17 @@
   ,
   {"Command": "Read","Branch": {"Id": "Equipment1", "Branch": {"Id": "Register3"}}}
   ,
-  {"Command": "Read","Branch": {"Id": "Equipment1", "Branch": {"Id": "Register4"}}}
+  {"Command": "Read","Branch": {"Id": 20, "Branch": {"Id": 1}}}
+  ,
+  {"Command": "Read","Branch": {"Id": 20, "Branch": {"Id": 2}}}
+  ,
+  {"Command": "Read","Branch": {"Id": 20, "Branch": {"Id": 3}}}
+  ,
+  {"Command": "Read","Branch": {"Id": 20, "Branch": {"Id": 4}}}
+  ,
+  {"Command": "Read","Branch": {"Id": 20, "Branch": {"Id": 5}}}
+  ,
+  {"Command": "Read","Branch": {"Id": 8,"Branch": {"Id": 1}}}
   ,
   {"Command": "Read","Branch": {"Id": 8,"Branch": {"Id": 2}}}
   ,

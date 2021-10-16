@@ -1,0 +1,43 @@
+NCU listen to TCP/IP port 10520
+
+Reading Point:
+{"Command":"Read", "Branch":{"Id":"EquipmentName", "Branch":{"Id":"PropertyName"}}}
+Description:
+The values are stored in tree structure in NCU, the 1st level branch is the equipment name and 2nd level is the property name.
+Reply:
+{"Status":"Good", "Value":123}
+
+Write Point:
+{"Command":"Read", "Branch":{"Id":"EquipmentName", "Branch":{"Id":"PropertyName"}}, "Value":123}
+Description:
+Writing string value to numeric property behavior is undefined.
+Reply:
+{"Status":"Good"}
+
+Listen To value update notification:
+{"Command":"ListenValue","Branch":{"Id":"EquipmentName", "Branch":{"Id":"PropertyName"}}, "Tag":"Token"}
+Description:
+Ncu would notify listener each time there is a value update.
+Tag would be sent along with value update.
+Reply:
+{"Status":"Good"}
+
+Debug commands:
+{"Command":"Show"}
+Show the children of current branch, leaf means the branch is a value carrier
+
+{"Command":"MoveDown", "Id":"BranchName"}
+Change the current branch to the child branch
+
+{"Command": "MoveToTop"}
+Change the current branch to the root
+
+{"Command": "CreateBranch", "NewId":"A New Id"}
+Create a child of branch type under current branch
+
+{"Command":"CreateLeaf", "NewId":"A New Id"}
+Create a value carrier node under current branch, this node would reply to read/write/listen command but is not connected to any physical point.
+
+{"Command":"CreateBranch"/"CreateLeaf", "Branch":{"Id":"Level1", "Branch":{"Id":"Level2", "Branch":{"Id":"Level3"}}}, "NewId":"A New Child"}
+Create a branch/leaf under Level3 which is child of Level2 which is child of Level1, all the ancestors should exist for the commane to be successful.
+

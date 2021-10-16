@@ -56,8 +56,45 @@ public:
 	};
 	std::shared_ptr<HoldingRegisterVariable> get_holding_register_variable(uint16_t registerAddress, ModbusRegisterValue::DataType type);
 
+	class DigitalInputVariable : public Variable {
+		friend class ModbusIpProcess;
+	public:
+		DigitalInputVariable(std::shared_ptr<Shadow> _master, uint16_t _address);
+		virtual ~DigitalInputVariable();
+		bool write_value(const Value& newValue) { return false; }
+
+	private:
+		void update_value_from_source(uint16_t firstAddress, const std::vector<bool>& values);
+		std::weak_ptr<Shadow> master;
+		uint16_t address;
+	};
+	std::shared_ptr<DigitalInputVariable> get_digital_input_variable(uint16_t address);
+
+	class InputRegisterVariable : public Variable {
+		friend class ModbusIpProcess;
+	public:
+		InputRegisterVariable(
+			std::shared_ptr<Shadow> _master,
+			uint16_t _firstAddress,
+			ModbusRegisterValue::DataType _type,
+			bool smallEndian);
+		virtual ~InputRegisterVariable();
+		bool write_value(const Value& newValue) { return false; }
+
+	private:
+		void update_value_from_source(uint16_t _registerAddress, const std::vector<RegisterValue>& values);
+		inline uint8_t register_count() { return ModbusRegisterValue::get_register_count(type); }
+
+		std::weak_ptr<Shadow> master;
+		uint16_t firstAddress;
+		bool smallEndian;
+		ModbusRegisterValue::DataType type;
+	};
+	std::shared_ptr<InputRegisterVariable> get_input_register_variable(uint16_t registerAddress, ModbusRegisterValue::DataType type);
+
 private:
 	std::shared_ptr<Shadow> myShadow;
+	
 	struct HoldingRegisterQueryData{
 		uint16_t startAddress;
 		uint16_t registerCount;
@@ -65,19 +102,39 @@ private:
 	};
 	std::vector<HoldingRegisterQueryData> holdingRegisterQueryList;
 
+	struct InputRegisterQueryData {
+		uint16_t startAddress;
+		uint16_t registerCount;
+		std::vector<std::shared_ptr<InputRegisterVariable>> variables;
+	};
+	std::vector<InputRegisterQueryData> inputRegisterQueryList;
+
 	struct CoilQueryData{
 		uint16_t startAddress;
 		uint16_t coilCount;
 		std::vector<std::shared_ptr<CoilStatusVariable>> variables;
 	};
 	std::vector<CoilQueryData> coilQueryList;
-
     std::map<uint16_t, std::shared_ptr<CoilStatusVariable>> address2CoilMap;
-    struct RegisterData{
+
+	struct DigitalInputQueryData {
+		uint16_t startAddress;
+		uint16_t digitalInputCount;
+		std::vector<std::shared_ptr<DigitalInputVariable>> variables;
+	};
+	std::vector<DigitalInputQueryData> digitalInputQueryList;
+	std::map<uint16_t, std::shared_ptr<DigitalInputVariable>> address2DigitalInputMap;
+
+    struct HoldingRegisterData{
         size_t count = 0;   //longest variables register count 
         std::vector<std::shared_ptr<HoldingRegisterVariable>> variables;
     };
-    std::map<uint16_t, RegisterData> address2HoldingRegisterMap;
+    std::map<uint16_t, HoldingRegisterData> address2HoldingRegisterMap;
+	struct InputRegisterData{
+		size_t count = 0;
+		std::vector<std::shared_ptr<InputRegisterVariable>> variables;
+	};
+	std::map<uint16_t, InputRegisterData> address2InputRegisterMap;
 
 	void convert_variable_map_to_query();
 
@@ -115,6 +172,7 @@ private:
 	void force_coil(uint16_t coilAddress, bool value);
 	void write_multiple_holding_register(uint16_t registerAddress, const std::vector<RegisterValue>& values);
 	std::pair<bool, std::string> query_holding_register_then_get_reply(const HoldingRegisterQueryData& queryData, uint16_t sequenceNumber, std::chrono::milliseconds waitTime);
+	std::pair<bool, std::string> query_input_register_then_get_reply(const InputRegisterQueryData& queryData, uint16_t sequenceNumber, std::chrono::milliseconds waitTime);	
 	bool do_write_coil_query(uint16_t& sequenceNumber, std::chrono::milliseconds waitTime);
 	bool do_write_holding_register_query(uint16_t& sequnceNumber, std::chrono::milliseconds waitTime);
 

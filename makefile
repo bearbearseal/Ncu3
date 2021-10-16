@@ -5,9 +5,9 @@ OBJS += OperationalLogic.o OpCreator.o StringManipulator.o FileIOer.o OpStorage.
 OBJS += SerialPort.o SyncedSerialPort.o PrioritizedValue.o 
 OBJS += ScheduleRule.o Schedule.o TimeTable.o Timer.o ScheduleFunction.o
 OBJS += Sqlite3.o Sqlite3JsonTalker.o Sqlite3UdpListener.o
-#OBJS += AlarmHandler.o AlarmLogicConstant.o AlarmDetector.o
+OBJS += AlarmLogicGroup.o AlarmManager.o AlarmPoster.o AlarmStorage.o AlarmVerifier.o
 OBJS += NodeAlarmManager.o AlarmVerifier.o AlarmPostHandler.o AlarmBuilder.o
-OBJS += UdpSocket.o UdpListener.o #Builder.o
+OBJS += UdpSocket.o UdpListener.o
 OBJS += Equipment.o Property.o
 OBJS += ConfigStorage.o ChannelManager.o EquipmentManager.o SerialPortManager.o ScheduleManager.o
 CC = g++ -std=c++17
@@ -68,13 +68,13 @@ SerialPort.o: ../MyLib/SerialPort/SerialPort.h ../MyLib/SerialPort/SerialPort.cp
 SyncedSerialPort.o: ../MyLib/SerialPort/SyncedSerialPort.h ../MyLib/SerialPort/SyncedSerialPort.cpp
 	$(CC) $(CFLAGS) ../MyLib/SerialPort/SyncedSerialPort.cpp
 
-#AlarmLogicConstant.o: Alarm/AlarmLogicConstant.h Alarm/AlarmLogicConstant.cpp Alarm/AlarmDefinition.h
+#AlarmLogicGroup.o: Alarm/AlarmLogicConstant.h Alarm/AlarmLogicConstant.cpp Alarm/AlarmDefinition.h
 #	$(CC) $(CFLAGS) Alarm/AlarmLogicConstant.cpp
 
-#AlarmDetector.o: Alarm/AlarmDetector.h Alarm/AlarmDetector.cpp Alarm/AlarmDefinition.h
+#AlarmManager.o: Alarm/AlarmDetector.h Alarm/AlarmDetector.cpp Alarm/AlarmDefinition.h
 #	$(CC) $(CFLAGS) Alarm/AlarmDetector.cpp
 
-#AlarmHandler.o: Alarm/AlarmHandler.h Alarm/AlarmHandler.cpp Alarm/AlarmDefinition.h ../MyLib/Basic/Helper.hpp
+#AlarmPoster.o: Alarm/AlarmHandler.h Alarm/AlarmHandler.cpp Alarm/AlarmDefinition.h ../MyLib/Basic/Helper.hpp
 #	$(CC) $(CFLAGS) Alarm/AlarmHandler.cpp
 
 NodeAlarmManager.o: Alarm3/NodeAlarmManager.h Alarm3/NodeAlarmManager.cpp Alarm3/AlarmDefinition.h

@@ -5,12 +5,6 @@
 #include "../../MyLib/Basic/Value.h"
 
 namespace AlarmDefinition {
-    enum class ConditionType {
-        None = 0,
-        Alarm = 1,
-        Event = 2,
-        Error = 3
-    };
     enum class Comparison {
         GREATER = 1,
         GREATER_EQUAL = 2,
@@ -39,21 +33,17 @@ namespace AlarmDefinition {
             HashKey::EitherKey _propertyId, 
             AlarmState _activeState, 
             AlarmState _oldState, 
-            std::string _message, 
             Value _activeValue, 
             Value _referenceValue, 
             Comparison _comparison, 
-            uint32_t _code, 
             uint64_t _milliSecTime) :
             equipmentId(_equipmentId),
             propertyId(_propertyId),
             activeState(_activeState),
             oldState(_oldState),
-            message(_message),
             activeValue(_activeValue),
             referenceValue(_referenceValue),
             comparison(_comparison),
-            code(_code),
             milliSecTime(_milliSecTime)
         {}
         AlarmMessage(AlarmMessage&& theOther)
@@ -62,22 +52,18 @@ namespace AlarmDefinition {
             propertyId = std::move(theOther.propertyId);
             activeState = theOther.activeState;
             oldState = theOther.oldState;
-            message = std::move(theOther.message);
             activeValue = std::move(theOther.activeValue);
             referenceValue = std::move(theOther.referenceValue);
             comparison = theOther.comparison;
-            code = theOther.code;
             milliSecTime = theOther.milliSecTime;
         }
         HashKey::EitherKey equipmentId;
         HashKey::EitherKey propertyId;
         AlarmState activeState;
         AlarmState oldState;
-        std::string message;
         Value activeValue;
         Value referenceValue;
         Comparison comparison;
-        uint32_t code;
         uint64_t milliSecTime;
     };
 }

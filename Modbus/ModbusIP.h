@@ -44,10 +44,12 @@ namespace ModbusIP{
 	//the query string + the expected reply length
     std::pair<std::string, uint16_t> construct_read_coils(uint16_t sequenceNumber, uint8_t slaveAddress, uint16_t coilAddress, uint16_t count);
     std::pair<std::string, uint16_t> construct_write_single_coil(uint16_t sequenceNumber, uint8_t slaveAddress, uint16_t coilAddress, bool value);
+	std::pair<std::string, uint16_t> construct_read_digital_input(uint16_t sequenceNumber, uint8_t slaveAddress, uint16_t inputAddress, uint16_t count);
     std::pair<std::string, uint16_t> construct_read_input_registers(uint16_t sequenceNumber, uint8_t slaveAddress, uint16_t registerAddress, uint16_t count);
-    std::pair<std::string, uint16_t> construct_read_multiple_holding_registers(uint16_t sequenceNumber, uint8_t slaveAddress, uint16_t registerAddress, uint16_t count);
+    std::pair<std::string, uint16_t> construct_read_holding_registers(uint16_t sequenceNumber, uint8_t slaveAddress, uint16_t registerAddress, uint16_t count);
     std::pair<std::string, uint16_t> construct_write_single_holding_register(uint16_t sequenceNumber, uint8_t slaveAddress, uint16_t registerAddress, uint16_t value);
     std::pair<std::string, uint16_t> construct_write_multiple_holding_registers(uint16_t sequenceNumber, uint8_t slaveAddress, uint16_t registerAddress, const std::vector<RegisterValue>& values);
+
 
 	ReplyData decode_reply(const std::string& reply);
 

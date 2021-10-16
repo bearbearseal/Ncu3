@@ -4,6 +4,15 @@
 
 using namespace std;
 
+void print_binary(const std::string &binary)
+{
+    for (size_t i = 0; i < binary.size(); ++i)
+    {
+        printf("[%03u]", uint8_t(binary[i]));
+    }
+    printf("\n");
+}
+
 ModbusIpProcess::ModbusIpProcess(const std::string &hisAddress, uint16_t hisPort, uint8_t slaveAddress, uint16_t maxRegister, uint16_t maxCoilPerMessage, bool smallEndian, std::chrono::milliseconds timeout) : socket(false)
 {
     printf("ModbusIp set host to %s port %u\n", hisAddress.c_str(), hisPort);
@@ -76,6 +85,30 @@ shared_ptr<ModbusIpProcess::HoldingRegisterVariable> ModbusIpProcess::get_holdin
     return retVal;
 }
 
+shared_ptr<ModbusIpProcess::DigitalInputVariable> ModbusIpProcess::get_digital_input_variable(uint16_t address)
+{
+    auto i = address2DigitalInputMap.find(address);
+    if (i != address2DigitalInputMap.end())
+    {
+        return i->second;
+    }
+    shared_ptr<DigitalInputVariable> retVal = make_shared<DigitalInputVariable>(myShadow, address);
+    address2DigitalInputMap[address] = retVal;
+    return retVal;
+}
+
+shared_ptr<ModbusIpProcess::InputRegisterVariable> ModbusIpProcess::get_input_register_variable(uint16_t registerAddress, ModbusRegisterValue::DataType type)
+{
+    shared_ptr<InputRegisterVariable> retVal = make_shared<InputRegisterVariable>(myShadow, registerAddress, type, config.isSmallEndian);
+    uint16_t count = ModbusRegisterValue::get_register_count(type);
+    address2InputRegisterMap[registerAddress].variables.push_back(retVal);
+    if (address2InputRegisterMap[registerAddress].count < count)
+    {
+        address2InputRegisterMap[registerAddress].count = count;
+    }
+    return retVal;
+}
+
 bool should_join(uint16_t newAddress, uint16_t startAddress, uint16_t count)
 {
     //uint16_t offset = endAddress - startAddress;
@@ -94,98 +127,192 @@ bool should_join(uint16_t newAddress, uint16_t startAddress, uint16_t count)
 
 void ModbusIpProcess::convert_variable_map_to_query()
 {
-    bool empty = true;
-    CoilQueryData entry;
-    for (auto i = address2CoilMap.begin(); i != address2CoilMap.end(); ++i)
     {
-        if (empty)
+        bool empty = true;
+        CoilQueryData entry;
+        for (auto i = address2CoilMap.begin(); i != address2CoilMap.end(); ++i)
         {
-            entry.startAddress = i->first;
-            entry.coilCount = 1;
-            entry.variables.push_back(i->second);
-            empty = false;
+            if (empty)
+            {
+                entry.startAddress = i->first;
+                entry.coilCount = 1;
+                entry.variables.push_back(i->second);
+                empty = false;
+            }
+            else if (i->first - entry.startAddress > config.maxCoilPerMessage)
+            {
+                //add entry to the query list
+                coilQueryList.push_back(move(entry));
+                //reinit entry
+                entry.variables.clear();
+                entry.startAddress = i->first;
+                entry.coilCount = 1;
+                entry.variables.push_back(i->second);
+                //empty = true;
+            }
+            else if (!should_join(i->first, entry.startAddress, entry.coilCount))
+            {
+                //else if(i->first - (entry.startAddress + entry.coilCount) > 8) {
+                //add entry to the query list
+                coilQueryList.push_back(move(entry));
+                //reinit entry
+                entry.variables.clear();
+                entry.startAddress = i->first;
+                entry.coilCount = 1;
+                entry.variables.push_back(i->second);
+            }
+            else
+            {
+                //add variable to entry
+                entry.variables.push_back(i->second);
+                entry.coilCount = i->first - entry.startAddress + 1;
+            }
         }
-        else if (i->first - entry.startAddress > config.maxCoilPerMessage)
+        if (!empty)
         {
-            //add entry to the query list
             coilQueryList.push_back(move(entry));
-            //reinit entry
-            entry.variables.clear();
-            entry.startAddress = i->first;
-            entry.coilCount = 1;
-            entry.variables.push_back(i->second);
-            //empty = true;
         }
-        else if (!should_join(i->first, entry.startAddress, entry.coilCount))
-        {
-            //else if(i->first - (entry.startAddress + entry.coilCount) > 8) {
-            //add entry to the query list
-            coilQueryList.push_back(move(entry));
-            //reinit entry
-            entry.variables.clear();
-            entry.startAddress = i->first;
-            entry.coilCount = 1;
-            entry.variables.push_back(i->second);
-            //empty = true;
-        }
-        else
-        {
-            //add variable to entry
-            entry.variables.push_back(i->second);
-            entry.coilCount = i->first - entry.startAddress + 1;
-        }
+        address2CoilMap.clear();
     }
-    if (!empty)
     {
-        coilQueryList.push_back(move(entry));
-    }
-    address2CoilMap.clear();
-    empty = true;
-    HoldingRegisterQueryData element;
-    for (auto i = address2HoldingRegisterMap.begin(); i != address2HoldingRegisterMap.end(); ++i)
-    {
-        if (empty)
+        bool empty = true;
+        DigitalInputQueryData entry;
+        for (auto i = address2DigitalInputMap.begin(); i != address2DigitalInputMap.end(); ++i)
         {
-            element.startAddress = i->first;
-            element.registerCount = i->second.count;
-            element.variables.insert(element.variables.end(), i->second.variables.begin(), i->second.variables.end());
-            empty = false;
+            if (empty)
+            {
+                entry.startAddress = i->first;
+                entry.digitalInputCount = 1;
+                entry.variables.push_back(i->second);
+                empty = false;
+            }
+            else if (i->first - entry.startAddress > config.maxCoilPerMessage)
+            {
+                //add entry to the query list
+                digitalInputQueryList.push_back(move(entry));
+                //reinit entry
+                entry.variables.clear();
+                entry.startAddress = i->first;
+                entry.digitalInputCount = 1;
+                entry.variables.push_back(i->second);
+                //empty = true;
+            }
+            else if (!should_join(i->first, entry.startAddress, entry.digitalInputCount))
+            {
+                //else if(i->first - (entry.startAddress + entry.coilCount) > 8) {
+                //add entry to the query list
+                digitalInputQueryList.push_back(move(entry));
+                //reinit entry
+                entry.variables.clear();
+                entry.startAddress = i->first;
+                entry.digitalInputCount = 1;
+                entry.variables.push_back(i->second);
+            }
+            else
+            {
+                //add variable to entry
+                entry.variables.push_back(i->second);
+                entry.digitalInputCount = i->first - entry.startAddress + 1;
+            }
         }
-        else if ((i->first + i->second.count) - element.startAddress > config.maxRegisterPerMessage)
+        if (!empty)
         {
-            //add entry to the query list
+            digitalInputQueryList.push_back(move(entry));
+        }
+        address2CoilMap.clear();
+    }
+    {
+        bool empty = true;
+        HoldingRegisterQueryData element;
+        for (auto i = address2HoldingRegisterMap.begin(); i != address2HoldingRegisterMap.end(); ++i)
+        {
+            if (empty)
+            {
+                element.startAddress = i->first;
+                element.registerCount = i->second.count;
+                element.variables.insert(element.variables.end(), i->second.variables.begin(), i->second.variables.end());
+                empty = false;
+            }
+            else if ((i->first + i->second.count) - element.startAddress > config.maxRegisterPerMessage)
+            {
+                //add entry to the query list
+                holdingRegisterQueryList.push_back(move(element));
+                //reinit entry
+                element.variables.clear();
+                element.startAddress = i->first;
+                element.registerCount = i->second.count;
+                element.variables.insert(element.variables.end(), i->second.variables.begin(), i->second.variables.end());
+                //empty = true;
+            }
+            else if (i->first > (element.startAddress + element.registerCount + 1))
+            {
+                //add entry to the query list
+                holdingRegisterQueryList.push_back(move(element));
+                //reinit entry
+                element.variables.clear();
+                element.startAddress = i->first;
+                element.registerCount = i->second.count;
+                element.variables.insert(element.variables.end(), i->second.variables.begin(), i->second.variables.end());
+            }
+            else
+            {
+                //add variable to entry
+                element.variables.insert(element.variables.end(), i->second.variables.begin(), i->second.variables.end());
+                element.registerCount = i->first + i->second.count - element.startAddress;
+            }
+        }
+        if (!empty)
+        {
             holdingRegisterQueryList.push_back(move(element));
-            //reinit entry
-            element.variables.clear();
-            element.startAddress = i->first;
-            element.registerCount = i->second.count;
-            element.variables.insert(element.variables.end(), i->second.variables.begin(), i->second.variables.end());
-            //empty = true;
         }
-        else if (i->first > (element.startAddress + element.registerCount + 1))
-        {
-            //add entry to the query list
-            holdingRegisterQueryList.push_back(move(element));
-            //reinit entry
-            element.variables.clear();
-            element.startAddress = i->first;
-            element.registerCount = i->second.count;
-            element.variables.insert(element.variables.end(), i->second.variables.begin(), i->second.variables.end());
-            //empty = true;
-        }
-        else
-        {
-            //add variable to entry
-            //element.variables.push_back(i->second);
-            element.variables.insert(element.variables.end(), i->second.variables.begin(), i->second.variables.end());
-            element.registerCount = i->first + i->second.count - element.startAddress;
-        }
+        address2HoldingRegisterMap.clear();
     }
-    if (!empty)
     {
-        holdingRegisterQueryList.push_back(move(element));
+        bool empty = true;
+        InputRegisterQueryData element;
+        for (auto i = address2InputRegisterMap.begin(); i != address2InputRegisterMap.end(); ++i)
+        {
+            if (empty)
+            {
+                element.startAddress = i->first;
+                element.registerCount = i->second.count;
+                element.variables.insert(element.variables.end(), i->second.variables.begin(), i->second.variables.end());
+                empty = false;
+            }
+            else if ((i->first + i->second.count) - element.startAddress > config.maxRegisterPerMessage)
+            {
+                //add entry to the query list
+                inputRegisterQueryList.push_back(move(element));
+                //reinit entry
+                element.variables.clear();
+                element.startAddress = i->first;
+                element.registerCount = i->second.count;
+                element.variables.insert(element.variables.end(), i->second.variables.begin(), i->second.variables.end());
+                //empty = true;
+            }
+            else if (i->first > (element.startAddress + element.registerCount + 1))
+            {
+                //add entry to the query list
+                inputRegisterQueryList.push_back(move(element));
+                //reinit entry
+                element.variables.clear();
+                element.startAddress = i->first;
+                element.registerCount = i->second.count;
+                element.variables.insert(element.variables.end(), i->second.variables.begin(), i->second.variables.end());
+            }
+            else
+            {
+                //add variable to entry
+                element.variables.insert(element.variables.end(), i->second.variables.begin(), i->second.variables.end());
+                element.registerCount = i->first + i->second.count - element.startAddress;
+            }
+        }
+        if (!empty)
+        {
+            inputRegisterQueryList.push_back(move(element));
+        }
+        address2InputRegisterMap.clear();
     }
-    address2HoldingRegisterMap.clear();
 }
 
 pair<bool, string> get_reply(TcpSocket &socket, uint16_t expectedLength, chrono::milliseconds timeout)
@@ -216,14 +343,11 @@ pair<bool, string> get_reply(TcpSocket &socket, uint16_t expectedLength, chrono:
 pair<bool, string> ModbusIpProcess::query_holding_register_then_get_reply(const HoldingRegisterQueryData &queryData, uint16_t sequenceNumber, chrono::milliseconds waitTime)
 {
     string retVal;
-    auto query = ModbusIP::construct_read_multiple_holding_registers(sequenceNumber, config.slaveAddress, queryData.startAddress, queryData.registerCount);
+    auto query = ModbusIP::construct_read_holding_registers(sequenceNumber, config.slaveAddress, queryData.startAddress, queryData.registerCount);
     if (!socket.write(query.first))
     {
         return {false, retVal};
     }
-    //auto beginTime = chrono::steady_clock::now();
-    //do {
-    //this_thread::sleep_for(10ms);
     this_thread::sleep_for(waitTime);
     auto reply = socket.read();
     if (!reply.first)
@@ -239,7 +363,32 @@ pair<bool, string> ModbusIpProcess::query_holding_register_then_get_reply(const 
             return {true, retVal};
         }
     }
-    //}while(chrono::duration_cast<chrono::milliseconds>(chrono::steady_clock::now() - beginTime) < waitTime);
+    return {false, retVal};
+}
+
+pair<bool, string> ModbusIpProcess::query_input_register_then_get_reply(const InputRegisterQueryData &queryData, uint16_t sequenceNumber, std::chrono::milliseconds waitTime)
+{
+    string retVal;
+    auto query = ModbusIP::construct_read_input_registers(sequenceNumber, config.slaveAddress, queryData.startAddress, queryData.registerCount);
+    if (!socket.write(query.first))
+    {
+        return {false, retVal};
+    }
+    this_thread::sleep_for(waitTime);
+    auto reply = socket.read();
+    if (!reply.first)
+    {
+        printf("Read holding register no reply.\n");
+        return {false, retVal};
+    }
+    else
+    {
+        retVal += reply.second;
+        if (retVal.size() >= query.second)
+        {
+            return {true, retVal};
+        }
+    }
     return {false, retVal};
 }
 
@@ -329,10 +478,12 @@ bool ModbusIpProcess::do_write_holding_register_query(uint16_t &sequenceNumber, 
 
 void ModbusIpProcess::thread_process(ModbusIpProcess *me)
 {
-    printf("Thread started...\n");
+    printf("ModbusIP thread started...\n");
     uint16_t sequenceNumber = 0;
     auto coilIter = me->coilQueryList.begin();
-    auto registerIter = me->holdingRegisterQueryList.begin();
+    auto digitalInputIter = me->digitalInputQueryList.begin();
+    auto holdingRegisterIter = me->holdingRegisterQueryList.begin();
+    auto inputRegisterIter = me->inputRegisterQueryList.begin();
     while (me->threadData.keepRunning)
     {
         switch (me->threadData.mainState)
@@ -378,11 +529,10 @@ void ModbusIpProcess::thread_process(ModbusIpProcess *me)
             switch (me->threadData.subState)
             {
             case 0: //Query Coil
-                //cout<<"SubState 0\n";
                 if (coilIter == me->coilQueryList.end())
                 {
                     coilIter = me->coilQueryList.begin();
-                    me->threadData.subState = 1; //Query Register
+                    me->threadData.subState = 1; //Query Digital Input
                 }
                 else
                 {
@@ -419,7 +569,6 @@ void ModbusIpProcess::thread_process(ModbusIpProcess *me)
                         {
                             me->threadData.failCount = 0;
                             //distribute the reply.
-                            //printf("Read coil reply is valid.\nAddress:%05u Count:%03u.\n", queryData.startAddress, queryData.coilCount);
                             for (auto i = queryData.variables.begin(); i != queryData.variables.end(); ++i)
                             {
                                 (*i)->update_value_from_source(queryData.startAddress, decoded.get_coils());
@@ -429,28 +578,80 @@ void ModbusIpProcess::thread_process(ModbusIpProcess *me)
                         {
                             printf("Error reply function code: %u vs %u sequence number %u vs %u.\n", decoded.functionCode, ModbusIP::READ_COIL_CODE, decoded.sequenceNumber, sequenceNumber);
                         }
-                        //this_thread::sleep_for(10s);
                     }
                     ++coilIter;
                 }
                 break;
-            case 1: //Query Register
-                //cout<<"SubState 1\n";
-                if (registerIter == me->holdingRegisterQueryList.end())
+            case 1: //Query Digital Input
+                if (digitalInputIter == me->digitalInputQueryList.end())
                 {
-                    registerIter = me->holdingRegisterQueryList.begin();
-                    me->threadData.subState = 0; //Query Coil
+                    digitalInputIter = me->digitalInputQueryList.begin();
+                    me->threadData.subState = 2; //Query Holding Register
                 }
                 else
                 {
-                    HoldingRegisterQueryData &queryData = (*registerIter);
+                    DigitalInputQueryData &queryData = (*digitalInputIter);
+                    ++sequenceNumber;
+                    auto query = ModbusIP::construct_read_digital_input(sequenceNumber, me->config.slaveAddress, queryData.startAddress, queryData.digitalInputCount);
+                    //clear socket buffer
+                    me->socket.read(true);
+                    if (!me->socket.write(query.first))
+                    {
+                        printf("Read digital input failed!\n");
+                        me->threadData.mainState = 20; //close socket
+                        continue;
+                    }
+                    else
+                    {
+                        auto reply = get_reply(me->socket, query.second, me->config.timeout);
+                        if (!reply.first)
+                        {
+                            ++me->threadData.failCount;
+                            printf("No read digital input reply.\n");
+                            if (me->threadData.failCount > 3)
+                            {
+                                me->threadData.mainState = 20; //close socket
+                            }
+                            else
+                            {
+                                this_thread::sleep_for(100ms);
+                            }
+                            continue;
+                        }
+                        auto decoded = ModbusIP::decode_reply(reply.second);
+                        if (decoded.functionCode == ModbusIP::READ_INPUT_CODE && decoded.sequenceNumber == sequenceNumber)
+                        {
+                            me->threadData.failCount = 0;
+                            //distribute the reply.
+                            for (auto i = queryData.variables.begin(); i != queryData.variables.end(); ++i)
+                            {
+                                (*i)->update_value_from_source(queryData.startAddress, decoded.get_input_status());
+                            }
+                        }
+                        else
+                        {
+                            printf("Error reply function code: %u vs %u sequence number %u vs %u.\n", decoded.functionCode, ModbusIP::READ_COIL_CODE, decoded.sequenceNumber, sequenceNumber);
+                        }
+                    }
+                    ++coilIter;
+                }
+                break;
+            case 2: //Query Holding Register
+                if (holdingRegisterIter == me->holdingRegisterQueryList.end())
+                {
+                    holdingRegisterIter = me->holdingRegisterQueryList.begin();
+                    me->threadData.subState = 3; //Query Input Register
+                }
+                else
+                {
+                    HoldingRegisterQueryData &queryData = (*holdingRegisterIter);
                     ++sequenceNumber;
                     //clear socket buffer
                     me->socket.read(true);
                     auto reply = me->query_holding_register_then_get_reply(queryData, sequenceNumber, me->config.timeout);
                     if (!reply.first)
                     {
-                        printf("No read register reply.\n");
+                        printf("No read holding register reply.\n");
                         ++me->threadData.failCount;
                         if (me->threadData.failCount > 3)
                         {
@@ -468,7 +669,6 @@ void ModbusIpProcess::thread_process(ModbusIpProcess *me)
                     {
                         me->threadData.failCount = 0;
                         //distribute the reply
-                        //printf("Read register reply is valid.\nAddress:%05u Count:%03u.\n", queryData.startAddress, queryData.registerCount);
                         for (auto i = queryData.variables.begin(); i != queryData.variables.end(); ++i)
                         {
                             //printf("Updating value from source.\n");
@@ -480,7 +680,52 @@ void ModbusIpProcess::thread_process(ModbusIpProcess *me)
                         printf("Error reply function code: %u vs %u sequence number %u vs %u.\n", decoded.functionCode, ModbusIP::READ_HOLDING_REGISTER_CODE, decoded.sequenceNumber, sequenceNumber);
                     }
                     //this_thread::sleep_for(10s);
-                    ++registerIter;
+                    ++holdingRegisterIter;
+                }
+                break;
+            case 3: //Query Input Register
+                if (inputRegisterIter == me->inputRegisterQueryList.end())
+                {
+                    inputRegisterIter = me->inputRegisterQueryList.begin();
+                    me->threadData.subState = 0; //Query Coil
+                }
+                else
+                {
+                    InputRegisterQueryData &queryData = (*inputRegisterIter);
+                    ++sequenceNumber;
+                    //clear socket buffer
+                    me->socket.read(true);
+                    auto reply = me->query_input_register_then_get_reply(queryData, sequenceNumber, me->config.timeout);
+                    if (!reply.first)
+                    {
+                        printf("No read rinput egister reply.\n");
+                        ++me->threadData.failCount;
+                        if (me->threadData.failCount > 3)
+                        {
+                            me->threadData.mainState = 20; //close socket
+                        }
+                        else
+                        {
+                            this_thread::sleep_for(100ms);
+                        }
+                        continue;
+                    }
+                    auto decoded = ModbusIP::decode_reply(reply.second);
+                    if (decoded.functionCode == ModbusIP::READ_INPUT_REGISTER_CODE && decoded.sequenceNumber == sequenceNumber)
+                    {
+                        me->threadData.failCount = 0;
+                        //distribute the reply
+                        for (auto i = queryData.variables.begin(); i != queryData.variables.end(); ++i)
+                        {
+                            (*i)->update_value_from_source(queryData.startAddress, decoded.get_input_register());
+                        }
+                    }
+                    else
+                    {
+                        printf("Error reply function code: %u vs %u sequence number %u vs %u.\n", decoded.functionCode, ModbusIP::READ_HOLDING_REGISTER_CODE, decoded.sequenceNumber, sequenceNumber);
+                    }
+                    //this_thread::sleep_for(10s);
+                    ++holdingRegisterIter;
                 }
                 break;
             }
@@ -513,13 +758,9 @@ void ModbusIpProcess::write_multiple_holding_register(uint16_t registerAddress, 
     writeHoldingRegisterData.valueMap[registerAddress] = values;
 }
 
-ModbusIpProcess::CoilStatusVariable::CoilStatusVariable(shared_ptr<Shadow> _master, uint16_t _coilAddress) : master(_master), coilAddress(_coilAddress)
-{
-}
+ModbusIpProcess::CoilStatusVariable::CoilStatusVariable(shared_ptr<Shadow> _master, uint16_t _coilAddress) : master(_master), coilAddress(_coilAddress) {}
 
-ModbusIpProcess::CoilStatusVariable::~CoilStatusVariable()
-{
-}
+ModbusIpProcess::CoilStatusVariable::~CoilStatusVariable() {}
 
 bool ModbusIpProcess::CoilStatusVariable::write_value(const Value &newValue)
 {
@@ -535,12 +776,24 @@ bool ModbusIpProcess::CoilStatusVariable::write_value(const Value &newValue)
 void ModbusIpProcess::CoilStatusVariable::update_value_from_source(uint16_t firstAddress, const vector<bool> &values)
 {
     size_t index = coilAddress - firstAddress;
-    //printf("My address %u, taking the %uth value.\n", coilAddress, index);
     if (index >= values.size())
     {
         return;
     }
-    //printf("Updating coil value to %u\n", values[index]);
+    this->update_value_to_cache(values[index]);
+}
+
+ModbusIpProcess::DigitalInputVariable::DigitalInputVariable(std::shared_ptr<Shadow> _master, uint16_t _address) : master(_master), address(_address) {}
+
+ModbusIpProcess::DigitalInputVariable::~DigitalInputVariable() {}
+
+void ModbusIpProcess::DigitalInputVariable::update_value_from_source(uint16_t firstAddress, const std::vector<bool> &values)
+{
+    size_t index = address - firstAddress;
+    if (index >= values.size())
+    {
+        return;
+    }
     this->update_value_to_cache(values[index]);
 }
 
@@ -552,9 +805,7 @@ ModbusIpProcess::HoldingRegisterVariable::HoldingRegisterVariable(
     smallEndian = _smallEndian;
 }
 
-ModbusIpProcess::HoldingRegisterVariable::~HoldingRegisterVariable()
-{
-}
+ModbusIpProcess::HoldingRegisterVariable::~HoldingRegisterVariable() {}
 
 bool ModbusIpProcess::HoldingRegisterVariable::write_value(const Value &newValue)
 {
@@ -572,7 +823,6 @@ bool ModbusIpProcess::HoldingRegisterVariable::write_value(const Value &newValue
 
 void ModbusIpProcess::HoldingRegisterVariable::update_value_from_source(uint16_t _registerAddress, const vector<RegisterValue> &values)
 {
-    //cout<<"Holding register updating value.\n";
     size_t index = firstAddress - _registerAddress;
     if (index >= values.size())
     {
@@ -580,7 +830,27 @@ void ModbusIpProcess::HoldingRegisterVariable::update_value_from_source(uint16_t
     }
     ModbusRegisterValue modbusValue(type, smallEndian);
     modbusValue.set_register_value(values, index);
-    //cout<<"Register setting value to "<<modbusValue.get_value().to_string()<<endl;
-    //printf("Updating register value to %lu\n", modbusValue.get_value().get_int());
+    this->update_value_to_cache(modbusValue.get_value());
+}
+
+ModbusIpProcess::InputRegisterVariable::InputRegisterVariable(
+    std::shared_ptr<Shadow> _master, uint16_t _firstAddress, ModbusRegisterValue::DataType _type, bool _smallEndian) : master(_master)
+{
+    firstAddress = _firstAddress;
+    type = _type;
+    smallEndian = _smallEndian;
+}
+
+ModbusIpProcess::InputRegisterVariable::~InputRegisterVariable() {}
+
+void ModbusIpProcess::InputRegisterVariable::update_value_from_source(uint16_t _registerAddress, const std::vector<RegisterValue> &values)
+{
+    size_t index = firstAddress - _registerAddress;
+    if (index >= values.size())
+    {
+        return;
+    }
+    ModbusRegisterValue modbusValue(type, smallEndian);
+    modbusValue.set_register_value(values, index);
     this->update_value_to_cache(modbusValue.get_value());
 }

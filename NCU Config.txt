@@ -1,0 +1,24 @@
+1. Run the FileAndSqliteEditor.out in Ncu3/Application
+2. Open browser and type http://localhost/Sqlite3Editor/BrowsePage.php to get access to NCU configuration.
+3. Username: Admin1, Password: Password1.
+4. Select table to edit, edit the entry and click on Execute Update.
+
+Table description:
+EnumValue: Stores the enumeration for different table, for user reference.
+
+SerialPortConfig: Serial Port configuration table, only applicable to Raspberry Pi at this moment, doesnt work on Ubuntu VM.
+
+PeripheralDevice: Define the devices NCU shall connect to, Type 1 is ModbusRTU device and Type 2 is ModbusIP device.
+
+ModbusRtuSlave: Stores configuration of ModbusRtuDevices.
+
+ModbusIpSlave: Stores configuration of ModBusIpDevices.  BigEndian 1 or 0 would affect how the registers value is decoded.
+		MaxRegisters and MaxCoil determines how many values 1 command can pull back.
+		Timeout is the maximum wait time in milliseconds that NCU would wait for reply from ModbusIpSlave.
+
+ModbusIpPoint: DeviceId is the foreign key from Peripheral device, it is the ID of the owner of the point defined by the row.
+		PointId is the ID of the point defined by the row.  DeviceId + PointId pair shall be unique.
+		Type define the point type by Modbus definition.  Can refer to EnumValue table for information.
+		Ignores other columns.
+		
+

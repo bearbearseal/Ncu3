@@ -46,13 +46,14 @@ vector<ConfigStorage::ModbusIpChannelData> ConfigStorage::get_modbus_ip_channel_
         entry.msTimeout = result->get_integer(i, "Timeout_ms").second;
         retVal.push_back(entry);
     }
+    //printf("Got %zu modbus ip channel data.\n", retVal.size());
     return retVal;
 }
 
 unordered_map<uint16_t, vector<ConfigStorage::ModbusIpPoint>> ConfigStorage::get_modbus_ip_point()
 {
     unordered_map<uint16_t, vector<ModbusIpPoint>> retVal;
-    auto result = theDb.execute_query("Select DeviceId, PointId, Address, Type from ModbusIpPoint");
+    auto result = theDb.execute_query("Select DeviceId, PointId, Address, Type, AlarmLogic from ModbusIpPoint");
     for (size_t i = 0; i < result->get_row_count(); ++i)
     {
         uint16_t deviceId = result->get_integer(i, "DeviceId").second;
@@ -60,6 +61,7 @@ unordered_map<uint16_t, vector<ConfigStorage::ModbusIpPoint>> ConfigStorage::get
         entry.pointId = result->get_integer(i, "PointId").second;
         entry.address = result->get_integer(i, "Address").second;
         entry.type = result->get_integer(i, "Type").second;
+        entry.alarmLogic = result->get_integer(i, "AlarmLogic").second;
         retVal[deviceId].push_back(entry);
     }
     return retVal;
@@ -68,7 +70,7 @@ unordered_map<uint16_t, vector<ConfigStorage::ModbusIpPoint>> ConfigStorage::get
 unordered_map<uint16_t, vector<ConfigStorage::ModbusRtuPoint>> ConfigStorage::get_modbus_rtu_point()
 {
     unordered_map<uint16_t, vector<ModbusRtuPoint>> retVal;
-    auto result = theDb.execute_query("Select DeviceId, PointId, Address, Type from ModbusRtuPoint");
+    auto result = theDb.execute_query("Select DeviceId, PointId, Address, Type, AlarmLogic from ModbusRtuPoint");
     for (size_t i = 0; i < result->get_row_count(); ++i)
     {
         uint16_t deviceId = result->get_integer(i, "DeviceId").second;
@@ -76,6 +78,7 @@ unordered_map<uint16_t, vector<ConfigStorage::ModbusRtuPoint>> ConfigStorage::ge
         entry.pointId = result->get_integer(i, "PointId").second;
         entry.address = result->get_integer(i, "Address").second;
         entry.type = result->get_integer(i, "Type").second;
+        entry.alarmLogic = result->get_integer(i, "AlarmLogic").second;
         retVal[deviceId].push_back(entry);
     }
     return retVal;
@@ -216,19 +219,38 @@ vector<ConfigStorage::EquipmentScheduleData> ConfigStorage::get_equipment_schedu
     return retVal;
 }
 
-vector<ConfigStorage::AlarmLogicData> ConfigStorage::get_alarm_logic()
+vector<ConfigStorage::AlarmLogicsData> ConfigStorage::get_alarm_logic()
 {
-    vector<AlarmLogicData> retVal;
-    auto result = theDb.execute_query("Select Id, Comparison, Value, Message, State, Code from AlarmLogic");
+    vector<AlarmLogicsData> retVal;
+    auto result = theDb.execute_query("Select Id, Comparison1, RefValue1, State1, "\
+        "Comparison2, RefValue2, State2, "\
+        "Comparison3, RefValue3, State3, "\
+        "Comparison4, RefValue4, State4, "\
+        "Comparison5, RefValue5, State5, "\
+        "Comparison6, RefValue6, State6 from AlarmLogic");
     for(size_t i=0; i<result->get_row_count(); ++i)
     {
-        AlarmLogicData entry;
+        AlarmLogicsData entry;
+        entry.logicData.resize(6);
         entry.id = result->get_integer(i, "Id").second;
-        entry.comparison = result->get_integer(i, "Comparison").second;
-        entry.referenceValue = result->get_float(i, "Value").second;
-        entry.message = result->get_string(i, "Message").second;
-        entry.state = result->get_integer(i, "State").second;
-        entry.code = result->get_integer(i, "Code").second;
+        entry.logicData[0].compare = result->get_integer(i, "Comparison1").second;
+        entry.logicData[0].refValue = result->get_float(i, "RefValue1").second;
+        entry.logicData[0].state = result->get_integer(i, "State1").second;
+        entry.logicData[1].compare = result->get_integer(i, "Comparison2").second;
+        entry.logicData[1].refValue = result->get_float(i, "RefValue2").second;
+        entry.logicData[1].state = result->get_integer(i, "State2").second;
+        entry.logicData[2].compare = result->get_integer(i, "Comparison3").second;
+        entry.logicData[2].refValue = result->get_float(i, "RefValue3").second;
+        entry.logicData[2].state = result->get_integer(i, "State3").second;
+        entry.logicData[3].compare = result->get_integer(i, "Comparison4").second;
+        entry.logicData[3].refValue = result->get_float(i, "RefValue4").second;
+        entry.logicData[3].state = result->get_integer(i, "State4").second;
+        entry.logicData[4].compare = result->get_integer(i, "Comparison5").second;
+        entry.logicData[4].refValue = result->get_float(i, "RefValue5").second;
+        entry.logicData[4].state = result->get_integer(i, "State5").second;
+        entry.logicData[5].compare = result->get_integer(i, "Comparison6").second;
+        entry.logicData[5].refValue = result->get_float(i, "RefValue6").second;
+        entry.logicData[5].state = result->get_integer(i, "State6").second;
         retVal.push_back(entry);
     }
     return retVal;
@@ -261,6 +283,20 @@ vector<ConfigStorage::NodeNormalMessage> ConfigStorage::get_normal_message()
         entry.propertyId.from_formatted_string(result->get_string(i, "Property").second);
         entry.message = result->get_string(i, "Message").second;
         retVal.push_back(entry);
+    }
+    return retVal;
+}
+
+vector<ConfigStorage::PointAlarmPair> ConfigStorage::get_alarm_point_pair()
+{
+    vector<PointAlarmPair> retVal;
+    auto result = theDb.execute_query("Select DeviceId, PointId, LogicGroupId from PointAlarmPair");
+    retVal.resize(result->get_row_count());
+    for(size_t i=0; i<result->get_row_count(); ++i)
+    {
+        retVal[i].deviceId = result->get_integer(i, "DeviceId").second;
+        retVal[i].pointId = result->get_integer(i, "PointId").second;
+        retVal[i].logicGroupId = result->get_integer(i, "LogicGroupId").second;
     }
     return retVal;
 }
