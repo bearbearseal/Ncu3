@@ -1,0 +1,22 @@
+[
+    {"Device":8, "Point": 1, "Value":10},
+    {"Device":8, "Point": 3, "Value":23},
+    {"Device":8, "Point": 1, "Value":101},
+    {"Device":8, "Point": 5, "Value":1},
+    {"Device":8, "Point": 3, "Value":16},
+    {"Device":8, "Point": 5, "Value":0},
+    {"Device":8, "Point": 1, "Value":35},
+    {"Device":8, "Point": 3, "Value":19},
+    {"Device":8, "Point": 7, "Value":1},
+    {"Device":8, "Point": 1, "Value":-26},
+    {"Device":8, "Point": 8, "Value":1},
+    {"Device":8, "Point": 1, "Value":8},
+    {"Device":8, "Point": 7, "Value":0},
+    {"Device":8, "Point": 3, "Value":2},
+    {"Device":8, "Point": 1, "Value":-76},
+    {"Device":8, "Point": 3, "Value":19},
+    {"Device":8, "Point": 7, "Value":0},
+    {"Device":8, "Point": 5, "Value":0},
+    {"Device":8, "Point": 3, "Value":12},
+    {"Device":8, "Point": 8, "Value":0}
+]

@@ -1,0 +1,9 @@
+1. Update alarm to all connected socket.
+2. Reply to read active alarm:
+	Simple read
+	Continuation read
+3. Reply to read history alarm:
+	Read Interval
+	Read Count
+	Read Continuation
+

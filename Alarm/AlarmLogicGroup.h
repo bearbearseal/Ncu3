@@ -1,7 +1,7 @@
 #ifndef _AlarmLogic_H_
 #define _AlarmLogic_H_
 #include "AlarmDefinition.h"
-#include "AlarmVerifier.h"
+#include "AlarmStateChecker.h"
 #include <optional>
 
 class AlarmLogicGroup {
@@ -10,14 +10,15 @@ public:
     {
         AlarmDefinition::Comparison compare;
         Value refValue;
-        AlarmDefinition::AlarmState state;
+        AlarmDefinition::AlarmState state = AlarmDefinition::AlarmState::NORMAL;
     };
+    AlarmLogicGroup() {}
     AlarmLogicGroup(const std::vector<AlarmData>& logicData);
     virtual ~AlarmLogicGroup();
-    std::optional<AlarmData> check_alarm(const Value& value);
+    AlarmData check_alarm(const Value& value) const;
 
 private:
-    std::vector<std::pair<AlarmVerifier, AlarmData>> verifierList;
+    std::vector<std::pair<AlarmStateChecker, AlarmData>> checkerList;
 };
 
 #endif

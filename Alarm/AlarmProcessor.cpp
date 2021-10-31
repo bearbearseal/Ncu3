@@ -1,4 +1,4 @@
-#include "AlarmManager.h"
+#include "AlarmProcessor.h"
 #include <thread>
 
 using namespace std;
@@ -16,10 +16,10 @@ inline pair<uint32_t, uint32_t> split_equipment_point_id(uint64_t combinedId)
     return {static_cast<uint32_t>(combinedId >> 32), static_cast<uint32_t>(combinedId)};
 }
 
-AlarmManager::AlarmManager(ConfigStorage &storage, std::shared_ptr<VariableTree> target, std::unique_ptr<AlarmListener> &_alarmPoster)
+AlarmProcessor::AlarmProcessor(ConfigStorage &storage, std::shared_ptr<VariableTree> target, std::shared_ptr<ProcessedStateListener> processedStateListener)
 {
     myShadow = make_shared<Shadow>(*this);
-    //Create alarm logic group
+    // Create alarm logic group
     auto alarmLogicData = storage.get_alarm_logic();
     for (size_t i = 0; i < alarmLogicData.size(); ++i)
     {
@@ -31,9 +31,9 @@ AlarmManager::AlarmManager(ConfigStorage &storage, std::shared_ptr<VariableTree>
             alarmDataList[j].refValue = alarmLogicData[i].logicData[j].refValue;
             alarmDataList[j].state = static_cast<AlarmDefinition::AlarmState>(alarmLogicData[i].logicData[j].state);
         }
-        logicGroupMap[i] = AlarmLogicGroup(alarmDataList);
+        logicGroupMap.emplace(i, AlarmLogicGroup(alarmDataList));
     }
-    //Load the pairing information
+    // Load the pairing information
     auto alarmPairingInfo = storage.get_alarm_point_pair();
     for (size_t i = 0; i < alarmPairingInfo.size(); ++i)
     {
@@ -51,10 +51,10 @@ AlarmManager::AlarmManager(ConfigStorage &storage, std::shared_ptr<VariableTree>
             }
         }
     }
-    alarmPoster = move(_alarmPoster);
+    stateProcessor = processedStateListener;
 }
 
-AlarmManager::~AlarmManager()
+AlarmProcessor::~AlarmProcessor()
 {
     weak_ptr<Shadow> weak = myShadow;
     myShadow.reset();
@@ -64,25 +64,23 @@ AlarmManager::~AlarmManager()
     }
 }
 
-void AlarmManager::handle_value_change(uint64_t pointId, const Value &newValue, chrono::time_point<chrono::system_clock> theMoment)
+void AlarmProcessor::handle_value_change(uint64_t pointId, const Value &newValue, chrono::time_point<chrono::system_clock> theMoment)
 {
-    //call alarm logic group handler to handle
-    ValueCatcherData &valueCatcherData = pointId2LogicGroupMap[pointId];
+    // call alarm logic group handler to handle
+    auto splitId = split_equipment_point_id(pointId);
+    printf("Alarm processor caught value change of point %u %u: %s\n", splitId.first, splitId.second, newValue.to_string().c_str());
+    const ValueCatcherData &valueCatcherData = pointId2LogicGroupMap[pointId];
     uint32_t alarmGroupId = valueCatcherData.alarmGroupId;
-    AlarmLogicGroup &logicGroup = logicGroupMap[alarmGroupId];
+    const AlarmLogicGroup &logicGroup = logicGroupMap[alarmGroupId];
     auto result = logicGroup.check_alarm(newValue);
-    if (result.has_value())
-    {
-        //Report it to listener;
-        auto equipmentPointId = split_equipment_point_id(pointId);
-        alarmPoster->catch_alarm(equipmentPointId.first, equipmentPointId.second, newValue, result->state, result->refValue, result->compare, theMoment);
-    }
+    // Report it to listener;
+    stateProcessor->catch_alarm_state(splitId.first, splitId.second, newValue, result.state, result.refValue, result.compare, theMoment);
 }
 
-void AlarmManager::AlarmActor::catch_value_change_event(const vector<HashKey::EitherKey> &branch, const Value &newValue, chrono::time_point<chrono::system_clock> theMoment)
+void AlarmProcessor::AlarmActor::catch_value_change_event(const vector<HashKey::EitherKey> &branch, const Value &newValue, chrono::time_point<chrono::system_clock> theMoment)
 {
     auto shared = master.lock();
-    if(shared != nullptr)
+    if (shared != nullptr)
     {
         shared->handle_value_change(pointId, newValue, theMoment);
     }

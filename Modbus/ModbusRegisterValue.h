@@ -8,7 +8,7 @@
 class ModbusRegisterValue
 {
 public:
-	enum class DataType
+	enum class DataType : uint8_t
 	{
 		UNKNOWN = 0,
 		COIL = 1,
@@ -25,7 +25,21 @@ public:
 		FLOAT32_LM = 31,
 		FLOAT32_ML = 32,
 		FLOAT64_LM = 33,
-		FLOAT64_ML = 34
+		FLOAT64_ML = 34,
+		I_INT16 = 111,
+		I_INT32_LM = 112,
+		I_INT32_ML = 113,
+		I_INT64_LM = 114,
+		I_INT64_ML = 115,
+		I_UINT16 = 121,
+		I_UINT32_LM = 122,
+		I_UINT32_ML = 123,
+		I_UINT64_LM = 124,
+		I_UINT64_ML = 125,
+		I_FLOAT32_LM = 131,
+		I_FLOAT32_ML = 132,
+		I_FLOAT64_LM = 133,
+		I_FLOAT64_ML = 134
 	};
 
 	ModbusRegisterValue(DataType _type, bool smallEndian = true);

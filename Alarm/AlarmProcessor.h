@@ -1,38 +1,38 @@
-#ifndef _AlarmManager_H_
-#define _AlarmManager_H_
+#ifndef _AlarmProcessor_H_
+#define _AlarmProcessor_H_
 #include "AlarmDefinition.h"
 #include "AlarmLogicGroup.h"
 #include "../Storage/ConfigStorage.h"
 #include "../VariableTree/VariableTree.h"
 
 //Hold multiple AlarmLogicGroup
-//
+//Process value change to alarm state
 
-class AlarmManager
+class AlarmProcessor
 {
     friend class Shadow;
 
 public:
-    class AlarmListener
+    class ProcessedStateListener
     {
     public:
-        AlarmListener() {}
-        virtual ~AlarmListener() {}
-        virtual void catch_alarm(uint32_t equipmentId, uint32_t pointId, const Value &theValue, AlarmDefinition::AlarmState state,
+        ProcessedStateListener() {}
+        virtual ~ProcessedStateListener() {}
+        virtual void catch_alarm_state(uint32_t equipmentId, uint32_t pointId, const Value &theValue, AlarmDefinition::AlarmState state,
                                  const Value &refValue, AlarmDefinition::Comparison compare, const std::chrono::time_point<std::chrono::system_clock> theMoment) = 0;
     };
-    AlarmManager(ConfigStorage &storage, std::shared_ptr<VariableTree> target, std::unique_ptr<AlarmListener> &alarmPoster);
-    virtual ~AlarmManager();
+    AlarmProcessor(ConfigStorage &storage, std::shared_ptr<VariableTree> target, std::shared_ptr<ProcessedStateListener> processedStateListener);
+    virtual ~AlarmProcessor();
 
 private:
     class Shadow
     {
     public:
-        Shadow(AlarmManager &_me) : me(_me) {}
+        Shadow(AlarmProcessor &_me) : me(_me) {}
         void handle_value_change(uint64_t pointId, const Value &newValue, std::chrono::time_point<std::chrono::system_clock> theMoment) { me.handle_value_change(pointId, newValue, theMoment); }
 
     private:
-        AlarmManager &me;
+        AlarmProcessor &me;
     };
 
     class AlarmActor : public VariableTree::ValueChangeListener
@@ -49,7 +49,7 @@ private:
     void handle_value_change(uint64_t pointId, const Value &newValue, std::chrono::time_point<std::chrono::system_clock> theMoment);
 
     std::shared_ptr<Shadow> myShadow;
-    std::unique_ptr<AlarmListener> alarmPoster;
+    std::shared_ptr<ProcessedStateListener> stateProcessor;
     std::unordered_map<uint32_t, AlarmLogicGroup> logicGroupMap;
     struct ValueCatcherData
     {

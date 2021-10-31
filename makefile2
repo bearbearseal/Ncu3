@@ -1,7 +1,7 @@
 # Set project directory one level above of Makefile directory. $(CURDIR) is a GNU make variable containing the path to the current working directory
 PROJDIR := $(realpath $(CURDIR)/..)
 SOURCEDIR := $(PROJDIR)/Sources
-BUILDDIR := $(PROJDIR)/Build
+OBJDIR := $(PROJDIR)/Build
 
 # Name of the final executable
 TARGET = theMain.out
@@ -12,7 +12,7 @@ VERBOSE = TRUE
 # Create the list of directories
 DIRS = Alarm Builder Equipment InOutOperation Integrator Modbus Schedule Storage VariableTree
 SOURCEDIRS = $(foreach dir, $(DIRS), $(addprefix $(SOURCEDIR)/, $(dir)))
-TARGETDIRS = $(foreach dir, $(DIRS), $(addprefix $(BUILDDIR)/, $(dir)))
+TARGETDIRS = $(foreach dir, $(DIRS), $(addprefix $(OBJDIR)/, $(dir)))
 
 # Generate the GCC includes parameters by adding -I before each source folder
 INCLUDES = $(foreach dir, $(SOURCEDIRS), $(addprefix -I, $(dir)))
@@ -24,7 +24,7 @@ VPATH = $(SOURCEDIRS)
 SOURCES = $(foreach dir,$(SOURCEDIRS),$(wildcard $(dir)/*.c))
 
 # Define objects for all sources
-OBJS := $(subst $(SOURCEDIR),$(BUILDDIR),$(SOURCES:.c=.o))
+OBJS := $(subst $(SOURCEDIR),$(OBJDIR),$(SOURCES:.c=.o))
 
 # Define dependencies files for all objects
 DEPS = $(OBJS:.o=.d)

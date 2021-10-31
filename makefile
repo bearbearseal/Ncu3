@@ -1,162 +1,157 @@
-BUILDDIR = Built
-OBJS = main.o TcpSocket.o TcpListener.o TcpTalker.o TreeBrowser.o Value.o Variable.o VariableTree.o
-OBJS += ModbusIP.o ModbusIpProcess.o ModbusRtu.o ModbusRtuProcess.o ModbusRegisterValue.o
-OBJS += OperationalLogic.o OpCreator.o StringManipulator.o FileIOer.o OpStorage.o
-OBJS += SerialPort.o SyncedSerialPort.o PrioritizedValue.o 
-OBJS += ScheduleRule.o Schedule.o TimeTable.o Timer.o ScheduleFunction.o
-OBJS += Sqlite3.o Sqlite3JsonTalker.o Sqlite3UdpListener.o
-OBJS += AlarmLogicGroup.o AlarmManager.o AlarmPoster.o AlarmStorage.o AlarmVerifier.o
-OBJS += NodeAlarmManager.o AlarmVerifier.o AlarmPostHandler.o AlarmBuilder.o
-OBJS += UdpSocket.o UdpListener.o
-OBJS += Equipment.o Property.o
-OBJS += ConfigStorage.o ChannelManager.o EquipmentManager.o SerialPortManager.o ScheduleManager.o
+OBJDIR = Obj/
+OBJS = $(OBJDIR)main.o $(OBJDIR)TcpSocket.o $(OBJDIR)TcpListener.o
+OBJS += $(OBJDIR)TcpTalker.o $(OBJDIR)TreeBrowser.o
+OBJS += $(OBJDIR)Value.o $(OBJDIR)Variable.o $(OBJDIR)VariableTree.o
+OBJS += $(OBJDIR)ModbusIP.o $(OBJDIR)ModbusIpProcess.o $(OBJDIR)ModbusRtu.o $(OBJDIR)ModbusRtuProcess.o $(OBJDIR)ModbusRegisterValue.o
+OBJS += $(OBJDIR)OperationalLogic.o $(OBJDIR)OpCreator.o $(OBJDIR)StringManipulator.o $(OBJDIR)FileIOer.o $(OBJDIR)OpStorage.o
+OBJS += $(OBJDIR)SerialPort.o $(OBJDIR)SyncedSerialPort.o $(OBJDIR)PrioritizedValue.o 
+OBJS += $(OBJDIR)ScheduleRule.o $(OBJDIR)Schedule.o $(OBJDIR)TimeTable.o $(OBJDIR)Timer.o $(OBJDIR)ScheduleFunction.o
+OBJS += $(OBJDIR)Sqlite3.o $(OBJDIR)Sqlite3JsonTalker.o $(OBJDIR)Sqlite3UdpListener.o
+OBJS += $(OBJDIR)AlarmLogicGroup.o $(OBJDIR)AlarmProcessor.o $(OBJDIR)AlarmVerifyStorePost.o $(OBJDIR)AlarmStateChecker.o
+OBJS += $(OBJDIR)AlarmTalker.o
+OBJS += $(OBJDIR)UdpSocket.o $(OBJDIR)UdpListener.o
+#OBJS += Equipment.o Property.o EquipmentManager.o
+OBJS += $(OBJDIR)ConfigStorage.o $(OBJDIR)ChannelManager.o $(OBJDIR)SerialPortManager.o $(OBJDIR)ScheduleManager.o
 CC = g++ -std=c++17
 CFLAGS = -Wall -O2 -c
 LFLAGS = -Wall
 LIBS = -lpthread -lsqlite3
-#INC = -I../Basic
 binaries = theMain.out
 
 main : $(OBJS)
 	$(CC) $(LFLAGS) $(OBJS) $(LIBS) -o $(binaries)
 
-main.o : main.cpp Test.hpp Deploy.hpp
-	$(CC) $(CFLAGS) main.cpp
+$(OBJDIR)main.o : main.cpp Deploy.hpp
+	$(CC) $(CFLAGS) main.cpp -o $@
 
-TcpSocket.o: ../MyLib/TcpSocket/TcpSocket.h ../MyLib/TcpSocket/TcpSocket.cpp
-	$(CC) $(CFLAGS) ../MyLib/TcpSocket/TcpSocket.cpp
+$(OBJDIR)TcpSocket.o: ../MyLib/TcpSocket/TcpSocket.h ../MyLib/TcpSocket/TcpSocket.cpp
+	$(CC) $(CFLAGS) ../MyLib/TcpSocket/TcpSocket.cpp -o $@
 
-TcpListener.o: ../MyLib/TcpSocket/TcpListener.h ../MyLib/TcpSocket/TcpListener.cpp
-	$(CC) $(CFLAGS) ../MyLib/TcpSocket/TcpListener.cpp
+$(OBJDIR)TcpListener.o: ../MyLib/TcpSocket/TcpListener.h ../MyLib/TcpSocket/TcpListener.cpp
+	$(CC) $(CFLAGS) ../MyLib/TcpSocket/TcpListener.cpp -o $@
 
-TcpTalker.o: VariableTree/TcpTalker.h VariableTree/TcpTalker.cpp
-	$(CC) $(CFLAGS) VariableTree/TcpTalker.cpp
+$(OBJDIR)TcpTalker.o: VariableTree/TcpTalker.h VariableTree/TcpTalker.cpp
+	$(CC) $(CFLAGS) VariableTree/TcpTalker.cpp -o $@
 
-TreeBrowser.o: VariableTree/TreeBrowser.h VariableTree/TreeBrowser.cpp
-	$(CC) $(CFLAGS) VariableTree/TreeBrowser.cpp
+$(OBJDIR)TreeBrowser.o: VariableTree/TreeBrowser.h VariableTree/TreeBrowser.cpp
+	$(CC) $(CFLAGS) VariableTree/TreeBrowser.cpp -o $@
 
-Value.o: ../MyLib/Basic/Value.h ../MyLib/Basic/Value.cpp
-	$(CC) $(CFLAGS) ../MyLib/Basic/Value.cpp
+$(OBJDIR)Value.o: ../MyLib/Basic/Value.h ../MyLib/Basic/Value.cpp
+	$(CC) $(CFLAGS) ../MyLib/Basic/Value.cpp -o $@
 
-PrioritizedValue.o: ../MyLib/Basic/PrioritizedValue.h ../MyLib/Basic/PrioritizedValue.cpp
-	$(CC) $(CFLAGS) ../MyLib/Basic/PrioritizedValue.cpp
+$(OBJDIR)PrioritizedValue.o: ../MyLib/Basic/PrioritizedValue.h ../MyLib/Basic/PrioritizedValue.cpp
+	$(CC) $(CFLAGS) ../MyLib/Basic/PrioritizedValue.cpp -o $@
 
-Variable.o: ../MyLib/Basic/Variable.h ../MyLib/Basic/Variable.cpp
-	$(CC) $(CFLAGS) ../MyLib/Basic/Variable.cpp
+$(OBJDIR)Variable.o: ../MyLib/Basic/Variable.h ../MyLib/Basic/Variable.cpp
+	$(CC) $(CFLAGS) ../MyLib/Basic/Variable.cpp -o $@
 
-VariableTree.o: VariableTree/VariableTree.h VariableTree/VariableTree.cpp ../MyLib/Basic/RamVariable.h
-	$(CC) $(CFLAGS) VariableTree/VariableTree.cpp
+$(OBJDIR)VariableTree.o: VariableTree/VariableTree.h VariableTree/VariableTree.cpp ../MyLib/Basic/RamVariable.h
+	$(CC) $(CFLAGS) VariableTree/VariableTree.cpp -o $@
 
-ModbusIP.o: Modbus/ModbusIP.h Modbus/ModbusIP.cpp
-	$(CC) $(CFLAGS) Modbus/ModbusIP.cpp
+$(OBJDIR)ModbusIP.o: Modbus/ModbusIP.h Modbus/ModbusIP.cpp
+	$(CC) $(CFLAGS) Modbus/ModbusIP.cpp -o $@
 
-ModbusIpProcess.o: Modbus/ModbusIpProcess.h Modbus/ModbusIpProcess.cpp
-	$(CC) $(CFLAGS) Modbus/ModbusIpProcess.cpp
+$(OBJDIR)ModbusIpProcess.o: Modbus/ModbusIpProcess.h Modbus/ModbusIpProcess.cpp
+	$(CC) $(CFLAGS) Modbus/ModbusIpProcess.cpp -o $@
 
-ModbusRtu.o: Modbus/ModbusRtu.h Modbus/ModbusRtu.cpp
-	$(CC) $(CFLAGS) Modbus/ModbusRtu.cpp
+$(OBJDIR)ModbusRtu.o: Modbus/ModbusRtu.h Modbus/ModbusRtu.cpp
+	$(CC) $(CFLAGS) Modbus/ModbusRtu.cpp -o $@
 
-ModbusRtuProcess.o: Modbus/ModbusRtuProcess.h Modbus/ModbusRtuProcess.cpp
-	$(CC) $(CFLAGS) Modbus/ModbusRtuProcess.cpp
+$(OBJDIR)ModbusRtuProcess.o: Modbus/ModbusRtuProcess.h Modbus/ModbusRtuProcess.cpp
+	$(CC) $(CFLAGS) Modbus/ModbusRtuProcess.cpp -o $@
 
-ModbusRegisterValue.o: Modbus/ModbusRegisterValue.h Modbus/ModbusRegisterValue.cpp
-	$(CC) $(CFLAGS) Modbus/ModbusRegisterValue.cpp
+$(OBJDIR)ModbusRegisterValue.o: Modbus/ModbusRegisterValue.h Modbus/ModbusRegisterValue.cpp
+	$(CC) $(CFLAGS) Modbus/ModbusRegisterValue.cpp -o $@
 
-SerialPort.o: ../MyLib/SerialPort/SerialPort.h ../MyLib/SerialPort/SerialPort.cpp
-	$(CC) $(CFLAGS) ../MyLib/SerialPort/SerialPort.cpp
+$(OBJDIR)SerialPort.o: ../MyLib/SerialPort/SerialPort.h ../MyLib/SerialPort/SerialPort.cpp
+	$(CC) $(CFLAGS) ../MyLib/SerialPort/SerialPort.cpp -o $@
 
-SyncedSerialPort.o: ../MyLib/SerialPort/SyncedSerialPort.h ../MyLib/SerialPort/SyncedSerialPort.cpp
-	$(CC) $(CFLAGS) ../MyLib/SerialPort/SyncedSerialPort.cpp
+$(OBJDIR)SyncedSerialPort.o: ../MyLib/SerialPort/SyncedSerialPort.h ../MyLib/SerialPort/SyncedSerialPort.cpp
+	$(CC) $(CFLAGS) ../MyLib/SerialPort/SyncedSerialPort.cpp -o $@
 
-#AlarmLogicGroup.o: Alarm/AlarmLogicConstant.h Alarm/AlarmLogicConstant.cpp Alarm/AlarmDefinition.h
-#	$(CC) $(CFLAGS) Alarm/AlarmLogicConstant.cpp
+$(OBJDIR)AlarmLogicGroup.o: Alarm/AlarmLogicGroup.h Alarm/AlarmLogicGroup.cpp Alarm/AlarmDefinition.h
+	$(CC) $(CFLAGS) Alarm/AlarmLogicGroup.cpp -o $@
 
-#AlarmManager.o: Alarm/AlarmDetector.h Alarm/AlarmDetector.cpp Alarm/AlarmDefinition.h
-#	$(CC) $(CFLAGS) Alarm/AlarmDetector.cpp
+$(OBJDIR)AlarmProcessor.o: Alarm/AlarmProcessor.h Alarm/AlarmProcessor.cpp Alarm/AlarmDefinition.h
+	$(CC) $(CFLAGS) Alarm/AlarmProcessor.cpp -o $@
 
-#AlarmPoster.o: Alarm/AlarmHandler.h Alarm/AlarmHandler.cpp Alarm/AlarmDefinition.h ../MyLib/Basic/Helper.hpp
-#	$(CC) $(CFLAGS) Alarm/AlarmHandler.cpp
+$(OBJDIR)AlarmVerifyStorePost.o: Alarm/AlarmVerifyStorePost.h Alarm/AlarmVerifyStorePost.cpp Alarm/AlarmDefinition.h
+	$(CC) $(CFLAGS) Alarm/AlarmVerifyStorePost.cpp -o $@
 
-NodeAlarmManager.o: Alarm3/NodeAlarmManager.h Alarm3/NodeAlarmManager.cpp Alarm3/AlarmDefinition.h
-	$(CC) $(CFLAGS) Alarm3/NodeAlarmManager.cpp
+$(OBJDIR)AlarmStateChecker.o: Alarm/AlarmStateChecker.h Alarm/AlarmStateChecker.cpp Alarm/AlarmDefinition.h
+	$(CC) $(CFLAGS) Alarm/AlarmStateChecker.cpp -o $@
 
-AlarmVerifier.o: Alarm3/AlarmVerifier.h Alarm3/AlarmVerifier.cpp Alarm3/AlarmDefinition.h
-	$(CC) $(CFLAGS) Alarm3/AlarmVerifier.cpp
+$(OBJDIR)AlarmTalker.o: Alarm/AlarmTalker.h Alarm/AlarmTalker.cpp Alarm/AlarmDefinition.h
+	$(CC) $(CFLAGS) Alarm/AlarmTalker.cpp -o $@
 
-AlarmPostHandler.o: Alarm3/AlarmPostHandler.h Alarm3/AlarmPostHandler.cpp Alarm3/AlarmDefinition.h
-	$(CC) $(CFLAGS) Alarm3/AlarmPostHandler.cpp
+$(OBJDIR)UdpSocket.o: ../MyLib/UdpSocket/UdpSocket.h ../MyLib/UdpSocket/UdpSocket.cpp
+	$(CC) $(CFLAGS) ../MyLib/UdpSocket/UdpSocket.cpp -o $@
 
-AlarmBuilder.o: Alarm3/AlarmBuilder.h Alarm3/AlarmBuilder.cpp
-	$(CC) $(CFLAGS) Alarm3/AlarmBuilder.cpp
+$(OBJDIR)UdpListener.o: ../MyLib/UdpSocket/UdpListener.h ../MyLib/UdpSocket/UdpListener.cpp
+	$(CC) $(CFLAGS) ../MyLib/UdpSocket/UdpListener.cpp -o $@
 
-UdpSocket.o: ../MyLib/UdpSocket/UdpSocket.h ../MyLib/UdpSocket/UdpSocket.cpp
-	$(CC) $(CFLAGS) ../MyLib/UdpSocket/UdpSocket.cpp
+$(OBJDIR)Sqlite3.o: ../MyLib/Sqlite/Sqlite3.h ../MyLib/Sqlite/Sqlite3.cpp
+	$(CC) $(CFLAGS) ../MyLib/Sqlite/Sqlite3.cpp -o $@
 
-UdpListener.o: ../MyLib/UdpSocket/UdpListener.h ../MyLib/UdpSocket/UdpListener.cpp
-	$(CC) $(CFLAGS) ../MyLib/UdpSocket/UdpListener.cpp
+$(OBJDIR)Sqlite3JsonTalker.o: ../MyLib/Sqlite/Sqlite3JsonTalker.h ../MyLib/Sqlite/Sqlite3JsonTalker.cpp
+	$(CC) $(CFLAGS) ../MyLib/Sqlite/Sqlite3JsonTalker.cpp -o $@
 
-Sqlite3.o: ../MyLib/Sqlite/Sqlite3.h ../MyLib/Sqlite/Sqlite3.cpp
-	$(CC) $(CFLAGS) ../MyLib/Sqlite/Sqlite3.cpp
-
-Sqlite3JsonTalker.o: ../MyLib/Sqlite/Sqlite3JsonTalker.h ../MyLib/Sqlite/Sqlite3JsonTalker.cpp
-	$(CC) $(CFLAGS) ../MyLib/Sqlite/Sqlite3JsonTalker.cpp
-
-Sqlite3UdpListener.o: ../MyLib/Sqlite/Sqlite3UdpListener.h ../MyLib/Sqlite/Sqlite3UdpListener.cpp
-	$(CC) $(CFLAGS) ../MyLib/Sqlite/Sqlite3UdpListener.cpp
+$(OBJDIR)Sqlite3UdpListener.o: ../MyLib/Sqlite/Sqlite3UdpListener.h ../MyLib/Sqlite/Sqlite3UdpListener.cpp
+	$(CC) $(CFLAGS) ../MyLib/Sqlite/Sqlite3UdpListener.cpp -o $@
 
 #Builder.o: Builder/Builder.h Builder/Builder.cpp
 #	$(CC) $(CFLAGS) Builder/Builder.cpp
 
-OperationalLogic.o: InOutOperation/OperationalLogic.h InOutOperation/OperationalLogic.cpp
-	$(CC) $(CFLAGS) InOutOperation/OperationalLogic.cpp
+$(OBJDIR)OperationalLogic.o: InOutOperation/OperationalLogic.h InOutOperation/OperationalLogic.cpp
+	$(CC) $(CFLAGS) InOutOperation/OperationalLogic.cpp -o $@
 
-OpCreator.o: InOutOperation/OpCreator.h InOutOperation/OpCreator.cpp
-	$(CC) $(CFLAGS) InOutOperation/OpCreator.cpp
+$(OBJDIR)OpCreator.o: InOutOperation/OpCreator.h InOutOperation/OpCreator.cpp
+	$(CC) $(CFLAGS) InOutOperation/OpCreator.cpp -o $@
 
-OpStorage.o: InOutOperation/OpStorage.h InOutOperation/OpStorage.cpp
-	$(CC) $(CFLAGS) InOutOperation/OpStorage.cpp
+$(OBJDIR)OpStorage.o: InOutOperation/OpStorage.h InOutOperation/OpStorage.cpp
+	$(CC) $(CFLAGS) InOutOperation/OpStorage.cpp -o $@
 
-StringManipulator.o: ../MyLib/StringManipulator/StringManipulator.h ../MyLib/StringManipulator/StringManipulator.cpp
-	$(CC) $(CFLAGS) ../MyLib/StringManipulator/StringManipulator.cpp
+$(OBJDIR)StringManipulator.o: ../MyLib/StringManipulator/StringManipulator.h ../MyLib/StringManipulator/StringManipulator.cpp
+	$(CC) $(CFLAGS) ../MyLib/StringManipulator/StringManipulator.cpp -o $@
 
-FileIOer.o: ../MyLib/File/FileIOer.h ../MyLib/File/FileIOer.cpp
-	$(CC) $(CFLAGS) ../MyLib/File/FileIOer.cpp
+$(OBJDIR)FileIOer.o: ../MyLib/File/FileIOer.h ../MyLib/File/FileIOer.cpp
+	$(CC) $(CFLAGS) ../MyLib/File/FileIOer.cpp -o $@
 
-Equipment.o: Equipment/Equipment.h Equipment/Equipment.cpp
-	$(CC) $(CFLAGS) Equipment/Equipment.cpp
+#Equipment.o: Equipment/Equipment.h Equipment/Equipment.cpp
+#	$(CC) $(CFLAGS) Equipment/Equipment.cpp
 
-Property.o: Equipment/Property.h Equipment/Property.cpp
-	$(CC) $(CFLAGS) Equipment/Property.cpp
+#Property.o: Equipment/Property.h Equipment/Property.cpp
+#	$(CC) $(CFLAGS) Equipment/Property.cpp
 
-ConfigStorage.o: Storage/ConfigStorage.h Storage/ConfigStorage.cpp
-	$(CC) $(CFLAGS) Storage/ConfigStorage.cpp
+$(OBJDIR)ConfigStorage.o: Storage/ConfigStorage.h Storage/ConfigStorage.cpp
+	$(CC) $(CFLAGS) Storage/ConfigStorage.cpp -o $@
 
-ScheduleRule.o: Schedule/ScheduleRule.h Schedule/ScheduleRule.cpp
-	$(CC) $(CFLAGS) Schedule/ScheduleRule.cpp
+$(OBJDIR)ScheduleRule.o: Schedule/ScheduleRule.h Schedule/ScheduleRule.cpp
+	$(CC) $(CFLAGS) Schedule/ScheduleRule.cpp -o $@
 
-Schedule.o: Schedule/Schedule.h Schedule/Schedule.cpp
-	$(CC) $(CFLAGS) Schedule/Schedule.cpp
+$(OBJDIR)Schedule.o: Schedule/Schedule.h Schedule/Schedule.cpp
+	$(CC) $(CFLAGS) Schedule/Schedule.cpp -o $@
 
-TimeTable.o: Schedule/TimeTable.h Schedule/TimeTable.cpp
-	$(CC) $(CFLAGS) Schedule/TimeTable.cpp
+$(OBJDIR)TimeTable.o: Schedule/TimeTable.h Schedule/TimeTable.cpp
+	$(CC) $(CFLAGS) Schedule/TimeTable.cpp -o $@
 
-Timer.o: Schedule/Timer.h Schedule/Timer.cpp
-	$(CC) $(CFLAGS) Schedule/Timer.cpp
+$(OBJDIR)Timer.o: Schedule/Timer.h Schedule/Timer.cpp
+	$(CC) $(CFLAGS) Schedule/Timer.cpp -o $@
 
-ScheduleFunction.o: Schedule/ScheduleFunction.h Schedule/ScheduleFunction.cpp
-	$(CC) $(CFLAGS) Schedule/ScheduleFunction.cpp
+$(OBJDIR)ScheduleFunction.o: Schedule/ScheduleFunction.h Schedule/ScheduleFunction.cpp
+	$(CC) $(CFLAGS) Schedule/ScheduleFunction.cpp -o $@
 
-ChannelManager.o: Integrator/ChannelManager.h Integrator/ChannelManager.cpp
-	$(CC) $(CFLAGS) Integrator/ChannelManager.cpp
+$(OBJDIR)ChannelManager.o: Integrator/ChannelManager.h Integrator/ChannelManager.cpp
+	$(CC) $(CFLAGS) Integrator/ChannelManager.cpp -o $@
 
-EquipmentManager.o: Integrator/EquipmentManager.h Integrator/EquipmentManager.cpp
-	$(CC) $(CFLAGS) Integrator/EquipmentManager.cpp
+#$(OBJDIR)EquipmentManager.o: Integrator/EquipmentManager.h Integrator/EquipmentManager.cpp
+#	$(CC) $(CFLAGS) Integrator/EquipmentManager.cpp
 
-SerialPortManager.o: Integrator/SerialPortManager.h Integrator/SerialPortManager.cpp
-	$(CC) $(CFLAGS) Integrator/SerialPortManager.cpp
+$(OBJDIR)SerialPortManager.o: Integrator/SerialPortManager.h Integrator/SerialPortManager.cpp
+	$(CC) $(CFLAGS) Integrator/SerialPortManager.cpp -o $@
 
-ScheduleManager.o: Integrator/ScheduleManager.h Integrator/ScheduleManager.cpp
-	$(CC) $(CFLAGS) Integrator/ScheduleManager.cpp
+$(OBJDIR)ScheduleManager.o: Integrator/ScheduleManager.h Integrator/ScheduleManager.cpp
+	$(CC) $(CFLAGS) Integrator/ScheduleManager.cpp -o $@
 
 clean:
-	rm -f $(binaries) *.o
+	rm -f $(binaries) $(OBJDIR)*.o

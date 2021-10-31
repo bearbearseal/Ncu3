@@ -1,18 +1,18 @@
-#include "AlarmVerifier.h"
+#include "AlarmStateChecker.h"
 
 using namespace std;
 using namespace AlarmDefinition;
 
-AlarmVerifier::AlarmVerifier(AlarmDefinition::Comparison _compare, const Value &theValue) : compareValue(theValue)
+AlarmStateChecker::AlarmStateChecker(AlarmDefinition::Comparison _compare, const Value &theValue) : compareValue(theValue)
 {
     compare = _compare;
 }
 
-AlarmVerifier::~AlarmVerifier()
+AlarmStateChecker::~AlarmStateChecker()
 {
 }
 
-bool AlarmVerifier::verify(const Value &verifee)
+bool AlarmStateChecker::verify(const Value &verifee) const
 {
     switch (compare)
     {

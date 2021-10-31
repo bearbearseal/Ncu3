@@ -222,33 +222,33 @@ vector<ConfigStorage::EquipmentScheduleData> ConfigStorage::get_equipment_schedu
 vector<ConfigStorage::AlarmLogicsData> ConfigStorage::get_alarm_logic()
 {
     vector<AlarmLogicsData> retVal;
-    auto result = theDb.execute_query("Select Id, Comparison1, RefValue1, State1, "\
-        "Comparison2, RefValue2, State2, "\
-        "Comparison3, RefValue3, State3, "\
-        "Comparison4, RefValue4, State4, "\
-        "Comparison5, RefValue5, State5, "\
-        "Comparison6, RefValue6, State6 from AlarmLogic");
+    auto result = theDb.execute_query("Select Id, Compare1, RefValue1, State1, "\
+        "Compare2, RefValue2, State2, "\
+        "Compare3, RefValue3, State3, "\
+        "Compare4, RefValue4, State4, "\
+        "Compare5, RefValue5, State5, "\
+        "Compare6, RefValue6, State6 from AlarmLogic");
     for(size_t i=0; i<result->get_row_count(); ++i)
     {
         AlarmLogicsData entry;
         entry.logicData.resize(6);
         entry.id = result->get_integer(i, "Id").second;
-        entry.logicData[0].compare = result->get_integer(i, "Comparison1").second;
+        entry.logicData[0].compare = result->get_integer(i, "Compare1").second;
         entry.logicData[0].refValue = result->get_float(i, "RefValue1").second;
         entry.logicData[0].state = result->get_integer(i, "State1").second;
-        entry.logicData[1].compare = result->get_integer(i, "Comparison2").second;
+        entry.logicData[1].compare = result->get_integer(i, "Compare2").second;
         entry.logicData[1].refValue = result->get_float(i, "RefValue2").second;
         entry.logicData[1].state = result->get_integer(i, "State2").second;
-        entry.logicData[2].compare = result->get_integer(i, "Comparison3").second;
+        entry.logicData[2].compare = result->get_integer(i, "Compare3").second;
         entry.logicData[2].refValue = result->get_float(i, "RefValue3").second;
         entry.logicData[2].state = result->get_integer(i, "State3").second;
-        entry.logicData[3].compare = result->get_integer(i, "Comparison4").second;
+        entry.logicData[3].compare = result->get_integer(i, "Compare4").second;
         entry.logicData[3].refValue = result->get_float(i, "RefValue4").second;
         entry.logicData[3].state = result->get_integer(i, "State4").second;
-        entry.logicData[4].compare = result->get_integer(i, "Comparison5").second;
+        entry.logicData[4].compare = result->get_integer(i, "Compare5").second;
         entry.logicData[4].refValue = result->get_float(i, "RefValue5").second;
         entry.logicData[4].state = result->get_integer(i, "State5").second;
-        entry.logicData[5].compare = result->get_integer(i, "Comparison6").second;
+        entry.logicData[5].compare = result->get_integer(i, "Compare6").second;
         entry.logicData[5].refValue = result->get_float(i, "RefValue6").second;
         entry.logicData[5].state = result->get_integer(i, "State6").second;
         retVal.push_back(entry);

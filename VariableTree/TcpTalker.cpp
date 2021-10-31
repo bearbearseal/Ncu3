@@ -65,3 +65,4 @@ void TcpTalker::catch_disconnect_event(size_t handle) {
 	printf("Caught disconnect event.\n");
 	handle2ConnectionDataMap.erase(handle);
 }
+
