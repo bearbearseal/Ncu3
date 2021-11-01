@@ -6,6 +6,7 @@ using namespace AlarmDefinition;
 AlarmStateChecker::AlarmStateChecker(AlarmDefinition::Comparison _compare, const Value &theValue) : compareValue(theValue)
 {
     compare = _compare;
+    printf("RefValue: %s\n", compareValue.to_string().c_str());
 }
 
 AlarmStateChecker::~AlarmStateChecker()

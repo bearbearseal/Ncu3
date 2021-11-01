@@ -5,7 +5,7 @@ CFLAGS = -Wall -O2 -c
 LFLAGS = -Wall
 LIBS = -lpthread
 #INC = -I../Basic
-binaries = WritePoint
+binaries = WritePoint.bin
 
 main : $(OBJS)
 	$(CC) $(LFLAGS) $(OBJS) $(LIBS) -o $(binaries)

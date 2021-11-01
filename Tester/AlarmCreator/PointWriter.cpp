@@ -47,9 +47,12 @@ PointWriter::PointWriter(const std::string &ipAddress, const std::string &portNu
             continue;
         }
         nlohmann::json jElement;
-        jElement["Device"] = jDevice;
-        jElement["Point"] = jPoint;
+        jElement["Command"] = "Write";
         jElement["Value"] = jValue;
+        nlohmann::json& jBranch = jElement["Branch"];
+        jBranch["Id"] = jDevice;
+        nlohmann::json& jSubBranch = jBranch["Branch"];
+        jSubBranch["Id"] = jPoint;
         writeDataList.push_back(jElement.dump() + '\n');
     }
     run = true;
@@ -87,6 +90,7 @@ void PointWriter::the_process(PointWriter *me)
             }
             else
             {
+                me->log.add_log(me->writeDataList[me->dataIndex]);
                 me->state = 20;
                 for (size_t i = 0; i < 10; ++i)
                 {
@@ -132,7 +136,7 @@ void PointWriter::the_process(PointWriter *me)
             me->dataIndex %= me->writeDataList.size();
             {
                 uint16_t delay = rand()%10000;
-                this_thread::sleep_for(chrono::seconds(delay));
+                this_thread::sleep_for(chrono::milliseconds(delay));
                 me->state = 10;
             }
             break;

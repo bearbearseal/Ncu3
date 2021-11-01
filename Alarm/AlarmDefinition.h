@@ -5,7 +5,8 @@
 #include "../../MyLib/Basic/Value.h"
 
 namespace AlarmDefinition {
-    enum class Comparison {
+    enum class Comparison : uint8_t
+    {
         GREATER = 1,
         GREATER_EQUAL = 2,
         EQUAL = 3,

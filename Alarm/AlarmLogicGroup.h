@@ -2,7 +2,6 @@
 #define _AlarmLogic_H_
 #include "AlarmDefinition.h"
 #include "AlarmStateChecker.h"
-#include <optional>
 
 class AlarmLogicGroup {
 public:
@@ -18,7 +17,8 @@ public:
     AlarmData check_alarm(const Value& value) const;
 
 private:
-    std::vector<std::pair<AlarmStateChecker, AlarmData>> checkerList;
+    //std::vector<std::pair<AlarmStateChecker, AlarmData>> checkerList;
+    std::vector<std::pair<AlarmStateChecker, AlarmDefinition::AlarmState>> checkerList;
 };
 
 #endif

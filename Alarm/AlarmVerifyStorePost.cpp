@@ -136,7 +136,7 @@ uint64_t AlarmVerifyStorePost::store_to_active_alarm(unique_ptr<AlarmMessage> &m
     try
     {
         return theDb.execute_insert("Insert into ActiveAlarm (Device, Point, ActiveValue, RefValue, Comparison, AlarmState, Time_ms)"
-                                    "Values(%u, %u, %f, %f, %d, %d, %lu)",
+                                    "Values(%lu, %u, %f, %f, %d, %d, %lu)",
                                     message->deviceId, message->pointId, message->activeValue.get_float(), message->refValue.get_float(),
                                     int(message->comparison), message->alarmState, message->msTime);
     }
@@ -154,9 +154,9 @@ bool AlarmVerifyStorePost::remove_from_active_alarm(uint64_t id)
 void AlarmVerifyStorePost::store_to_history_alarm(uint64_t id, unique_ptr<AlarmMessage> &message)
 {
     theDb.execute_update("Insert into HistoryAlarm (Id, Device, Point, ActiveValue, RefValue, Comparison, AlarmState, Time_ms)"
-                         "Values(%lu, %u, %u, %f, %f, %u, %u, %llu)",
+                         "Values(%lu, %u, %u, %f, %f, %u, %d, %lu)",
                          id, message->deviceId, message->pointId, message->activeValue.get_float(),
-                         message->refValue.get_float(), message->comparison, message->alarmState, message->msTime);
+                         message->refValue.get_float(), uint8_t(message->comparison), message->alarmState, message->msTime);
 }
 
 void AlarmVerifyStorePost::handle_alarm(unique_ptr<AlarmMessage> &message)

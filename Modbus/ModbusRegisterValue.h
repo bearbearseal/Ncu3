@@ -8,6 +8,7 @@
 class ModbusRegisterValue
 {
 public:
+	//Need definition of Discrete input and Input register
 	enum class DataType : uint8_t
 	{
 		UNKNOWN = 0,
@@ -25,7 +26,7 @@ public:
 		FLOAT32_LM = 31,
 		FLOAT32_ML = 32,
 		FLOAT64_LM = 33,
-		FLOAT64_ML = 34,
+		FLOAT64_ML = 34/*,
 		I_INT16 = 111,
 		I_INT32_LM = 112,
 		I_INT32_ML = 113,
@@ -40,6 +41,7 @@ public:
 		I_FLOAT32_ML = 132,
 		I_FLOAT64_LM = 133,
 		I_FLOAT64_ML = 134
+		*/
 	};
 
 	ModbusRegisterValue(DataType _type, bool smallEndian = true);
