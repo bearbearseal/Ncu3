@@ -136,7 +136,8 @@ namespace Deploy {
    void run_equipment_alarm() {
         ConfigStorage configData("/var/sqlite/NcuConfig.db");
         SerialPortManager serialPortManager(configData);
-        ChannelManager channelManager(configData, serialPortManager);
+        OpStorage opStorage("/var/sqlite/NcuConfig.db", "/var/InOutOp");
+        ChannelManager channelManager(configData, serialPortManager, opStorage);
 
         shared_ptr<VariableTree> root = make_shared<VariableTree>();
         channelManager.attach_to_tree(root);

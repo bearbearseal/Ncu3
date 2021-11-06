@@ -42,20 +42,23 @@ void ModbusRtuProcess::stop() {
     }
 }
 
-shared_ptr<ModbusRtuProcess::CoilStatusVariable> ModbusRtuProcess::create_coil_status_variable(uint16_t coilAddress) {
+shared_ptr<ModbusRtuProcess::CoilStatusVariable> ModbusRtuProcess::create_coil_status_variable(uint16_t coilAddress, shared_ptr<OperationalLogic> inLogic, shared_ptr<OperationalLogic> outLogic) {
     lock_guard<mutex> lock(coilVariableMutex);
     auto i = address2CoilVariableMap.find(coilAddress);
     if(i != address2CoilVariableMap.end()) {
         return i->second;
     }
-    auto retVal = make_shared<ModbusRtuProcess::CoilStatusVariable>(myShadow, coilAddress);
+	//Create shared_ptr from raw pointer
+    //auto retVal = make_shared<CoilStatusVariable>(myShadow, coilAddress, inLogic, outLogic);
+	shared_ptr<CoilStatusVariable> retVal(new CoilStatusVariable(myShadow, coilAddress, inLogic, outLogic));
     address2CoilVariableMap.insert({coilAddress, retVal});
     return retVal;
 }
 
-shared_ptr<ModbusRtuProcess::HoldingRegisterVariable> ModbusRtuProcess::create_holding_register_variable(uint16_t registerAddress, ModbusRegisterValue::DataType type) {
+shared_ptr<ModbusRtuProcess::HoldingRegisterVariable> ModbusRtuProcess::create_holding_register_variable(uint16_t registerAddress, ModbusRegisterValue::DataType type, shared_ptr<OperationalLogic> inLogic, shared_ptr<OperationalLogic> outLogic) {
 	uint16_t count = ModbusRegisterValue::get_register_count(type);
-	shared_ptr<HoldingRegisterVariable> retVal = make_shared<HoldingRegisterVariable>(myShadow, registerAddress, type, config.smallEndian);
+	//shared_ptr<HoldingRegisterVariable> retVal = make_shared<HoldingRegisterVariable>(myShadow, registerAddress, type, config.smallEndian, inLogic, outLogic);
+	shared_ptr<HoldingRegisterVariable> retVal(new HoldingRegisterVariable(myShadow, registerAddress, type, config.smallEndian, inLogic, outLogic));
 	HoldingRegisterData& data = address2HoldingRegisterVariableMap[registerAddress];
 	if (data.count < count)
 	{
@@ -284,7 +287,8 @@ void ModbusRtuProcess::thread_process(ModbusRtuProcess* theProcess) {
 }
 
 //Coil Status Variable {
-ModbusRtuProcess::CoilStatusVariable::CoilStatusVariable(std::shared_ptr<Shadow> _master, uint16_t _coilAddress) : master(_master), coilAddress(_coilAddress){
+ModbusRtuProcess::CoilStatusVariable::CoilStatusVariable(std::shared_ptr<Shadow> _master, uint16_t _coilAddress, std::shared_ptr<OperationalLogic> inLogic, std::shared_ptr<OperationalLogic> outLogic) : OperationVariable(inLogic, outLogic), master(_master), coilAddress(_coilAddress)
+{
 
 }
 
@@ -301,7 +305,7 @@ void ModbusRtuProcess::CoilStatusVariable::update_value_from_source(uint16_t fir
 	this->update_value_to_cache(values[index]);
 }
 
-bool ModbusRtuProcess::CoilStatusVariable::write_value(const Value& newValue) {
+bool ModbusRtuProcess::CoilStatusVariable::_write_value(const Value& newValue) {
     auto shared = master.lock();
     if(shared != nullptr) {
         shared->add_force_coil_status(coilAddress, (bool) newValue.get_int());
@@ -313,7 +317,8 @@ bool ModbusRtuProcess::CoilStatusVariable::write_value(const Value& newValue) {
 //}
 
 //Holding Register Variable {
-ModbusRtuProcess::HoldingRegisterVariable::HoldingRegisterVariable(std::shared_ptr<Shadow> _master, uint16_t _firstAddress, ModbusRegisterValue::DataType _type, bool _isSmallEndian) {
+ModbusRtuProcess::HoldingRegisterVariable::HoldingRegisterVariable(std::shared_ptr<Shadow> _master, uint16_t _firstAddress, ModbusRegisterValue::DataType _type, bool _isSmallEndian, std::shared_ptr<OperationalLogic> inLogic, std::shared_ptr<OperationalLogic> outLogic) : OperationVariable(inLogic, outLogic)
+{
 	master = _master;
 	firstAddress = _firstAddress;
 	type = _type;
@@ -334,7 +339,7 @@ void ModbusRtuProcess::HoldingRegisterVariable::update_value_from_source(uint16_
 	this->update_value_to_cache(modbusValue.get_value());
 }
 
-bool ModbusRtuProcess::HoldingRegisterVariable::write_value(const Value& newValue) {
+bool ModbusRtuProcess::HoldingRegisterVariable::_write_value(const Value& newValue) {
 	ModbusRegisterValue setValue(type, isSmallEndian);
 	std::vector<RegisterValue> converted = setValue.convert_to_register_value(newValue);
     auto shared = master.lock();

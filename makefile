@@ -3,8 +3,9 @@ OBJS = $(OBJDIR)main.o $(OBJDIR)TcpSocket.o $(OBJDIR)TcpListener.o
 OBJS += $(OBJDIR)TcpTalker.o $(OBJDIR)TreeBrowser.o
 OBJS += $(OBJDIR)Value.o $(OBJDIR)Variable.o $(OBJDIR)VariableTree.o
 OBJS += $(OBJDIR)ModbusIP.o $(OBJDIR)ModbusIpProcess.o $(OBJDIR)ModbusRtu.o $(OBJDIR)ModbusRtuProcess.o $(OBJDIR)ModbusRegisterValue.o
-OBJS += $(OBJDIR)OperationalLogic.o $(OBJDIR)OpCreator.o $(OBJDIR)StringManipulator.o $(OBJDIR)FileIOer.o $(OBJDIR)OpStorage.o
-OBJS += $(OBJDIR)SerialPort.o $(OBJDIR)SyncedSerialPort.o $(OBJDIR)PrioritizedValue.o 
+OBJS += $(OBJDIR)OperationalLogic.o $(OBJDIR)OpCreator.o $(OBJDIR)OperationVariable.o $(OBJDIR)OpStorage.o
+OBJS += $(OBJDIR)StringManipulator.o $(OBJDIR)FileIOer.o
+OBJS += $(OBJDIR)SerialPort.o $(OBJDIR)SyncedSerialPort.o $(OBJDIR)PrioritizedValue.o
 OBJS += $(OBJDIR)ScheduleRule.o $(OBJDIR)Schedule.o $(OBJDIR)TimeTable.o $(OBJDIR)Timer.o $(OBJDIR)ScheduleFunction.o
 OBJS += $(OBJDIR)Sqlite3.o $(OBJDIR)Sqlite3JsonTalker.o $(OBJDIR)Sqlite3UdpListener.o
 OBJS += $(OBJDIR)AlarmLogicGroup.o $(OBJDIR)AlarmProcessor.o $(OBJDIR)AlarmVerifyStorePost.o $(OBJDIR)AlarmStateChecker.o
@@ -107,6 +108,9 @@ $(OBJDIR)OperationalLogic.o: InOutOperation/OperationalLogic.h InOutOperation/Op
 
 $(OBJDIR)OpCreator.o: InOutOperation/OpCreator.h InOutOperation/OpCreator.cpp
 	$(CC) $(CFLAGS) InOutOperation/OpCreator.cpp -o $@
+
+$(OBJDIR)OperationVariable.o: InOutOperation/OperationVariable.h InOutOperation/OperationVariable.cpp
+	$(CC) $(CFLAGS) InOutOperation/OperationVariable.cpp -o $@
 
 $(OBJDIR)OpStorage.o: InOutOperation/OpStorage.h InOutOperation/OpStorage.cpp
 	$(CC) $(CFLAGS) InOutOperation/OpStorage.cpp -o $@

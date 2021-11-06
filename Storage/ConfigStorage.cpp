@@ -53,7 +53,7 @@ vector<ConfigStorage::ModbusIpChannelData> ConfigStorage::get_modbus_ip_channel_
 unordered_map<uint16_t, vector<ConfigStorage::ModbusIpPoint>> ConfigStorage::get_modbus_ip_point()
 {
     unordered_map<uint16_t, vector<ModbusIpPoint>> retVal;
-    auto result = theDb.execute_query("Select DeviceId, PointId, Address, Type, AlarmLogic from ModbusIpPoint");
+    auto result = theDb.execute_query("Select DeviceId, PointId, Address, Type, InOp, OutOp from ModbusIpPoint");
     for (size_t i = 0; i < result->get_row_count(); ++i)
     {
         uint16_t deviceId = result->get_integer(i, "DeviceId").second;
@@ -61,7 +61,9 @@ unordered_map<uint16_t, vector<ConfigStorage::ModbusIpPoint>> ConfigStorage::get
         entry.pointId = result->get_integer(i, "PointId").second;
         entry.address = result->get_integer(i, "Address").second;
         entry.type = result->get_integer(i, "Type").second;
-        entry.alarmLogic = result->get_integer(i, "AlarmLogic").second;
+        entry.inOp = result->get_integer(i, "InOp").second;
+        entry.outOp = result->get_integer(i, "OutOp").second;
+        //entry.alarmLogic = result->get_integer(i, "AlarmLogic").second;
         retVal[deviceId].push_back(entry);
     }
     return retVal;
@@ -70,7 +72,7 @@ unordered_map<uint16_t, vector<ConfigStorage::ModbusIpPoint>> ConfigStorage::get
 unordered_map<uint16_t, vector<ConfigStorage::ModbusRtuPoint>> ConfigStorage::get_modbus_rtu_point()
 {
     unordered_map<uint16_t, vector<ModbusRtuPoint>> retVal;
-    auto result = theDb.execute_query("Select DeviceId, PointId, Address, Type, AlarmLogic from ModbusRtuPoint");
+    auto result = theDb.execute_query("Select DeviceId, PointId, Address, Type, InOp, OutOp from ModbusRtuPoint");
     for (size_t i = 0; i < result->get_row_count(); ++i)
     {
         uint16_t deviceId = result->get_integer(i, "DeviceId").second;
@@ -78,7 +80,9 @@ unordered_map<uint16_t, vector<ConfigStorage::ModbusRtuPoint>> ConfigStorage::ge
         entry.pointId = result->get_integer(i, "PointId").second;
         entry.address = result->get_integer(i, "Address").second;
         entry.type = result->get_integer(i, "Type").second;
-        entry.alarmLogic = result->get_integer(i, "AlarmLogic").second;
+        entry.inOp = result->get_integer(i, "InOp").second;
+        entry.outOp = result->get_integer(i, "OutOp").second;
+        //entry.alarmLogic = result->get_integer(i, "AlarmLogic").second;
         retVal[deviceId].push_back(entry);
     }
     return retVal;

@@ -2,6 +2,7 @@
 #define _ModbusRtuProcess_H_
 #include "../../MyLib/SerialPort/SyncedSerialPort.h"
 #include "../../MyLib/Basic/Variable.h"
+#include "../InOutOperation/OperationVariable.h"
 #include "ModbusRegisterValue.h"
 #include <map>
 #include <vector>
@@ -21,28 +22,30 @@ private:
 		ModbusRtuProcess& master;
     };
 public:
-    //Coils and Registers
-	class CoilStatusVariable : public Variable {
+	class CoilStatusVariable : public OperationVariable {
 		friend class ModbusRtuProcess;
+	private:
+		CoilStatusVariable(std::shared_ptr<Shadow> _master, uint16_t _coilAddress, std::shared_ptr<OperationalLogic> inLogic, std::shared_ptr<OperationalLogic> outLogic);
 	public:
-		CoilStatusVariable(std::shared_ptr<Shadow> _master, uint16_t _coilAddress);
 		virtual ~CoilStatusVariable();
-		bool write_value(const Value& newValue);
 
 	private:
+		bool _write_value(const Value& newValue);
 		void update_value_from_source(uint16_t firstAddress, const std::vector<bool>& values);
 		std::weak_ptr<Shadow> master;
 		uint16_t coilAddress;
 	};
+    std::shared_ptr<CoilStatusVariable> create_coil_status_variable(uint16_t coilAddress, std::shared_ptr<OperationalLogic> inLogic = nullptr, std::shared_ptr<OperationalLogic> outLogic = nullptr);
 
-	class HoldingRegisterVariable : public Variable {
+	class HoldingRegisterVariable : public OperationVariable {
 		friend class ModbusRtuProcess;
+	private:
+		HoldingRegisterVariable(std::shared_ptr<Shadow> _master, uint16_t _firstAddress, ModbusRegisterValue::DataType _type, bool isSmallEndian, std::shared_ptr<OperationalLogic> inLogic, std::shared_ptr<OperationalLogic> outLogic);
 	public:
-		HoldingRegisterVariable(std::shared_ptr<Shadow> _master, uint16_t _firstAddress, ModbusRegisterValue::DataType _type, bool isSmallEndian = true);
 		virtual ~HoldingRegisterVariable();
-		bool write_value(const Value& newValue);
 
 	private:
+		bool _write_value(const Value& newValue);
 		void update_value_from_source(uint16_t _registerAddress, const std::vector<RegisterValue>& values);
 		inline uint8_t register_count() { return ModbusRegisterValue::get_register_count(type); }
 
@@ -54,16 +57,58 @@ public:
 		ModbusRegisterValue::DataType type;
 		//std::chrono::time_point<std::chrono::system_clock> timePoint;
 	};
+	std::shared_ptr<HoldingRegisterVariable> create_holding_register_variable(uint16_t registerAddress, ModbusRegisterValue::DataType type, std::shared_ptr<OperationalLogic> inLogic = nullptr, std::shared_ptr<OperationalLogic> outLogic = nullptr);
+/*
+	class DigitalInputVariable : public OperationVariable
+	{
+		friend class ModbusIpProcess;
 
+	private:
+		DigitalInputVariable(std::shared_ptr<Shadow> _master, uint16_t _address, std::shared_ptr<OperationalLogic> inLogic, std::shared_ptr<OperationalLogic> outLogic);
+	public:
+		virtual ~DigitalInputVariable();
+		bool write_value(const Value &newValue) { return false; }
+
+	private:
+		void update_value_from_source(uint16_t firstAddress, const std::vector<bool> &values);
+		std::weak_ptr<Shadow> master;
+		uint16_t address;
+	};
+	std::shared_ptr<DigitalInputVariable> get_digital_input_variable(uint16_t address, std::shared_ptr<OperationalLogic> inLogic = nullptr, std::shared_ptr<OperationalLogic> outLogic = nullptr);
+
+	class InputRegisterVariable : public OperationVariable
+	{
+		friend class ModbusIpProcess;
+
+	private:
+		InputRegisterVariable(
+			std::shared_ptr<Shadow> _master,
+			uint16_t _firstAddress,
+			ModbusRegisterValue::DataType _type,
+			bool smallEndian,
+			std::shared_ptr<OperationalLogic> inLogic,
+			std::shared_ptr<OperationalLogic> outLogic);
+	public:
+		virtual ~InputRegisterVariable();
+		bool write_value(const Value &newValue) { return false; }
+
+	private:
+		void update_value_from_source(uint16_t _registerAddress, const std::vector<RegisterValue> &values);
+		inline uint8_t register_count() { return ModbusRegisterValue::get_register_count(type); }
+
+		std::weak_ptr<Shadow> master;
+		uint16_t firstAddress;
+		bool smallEndian;
+		ModbusRegisterValue::DataType type;
+	};
+	std::shared_ptr<InputRegisterVariable> get_input_register_variable(uint16_t registerAddress, ModbusRegisterValue::DataType type, std::shared_ptr<OperationalLogic> inLogic = nullptr, std::shared_ptr<OperationalLogic> outLogic = nullptr);
+*/
     ModbusRtuProcess(std::shared_ptr<SyncedSerialPort> serialPort, uint8_t slaveAddress, uint16_t maxRegisterPerMessage, uint16_t maxCoilPerMessage, std::chrono::milliseconds timeout, bool smallEndian);
     ~ModbusRtuProcess();
 
     void start();
     void stop();
-    //void configure(uint8_t slaveAddress, uint16_t maxRegisterPerMessage, uint16_t maxCoilPerMessage, std::chrono::milliseconds timeout, bool smallEndian);
 
-    std::shared_ptr<CoilStatusVariable> create_coil_status_variable(uint16_t coilAddress);
-	std::shared_ptr<HoldingRegisterVariable> create_holding_register_variable(uint16_t registerAddress, ModbusRegisterValue::DataType type);
 
 private:
     std::shared_ptr<SyncedSerialPort> serialPort;
@@ -110,6 +155,7 @@ private:
 	};
 	size_t coilStatusQueryIndex = 0;
 	std::vector<CoilStatusQuery> coilStatusQueryList;
+	
 
     void add_write_holding_register(uint16_t registerAddress, std::vector<RegisterValue>& registerValues);
     void write_holding_register();

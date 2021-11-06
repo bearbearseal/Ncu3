@@ -2,7 +2,7 @@
 
 using namespace std;
 
-ChannelManager::ChannelManager(ConfigStorage &configStorage, SerialPortManager &serialPortManager)
+ChannelManager::ChannelManager(ConfigStorage &configStorage, SerialPortManager &serialPortManager, OpStorage& _opStorage) : opStorage(_opStorage)
 {
     auto modbusIpData = configStorage.get_modbus_ip_channel_data();
     auto modbusRtuData = configStorage.get_modbus_rtu_channel_data();
@@ -20,6 +20,7 @@ ChannelManager::ChannelManager(ConfigStorage &configStorage, SerialPortManager &
             modbusRtuMap.emplace(i->deviceId, move(entry));
         }
     }
+    printf("ChannelManager 1.\n");
     auto modbusIpPoint = configStorage.get_modbus_ip_point();
     for (auto i = modbusIpPoint.begin(); i != modbusIpPoint.end(); ++i)
     {
@@ -34,12 +35,15 @@ ChannelManager::ChannelManager(ConfigStorage &configStorage, SerialPortManager &
             ModbusPointData &pointEntry = channelEntry[i->second[j].pointId];
             pointEntry.address = i->second[j].address;
             pointEntry.type = ModbusRegisterValue::convert_integer_to_data_type(i->second[j].type);
+            pointEntry.inOpertation = i->second[j].inOp;
+            pointEntry.outOperation = i->second[j].outOp;
             if (pointEntry.type == ModbusRegisterValue::DataType::UNKNOWN)
             {
                 pointEntry.type = ModbusRegisterValue::DataType::COIL;
             }
         }
     }
+    printf("ChannelManager 2.\n");
     auto modbusRtuPoint = configStorage.get_modbus_rtu_point();
     for (auto i = modbusRtuPoint.begin(); i != modbusRtuPoint.end(); ++i)
     {
@@ -54,6 +58,8 @@ ChannelManager::ChannelManager(ConfigStorage &configStorage, SerialPortManager &
             ModbusPointData &pointEntry = channelEntry[i->second[j].pointId];
             pointEntry.address = i->second[j].address;
             pointEntry.type = ModbusRegisterValue::convert_integer_to_data_type(i->second[j].type);
+            pointEntry.inOpertation = i->second[j].inOp;
+            pointEntry.outOperation = i->second[j].outOp;
             if (pointEntry.type == ModbusRegisterValue::DataType::UNKNOWN)
             {
                 pointEntry.type = ModbusRegisterValue::DataType::COIL;
@@ -85,28 +91,28 @@ shared_ptr<Variable> ChannelManager::get_point(uint16_t deviceId, uint16_t point
     {
         if (pointEntry.type == ModbusRegisterValue::DataType::COIL)
         {
-            retVal = modbusIpMap[deviceId]->get_coil_status_variable(pointEntry.address);
+            retVal = modbusIpMap[deviceId]->get_coil_status_variable(pointEntry.address, opStorage.get_logic(pointEntry.inOpertation), opStorage.get_logic(pointEntry.outOperation));
         }
         else
         {
-            retVal = modbusIpMap[deviceId]->get_holding_register_variable(pointEntry.address, pointEntry.type);
+            retVal = modbusIpMap[deviceId]->get_holding_register_variable(pointEntry.address, pointEntry.type, opStorage.get_logic(pointEntry.inOpertation), opStorage.get_logic(pointEntry.outOperation));
         }
     }
     else if (modbusRtuMap.count(deviceId))
     {
         if (pointEntry.type == ModbusRegisterValue::DataType::COIL)
         {
-            retVal = modbusRtuMap[deviceId]->create_coil_status_variable(pointEntry.address);
+            retVal = modbusRtuMap[deviceId]->create_coil_status_variable(pointEntry.address, opStorage.get_logic(pointEntry.inOpertation), opStorage.get_logic(pointEntry.outOperation));
         }
         else
         {
-            retVal = modbusRtuMap[deviceId]->create_holding_register_variable(pointEntry.address, pointEntry.type);
+            retVal = modbusRtuMap[deviceId]->create_holding_register_variable(pointEntry.address, pointEntry.type, opStorage.get_logic(pointEntry.inOpertation), opStorage.get_logic(pointEntry.outOperation));
         }
     }
     return retVal;
 }
 
-void ChannelManager::attach_to_tree(std::shared_ptr<VariableTree> theTree)
+void ChannelManager::attach_to_tree(shared_ptr<VariableTree> theTree)
 {
     for (auto channel = modbusPoint.begin(); channel != modbusPoint.end(); ++channel)
     {

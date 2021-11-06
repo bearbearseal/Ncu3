@@ -44,7 +44,7 @@ public:
         uint8_t type;
         uint32_t inOp;
         uint32_t outOp;
-        uint32_t alarmLogic;
+        //uint32_t alarmLogic;
     };
 
     std::unordered_map<uint16_t, std::vector<ModbusIpPoint>> get_modbus_ip_point();
@@ -55,7 +55,7 @@ public:
         uint8_t type;
         uint32_t inOp;
         uint32_t outOp;
-        uint32_t alarmLogic;
+        //uint32_t alarmLogic;
     };
 
     std::unordered_map<uint16_t, std::vector<ModbusRtuPoint>> get_modbus_rtu_point();
