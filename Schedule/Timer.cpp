@@ -11,6 +11,8 @@ Timer::Timer()
 
 Timer::~Timer()
 {
+    terminate();
+    theProcess->join();
 }
 
 void Timer::terminate()
@@ -43,6 +45,9 @@ void Timer::handle_add_event(const Message &message)
     entry.push_back({message.listener, message.token});
 }
 
+/*
+
+*/
 void Timer::thread_process(Timer *me)
 {
     while (1)

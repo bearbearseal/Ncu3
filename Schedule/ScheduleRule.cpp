@@ -10,6 +10,11 @@ ScheduleRule::ScheduleRule()
 {
 }
 
+ScheduleRule::ScheduleRule(vector<vector<Condition>>&& _conditionList)
+{
+    conditionsList = _conditionList;
+}
+
 ScheduleRule::~ScheduleRule()
 {
 }
@@ -64,18 +69,18 @@ bool ScheduleRule::examine(const Condition &condition, const struct tm &theTm) c
     uint16_t subject;
     switch (condition.subject)
     {
-    case Subject::WEEK_DAY:
+    case GlobalEnum::ScheduleSubject::WEEK_DAY:
         subject = theTm.tm_wday;
         break;
-    case Subject::MONTH:
+    case GlobalEnum::ScheduleSubject::MONTH:
         //printf("Month %u\n", theTm.tm_mon + 1);
         subject = theTm.tm_mon + 1;
         break;
-    case Subject::MONTH_DAY:
+    case GlobalEnum::ScheduleSubject::MONTH_DAY:
         //printf("Month day %u\n", theTm.tm_mday);
         subject = theTm.tm_mday;
         break;
-    case Subject::MONTH_WEEK:
+    case GlobalEnum::ScheduleSubject::MONTH_WEEK:
         subject = theTm.tm_mday + (6 - theTm.tm_wday);
         subject /= 7;
         if (subject % 7)
@@ -83,7 +88,7 @@ bool ScheduleRule::examine(const Condition &condition, const struct tm &theTm) c
             ++subject;
         }
         break;
-    case Subject::MONTH_SUNDAY:
+    case GlobalEnum::ScheduleSubject::MONTH_SUNDAY:
         if (theTm.tm_wday)
         {
             //printf("Not Sunday, not applicable.\n");
@@ -95,7 +100,7 @@ bool ScheduleRule::examine(const Condition &condition, const struct tm &theTm) c
             ++subject;
         }
         break;
-    case Subject::MONTH_MONDAY:
+    case GlobalEnum::ScheduleSubject::MONTH_MONDAY:
         if (theTm.tm_wday != 1)
         {
             //printf("Not Monday, not applicable.\n");
@@ -107,7 +112,7 @@ bool ScheduleRule::examine(const Condition &condition, const struct tm &theTm) c
             ++subject;
         }
         break;
-    case Subject::MONTH_TUESDAY:
+    case GlobalEnum::ScheduleSubject::MONTH_TUESDAY:
         if (theTm.tm_wday != 2)
         {
             //printf("Not Tuesday, not applicable.\n");
@@ -119,7 +124,7 @@ bool ScheduleRule::examine(const Condition &condition, const struct tm &theTm) c
             ++subject;
         }
         break;
-    case Subject::MONTH_WEDNESDAY:
+    case GlobalEnum::ScheduleSubject::MONTH_WEDNESDAY:
         if (theTm.tm_wday != 3)
         {
             //printf("Not Wednesday, not applicable.\n");
@@ -131,7 +136,7 @@ bool ScheduleRule::examine(const Condition &condition, const struct tm &theTm) c
             ++subject;
         }
         break;
-    case Subject::MONTH_THURSDAY:
+    case GlobalEnum::ScheduleSubject::MONTH_THURSDAY:
         if (theTm.tm_wday != 4)
         {
             //printf("Not Thursday, not applicable.\n");
@@ -143,7 +148,7 @@ bool ScheduleRule::examine(const Condition &condition, const struct tm &theTm) c
             ++subject;
         }
         break;
-    case Subject::MONTH_FRIDAY:
+    case GlobalEnum::ScheduleSubject::MONTH_FRIDAY:
         if (theTm.tm_wday != 5)
         {
             //printf("Not Friday, not applicable.\n");
@@ -155,7 +160,7 @@ bool ScheduleRule::examine(const Condition &condition, const struct tm &theTm) c
             ++subject;
         }
         break;
-    case Subject::MONTH_SATURDAY:
+    case GlobalEnum::ScheduleSubject::MONTH_SATURDAY:
         if (theTm.tm_wday != 6)
         {
             //printf("Not Saturday, not applicable.\n");
@@ -167,14 +172,14 @@ bool ScheduleRule::examine(const Condition &condition, const struct tm &theTm) c
             ++subject;
         }
         break;
-    case Subject::YEAR:
+    case GlobalEnum::ScheduleSubject::YEAR:
         subject = theTm.tm_year;
         subject += 1900;
         break;
-    case Subject::YEAR_DAY:
+    case GlobalEnum::ScheduleSubject::YEAR_DAY:
         subject = theTm.tm_yday;
         break;
-    case Subject::YEAR_WEEK:
+    case GlobalEnum::ScheduleSubject::YEAR_WEEK:
         subject = (theTm.tm_yday + 6 - theTm.tm_wday);
         subject /= 7;
         if (subject % 7)
@@ -182,12 +187,12 @@ bool ScheduleRule::examine(const Condition &condition, const struct tm &theTm) c
             ++subject;
         }
         break;
-    case Subject::DDMM:
+    case GlobalEnum::ScheduleSubject::DDMM:
         subject = theTm.tm_mday;
         subject *= 100;
         subject += (theTm.tm_mon + 1);
         break;
-    case Subject::DDMMYYYY:
+    case GlobalEnum::ScheduleSubject::DDMMYYYY:
         subject = theTm.tm_mday;
         subject *= 100;
         subject += (theTm.tm_mon + 1);
@@ -204,136 +209,26 @@ bool ScheduleRule::examine(const Condition &condition, const struct tm &theTm) c
     return checkResult;
 }
 
-bool ScheduleRule::condition_check(uint16_t subject, Comparison compare, uint16_t value) const
+bool ScheduleRule::condition_check(uint16_t subject, GlobalEnum::Compare compare, uint16_t value) const
 {
     //printf("Condition check, subject %u compare %d value %u\n", subject, int(compare), value);
     switch (compare)
     {
-    case Comparison::GREATER:
+    case GlobalEnum::Compare::GREATER:
         return subject > value;
-    case Comparison::GREATER_EQUAL:
+    case GlobalEnum::Compare::GREATEREQUAL:
         return subject >= value;
-    case Comparison::EQUAL:
+    case GlobalEnum::Compare::EQUAL:
         //printf("Checking if %u equals %u\n", subject, value);
         return subject == value;
-    case Comparison::NOT_EQUAL:
+    case GlobalEnum::Compare::NOTEQUAL:
         return subject != value;
-    case Comparison::SMALLER_EQUAL:
+    case GlobalEnum::Compare::SMALLEREQUAL:
         return subject <= value;
-    case Comparison::SMALLER:
+    case GlobalEnum::Compare::SMALLER:
         return subject < value;
     default:
         return false;
     }
     return false;
-}
-
-ScheduleRule::Subject ScheduleRule::string_to_subject(const std::string &stringForm)
-{
-    string converted = stringForm;
-    transform(converted.begin(), converted.end(), converted.begin(), [](unsigned char c) { return std::tolower(c); });
-    if (!converted.compare("weekday"))
-    {
-        return Subject::WEEK_DAY;
-    }
-    else if (!converted.compare("month"))
-    {
-        return Subject::MONTH;
-    }
-    else if (!converted.compare("monthday"))
-    {
-        return Subject::MONTH_DAY;
-    }
-    else if (!converted.compare("monthweek"))
-    {
-        return Subject::MONTH_WEEK;
-    }
-    else if (!converted.compare("monthsunday"))
-    {
-        return Subject::MONTH_SUNDAY;
-    }
-    else if (!converted.compare("monthmonday"))
-    {
-        return Subject::MONTH_MONDAY;
-    }
-    else if (!converted.compare("monthtuesday"))
-    {
-        return Subject::MONTH_TUESDAY;
-    }
-    else if (!converted.compare("monthwednesday"))
-    {
-        return Subject::MONTH_WEDNESDAY;
-    }
-    else if (!converted.compare("monththursday"))
-    {
-        return Subject::MONTH_THURSDAY;
-    }
-    else if (!converted.compare("monthfriday"))
-    {
-        return Subject::MONTH_FRIDAY;
-    }
-    else if (!converted.compare("monthsaturday"))
-    {
-        return Subject::MONTH_SATURDAY;
-    }
-    else if (!converted.compare("year"))
-    {
-        return Subject::YEAR;
-    }
-    else if (!converted.compare("yearday"))
-    {
-        return Subject::YEAR_DAY;
-    }
-    else if (!converted.compare("yearweek"))
-    {
-        return Subject::YEAR_WEEK;
-    }
-    else if (!converted.compare("ddmm"))
-    {
-        return Subject::DDMM;
-    }
-    else if (!converted.compare("ddmmyyyy"))
-    {
-        return Subject::DDMMYYYY;
-    }
-    return Subject::INVALID;
-}
-
-ScheduleRule::Comparison ScheduleRule::string_to_comparison(const std::string &stringForm)
-{
-    string converted = stringForm;
-    transform(converted.begin(), converted.end(), converted.begin(), [](unsigned char c) { return std::tolower(c); });
-    if (!converted.compare(">"))
-    {
-        return Comparison::GREATER;
-    }
-    else if (!converted.compare(">="))
-    {
-        return Comparison::GREATER_EQUAL;
-    }
-    else if (!converted.compare("=="))
-    {
-        return Comparison::EQUAL;
-    }
-    else if (!converted.compare("="))
-    {
-        return Comparison::EQUAL;
-    }
-    else if (!converted.compare("!="))
-    {
-        return Comparison::NOT_EQUAL;
-    }
-    else if (!converted.compare("<>"))
-    {
-        return Comparison::NOT_EQUAL;
-    }
-    else if (!converted.compare("<="))
-    {
-        return Comparison::SMALLER_EQUAL;
-    }
-    else if (!converted.compare("<"))
-    {
-        return Comparison::SMALLER;
-    }
-    return Comparison::INVALID;
 }

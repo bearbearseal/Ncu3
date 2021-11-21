@@ -1,186 +1,75 @@
 #include "TimeTable.h"
-#include "ScheduleFunction.h"
-#include <algorithm>
 
 using namespace std;
 
-//pair<uint32_t, Value> emptyEvent = {0, Value()};
-const std::pair<uint32_t, TimeTable::EventData> emptyEventEntry = {0, {TimeTable::EventType::Invalid, Value()}};
-TimeTable::IntervalData emptyInterval = {0, Value()};
-TimeTable::EventData emptyEvent;
+TimeTable::ActionData emptyAction{GlobalEnum::ScheduleAction::INVALID, Value()};
 
-TimeTable::TimeTable()
+TimeTable::TimeTable(const std::vector<TimedActionData> &timedActionList)
 {
+    for (size_t i = 0; i < timedActionList.size(); ++i)
+    {
+        ActionData &entry = orderedActions[timedActionList[i].daySecond];
+        entry.action = timedActionList[i].action;
+        entry.value = timedActionList[i].value;
+    }
 }
 
 TimeTable::~TimeTable()
 {
 }
 
-bool TimeTable::add_write_event(const Value &value, const DayTime &dayTime)
+const TimeTable::ActionData& TimeTable::get_action_at(uint32_t daySecond) const
 {
-    EventData entry;
-    entry.type = EventType::WriteValue;
-    entry.value = value;
-    uint32_t daySecond = ScheduleFunction::hour_minute_second_to_day_second(dayTime.hour, dayTime.minute, dayTime.second);
-    if (!eventMap.size())
+    const auto& theResult = orderedActions.find(daySecond);
+    if(theResult != orderedActions.end())
     {
-        eventMap[daySecond] = entry;
-        printf("Write added.\n");
-        return true;
+        const ActionData& entry = theResult->second;
+        return {entry};
     }
-    auto upperBound = eventMap.upper_bound(daySecond);
-    if (upperBound == eventMap.end())
-    {
-        eventMap[daySecond] = entry;
-        printf("Write added.\n");
-        return true;
-    }
-    if (upperBound->second.type != EventType::EndInterval)
-    {
-        eventMap[daySecond] = entry;
-        printf("Write added.\n");
-        return true;
-    }
-    printf("Cannot add write event.\n");
-    return false;
+    return emptyAction;
 }
 
-void TimeTable::add_interval(const Value &value, uint32_t beginSecond, uint32_t endSecond)
+std::optional<TimeTable::TimedActionData> TimeTable::get_event_before_or_at(uint32_t daySecond) const
 {
-    EventData beginner;
-    beginner.type = EventType::StartInterval;
-    beginner.value = value;
-    eventMap[beginSecond] = beginner;
-    EventData ender;
-    ender.type = EventType::EndInterval;
-    eventMap[endSecond] = ender;
-    IntervalData intervalData;
-    intervalData.endSecond = endSecond;
-    intervalData.value = value;
-    intervalMap[beginSecond] = intervalData;
-    printf("Interval added.\n");
+    const auto& theResult = orderedActions.lower_bound(daySecond);
+    if (theResult != orderedActions.end())
+    {
+        return optional<TimeTable::TimedActionData>{{theResult->first, theResult->second.action, theResult->second.value}};
+    }
+    return {};
 }
 
-bool TimeTable::add_interval(const Value &value, const DayTime &begin, const DayTime &end)
+std::optional<TimeTable::TimedActionData> TimeTable::get_the_event_after(uint32_t daySecond) const
 {
-    uint32_t beginSecond = ScheduleFunction::hour_minute_second_to_day_second(begin.hour, begin.minute, begin.second);
-    uint32_t endSecond = ScheduleFunction::hour_minute_second_to_day_second(end.hour, end.minute, end.second);
-    if (beginSecond >= endSecond)
+    const auto theResult = orderedActions.upper_bound(daySecond);
+    if (theResult != orderedActions.end())
     {
-        printf("Cannot add interval 1.\n");
-        return false;
+        return optional<TimeTable::TimedActionData>{{theResult->first, theResult->second.action, theResult->second.value}};
     }
-    if (!eventMap.size())
-    {
-        add_interval(value, beginSecond, endSecond);
-        return true;
-    }
-    uint32_t mapLow = eventMap.begin()->first;
-    uint32_t mapHigh = eventMap.rbegin()->first;
-    if (beginSecond > mapHigh)
-    {
-        add_interval(value, beginSecond, endSecond);
-        return true;
-    }
-    if (endSecond < mapLow)
-    {
-        add_interval(value, beginSecond, endSecond);
-        return true;
-    }
-    if (beginSecond <= mapLow || endSecond >= mapHigh)
-    {
-        //Something in between
-        printf("Cannot add interval 2.\n");
-        return false;
-    }
-    auto lowerBound = eventMap.lower_bound(beginSecond);
-    auto upperBound = eventMap.upper_bound(endSecond);
-    if (lowerBound == upperBound)
-    {
-        if (upperBound->second.type != EventType::EndInterval)
-        {
-            add_interval(value, beginSecond, endSecond);
-            return true;
-        }
-    }
-    printf("Cannot add interval 3.\n");
-    return false;
+    return {};
 }
 
-const TimeTable::IntervalData &TimeTable::get_interval_value(uint32_t daySecond) const
+std::optional<TimeTable::TimedActionData> TimeTable::get_the_event_at_or_after(uint32_t daySecond) const
 {
-    auto lowerBound = intervalMap.find(daySecond);
-    if (lowerBound == intervalMap.end())
+    auto theResult = orderedActions.find(daySecond);
+    if (theResult != orderedActions.end())
     {
-        return emptyInterval;
+        return optional<TimeTable::TimedActionData>{{theResult->first, theResult->second.action, theResult->second.value}};
     }
-    else if (lowerBound->second.endSecond < daySecond)
+    theResult = orderedActions.upper_bound(daySecond);
+    if (theResult != orderedActions.end())
     {
-        return emptyInterval;
+        return optional<TimeTable::TimedActionData>{{theResult->first, theResult->second.action, theResult->second.value}};
     }
-    return lowerBound->second;
+    return {};
 }
 
-TimeTable::EventType TimeTable::string_to_event_type(const std::string &eventType)
+std::optional<TimeTable::TimedActionData> TimeTable::get_first_event() const
 {
-    string converted = eventType;
-    transform(converted.begin(), converted.end(), converted.begin(), [](unsigned char c) { return std::tolower(c); });
-    if (!converted.compare("start"))
+    const auto& theResult = orderedActions.begin();
+    if(theResult != orderedActions.end())
     {
-        return EventType::StartInterval;
+        return optional<TimeTable::TimedActionData>{{theResult->first, theResult->second.action, theResult->second.value}};
     }
-    else if (!converted.compare("end"))
-    {
-        return EventType::EndInterval;
-    }
-    else if (!converted.compare("write"))
-    {
-        return EventType::WriteValue;
-    }
-    return EventType::Invalid;
-}
-
-pair<uint32_t, const TimeTable::EventData &> TimeTable::get_the_event_after(uint32_t daySecond) const
-{
-    auto i = eventMap.upper_bound(daySecond);
-    if (i == eventMap.end())
-    {
-        return emptyEventEntry;
-    }
-    return {i->first, i->second};
-}
-
-pair<uint32_t, const TimeTable::EventData &> TimeTable::get_the_event_at_or_after(uint32_t daySecond) const
-{
-    auto i = eventMap.find(daySecond);
-    if (i == eventMap.end())
-    {
-        i = eventMap.upper_bound(daySecond);
-        if (i == eventMap.end())
-        {
-            return emptyEventEntry;
-        }
-    }
-    return {i->first, i->second};
-}
-
-pair<uint32_t, const TimeTable::EventData &> TimeTable::get_first_event() const
-{
-    if (eventMap.size())
-    {
-        return {eventMap.begin()->first, eventMap.begin()->second};
-    }
-    return emptyEventEntry;
-}
-
-const TimeTable::EventData &TimeTable::get_event_data(uint32_t dataSecond) const
-{
-    auto i = eventMap.find(dataSecond);
-    if (i == eventMap.end())
-    {
-        printf("Cannot find event at dat second %u.\n", dataSecond);
-        return emptyEvent;
-    }
-    return i->second;
+    return {};
 }

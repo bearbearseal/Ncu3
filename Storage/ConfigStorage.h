@@ -89,7 +89,7 @@ public:
     };
 
     std::unordered_map<uint16_t, std::vector<PropertyData>> get_property_data();
-
+/*
     struct ScheduleRuleConditionData {
         //size_t subject;
         std::string subject;
@@ -127,7 +127,7 @@ public:
         uint16_t scheduleId;
     };
     std::vector<EquipmentScheduleData> get_equipment_schedule_data();
-
+*/
     struct AlarmLogicData {
         uint32_t compare;
         double refValue;
@@ -161,6 +161,49 @@ public:
     };
     std::vector<PointAlarmPair> get_alarm_point_pair();
 
+    struct TimedAction
+    {
+        uint16_t action;
+        double value;
+        uint32_t time;  //hhmmss
+    };
+    struct TimeTableData
+    {
+        uint32_t id;
+        std::vector<TimedAction> actionList; 
+    };
+    std::vector<TimeTableData> get_time_table();
+
+    struct ScheduleRule
+    {
+        uint8_t subject;
+        uint8_t compare;
+        uint32_t value;
+    };
+    //GroupId2Rules, rules in sublist have and condition, or between list
+    std::unordered_map<uint32_t, std::vector<std::vector<ScheduleRule>>> get_schedule_rule();
+
+    struct Schedule
+    {
+        uint32_t scheduleRule;
+        uint32_t timeTable;
+    };
+    struct ScheduleData
+    {
+        uint32_t id;
+        std::vector<Schedule> scheduleList;
+        uint32_t defaultTable;
+    };
+    std::vector<ScheduleData> get_schedule();
+
+    struct PointSchedulePair
+    {
+        uint32_t deviceId;
+        uint32_t pointId;
+        uint32_t scheduleId;
+    };
+    std::vector<PointSchedulePair> get_point_schedule_pair();
+    
 private:
     Sqlite3 theDb;
 };

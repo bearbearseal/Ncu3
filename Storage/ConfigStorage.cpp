@@ -46,7 +46,7 @@ vector<ConfigStorage::ModbusIpChannelData> ConfigStorage::get_modbus_ip_channel_
         entry.msTimeout = result->get_integer(i, "Timeout_ms").second;
         retVal.push_back(entry);
     }
-    //printf("Got %zu modbus ip channel data.\n", retVal.size());
+    // printf("Got %zu modbus ip channel data.\n", retVal.size());
     return retVal;
 }
 
@@ -63,7 +63,7 @@ unordered_map<uint16_t, vector<ConfigStorage::ModbusIpPoint>> ConfigStorage::get
         entry.type = result->get_integer(i, "Type").second;
         entry.inOp = result->get_integer(i, "InOp").second;
         entry.outOp = result->get_integer(i, "OutOp").second;
-        //entry.alarmLogic = result->get_integer(i, "AlarmLogic").second;
+        // entry.alarmLogic = result->get_integer(i, "AlarmLogic").second;
         retVal[deviceId].push_back(entry);
     }
     return retVal;
@@ -82,7 +82,7 @@ unordered_map<uint16_t, vector<ConfigStorage::ModbusRtuPoint>> ConfigStorage::ge
         entry.type = result->get_integer(i, "Type").second;
         entry.inOp = result->get_integer(i, "InOp").second;
         entry.outOp = result->get_integer(i, "OutOp").second;
-        //entry.alarmLogic = result->get_integer(i, "AlarmLogic").second;
+        // entry.alarmLogic = result->get_integer(i, "AlarmLogic").second;
         retVal[deviceId].push_back(entry);
     }
     return retVal;
@@ -140,6 +140,21 @@ unordered_map<uint16_t, vector<ConfigStorage::PropertyData>> ConfigStorage::get_
     }
     return retVal;
 }
+/*
+vector<ConfigStorage::EquipmentScheduleData> ConfigStorage::get_equipment_schedule_data()
+{
+    vector<EquipmentScheduleData> retVal;
+    auto result = theDb.execute_query("Select EquipmentId, PropertyName, ScheduleId from ScheduleEquipment");
+    for (size_t i = 0; i < result->get_row_count(); ++i)
+    {
+        EquipmentScheduleData entry;
+        entry.equipmentId = result->get_integer(i, "EquipmentId").second;
+        entry.propertyName = result->get_string(i, "PropertyName").second;
+        entry.scheduleId = result->get_integer(i, "ScheduleId").second;
+        retVal.push_back(entry);
+    }
+    return retVal;
+}
 
 unordered_map<uint16_t, vector<ConfigStorage::ScheduleRuleConditionData>> ConfigStorage::get_schedule_condition_data()
 {
@@ -171,54 +186,91 @@ unordered_map<uint16_t, vector<uint16_t>> ConfigStorage::get_schedule_rule_and_c
     }
     return retVal;
 }
-
-unordered_map<uint16_t, vector<ConfigStorage::ScheduleData>> ConfigStorage::get_schedule_data()
+*/
+vector<ConfigStorage::ScheduleData> ConfigStorage::get_schedule()
 {
-    unordered_map<uint16_t, vector<ScheduleData>> retVal;
-    auto result = theDb.execute_query("Select ScheduleId, RuleId, TimeTableId, Priority from Schedule");
+    vector<ConfigStorage::ScheduleData> retVal;
+    auto result = theDb.execute_query("Select Id, Rule1, TimeTable1, Rule2, TimeTable2, Rule3, TimeTable3, "
+                                      "Rule4, TimeTable4, DefaultTable from Schedule");
+    retVal.resize(result->get_row_count());
     for (size_t i = 0; i < result->get_row_count(); ++i)
     {
-        uint16_t ruleId = result->get_integer(i, "ScheduleId").second;
-        vector<ScheduleData> &theList = retVal[ruleId];
-        ScheduleData entry;
-        entry.ruleId = result->get_integer(i, "RuleId").second;
-        entry.timeTableId = result->get_integer(i, "TimeTableId").second;
-        entry.priority = result->get_integer(i, "Priority").second;
-        theList.push_back(entry);
+        retVal[i].id = result->get_integer(i, "Id").second;
+        retVal[i].scheduleList.resize(4);
+        retVal[i].scheduleList[0].scheduleRule = result->get_integer(i, "Rule1").second;
+        retVal[i].scheduleList[0].timeTable = result->get_integer(i, "TimeTable1").second;
+        retVal[i].scheduleList[1].scheduleRule = result->get_integer(i, "Rule2").second;
+        retVal[i].scheduleList[1].timeTable = result->get_integer(i, "TimeTable2").second;
+        retVal[i].scheduleList[2].scheduleRule = result->get_integer(i, "Rule3").second;
+        retVal[i].scheduleList[2].timeTable = result->get_integer(i, "TimeTable3").second;
+        retVal[i].scheduleList[3].scheduleRule = result->get_integer(i, "Rule4").second;
+        retVal[i].scheduleList[3].timeTable = result->get_integer(i, "TimeTable4").second;
     }
     return retVal;
 }
 
-unordered_map<uint16_t, vector<ConfigStorage::TimeTableData>> ConfigStorage::get_time_table_data()
+unordered_map<uint32_t, vector<vector<ConfigStorage::ScheduleRule>>> ConfigStorage::get_schedule_rule()
 {
-    unordered_map<uint16_t, vector<TimeTableData>> retVal;
-    auto result = theDb.execute_query("Select TimeTableId, EventType, Hour, Minute, Second, Value from TimeTable");
+    unordered_map<uint32_t, vector<vector<ScheduleRule>>> retVal;
+    auto result = theDb.execute_query("Select Group, Subject1, Compare1, Value1, Subject2, Compare2, Value2, "
+                                      "Subject3, Compare3, Value3, Subject4, Compare4, Value4 from ScheduleRule");
     for (size_t i = 0; i < result->get_row_count(); ++i)
     {
-        uint16_t timeTableId = result->get_integer(i, "TimeTableId").second;
-        vector<TimeTableData> &theList = retVal[timeTableId];
-        TimeTableData entry;
-        entry.eventType = result->get_string(i, "EventType").second;
-        entry.hour = result->get_integer(i, "Hour").second;
-        entry.minute = result->get_integer(i, "Minute").second;
-        entry.second = result->get_integer(i, "Second").second;
-        entry.valueString = result->get_string(i, "Value").second;
-        theList.push_back(entry);
+        vector<vector<ScheduleRule>> &mapEntry = retVal[result->get_integer(i, "Group").second];
+        // Each row in sqlite table has 4 rules
+        vector<ScheduleRule> ruleSubList(4);
+        ruleSubList[0].subject = result->get_integer(i, "Subject1").second;
+        ruleSubList[0].compare = result->get_integer(i, "Compare1").second;
+        ruleSubList[0].value = result->get_integer(i, "Value1").second;
+        ruleSubList[1].subject = result->get_integer(i, "Subject2").second;
+        ruleSubList[1].compare = result->get_integer(i, "Compare2").second;
+        ruleSubList[1].value = result->get_integer(i, "Value2").second;
+        ruleSubList[2].subject = result->get_integer(i, "Subject3").second;
+        ruleSubList[2].compare = result->get_integer(i, "Compare3").second;
+        ruleSubList[2].value = result->get_integer(i, "Value3").second;
+        ruleSubList[3].subject = result->get_integer(i, "Subject4").second;
+        ruleSubList[3].compare = result->get_integer(i, "Compare4").second;
+        ruleSubList[3].value = result->get_integer(i, "Value4").second;
+        mapEntry.push_back(ruleSubList);
     }
     return retVal;
 }
 
-vector<ConfigStorage::EquipmentScheduleData> ConfigStorage::get_equipment_schedule_data()
+vector<ConfigStorage::TimeTableData> ConfigStorage::get_time_table()
 {
-    vector<EquipmentScheduleData> retVal;
-    auto result = theDb.execute_query("Select EquipmentId, PropertyName, ScheduleId from ScheduleEquipment");
+    vector<TimeTableData> retVal;
+    auto result = theDb.execute_query("Select Id, Time1, Action1, Value1, Time2, Action2, Value2, Time3, Action3, Value3, "
+                                      "Time4, Action4, Value4, Time5, Action5, Value5, Time6, Action6, Value6, "
+                                      "Time7, Action7, Value7, Time8, Action8, Value8 from TimeTable");
+    retVal.resize(result->get_row_count());
     for (size_t i = 0; i < result->get_row_count(); ++i)
     {
-        EquipmentScheduleData entry;
-        entry.equipmentId = result->get_integer(i, "EquipmentId").second;
-        entry.propertyName = result->get_string(i, "PropertyName").second;
-        entry.scheduleId = result->get_integer(i, "ScheduleId").second;
-        retVal.push_back(entry);
+        retVal[i].id = result->get_integer(i, "Id").second;
+        retVal[i].actionList.resize(8);
+        retVal[i].actionList[0].time = result->get_integer(i, "Time1").second;
+        retVal[i].actionList[0].action = result->get_integer(i, "Action1").second;
+        retVal[i].actionList[0].value = result->get_float(i, "Value1").second;
+        retVal[i].actionList[1].time = result->get_integer(i, "Time2").second;
+        retVal[i].actionList[1].action = result->get_integer(i, "Action2").second;
+        retVal[i].actionList[1].value = result->get_float(i, "Value2").second;
+        retVal[i].actionList[2].time = result->get_integer(i, "Time3").second;
+        retVal[i].actionList[2].action = result->get_integer(i, "Action3").second;
+        retVal[i].actionList[2].value = result->get_float(i, "Value3").second;
+        retVal[i].actionList[3].time = result->get_integer(i, "Time4").second;
+        retVal[i].actionList[3].action = result->get_integer(i, "Action4").second;
+        retVal[i].actionList[3].value = result->get_float(i, "Value4").second;
+        retVal[i].actionList[4].time = result->get_integer(i, "Time5").second;
+        retVal[i].actionList[4].action = result->get_integer(i, "Action5").second;
+        retVal[i].actionList[4].value = result->get_float(i, "Value5").second;
+        retVal[i].actionList[5].time = result->get_integer(i, "Time6").second;
+        retVal[i].actionList[5].action = result->get_integer(i, "Action6").second;
+        retVal[i].actionList[5].value = result->get_float(i, "Value6").second;
+        retVal[i].actionList[6].time = result->get_integer(i, "Time7").second;
+        retVal[i].actionList[6].action = result->get_integer(i, "Action7").second;
+        retVal[i].actionList[6].value = result->get_float(i, "Value7").second;
+        retVal[i].actionList[7].time = result->get_integer(i, "Time8").second;
+        retVal[i].actionList[7].action = result->get_integer(i, "Action8").second;
+        retVal[i].actionList[7].value = result->get_float(i, "Value8").second;
     }
     return retVal;
 }
@@ -226,13 +278,13 @@ vector<ConfigStorage::EquipmentScheduleData> ConfigStorage::get_equipment_schedu
 vector<ConfigStorage::AlarmLogicsData> ConfigStorage::get_alarm_logic()
 {
     vector<AlarmLogicsData> retVal;
-    auto result = theDb.execute_query("Select Id, Compare1, RefValue1, State1, "\
-        "Compare2, RefValue2, State2, "\
-        "Compare3, RefValue3, State3, "\
-        "Compare4, RefValue4, State4, "\
-        "Compare5, RefValue5, State5, "\
-        "Compare6, RefValue6, State6 from AlarmLogic");
-    for(size_t i=0; i<result->get_row_count(); ++i)
+    auto result = theDb.execute_query("Select Id, Compare1, RefValue1, State1, "
+                                      "Compare2, RefValue2, State2, "
+                                      "Compare3, RefValue3, State3, "
+                                      "Compare4, RefValue4, State4, "
+                                      "Compare5, RefValue5, State5, "
+                                      "Compare6, RefValue6, State6 from AlarmLogic");
+    for (size_t i = 0; i < result->get_row_count(); ++i)
     {
         AlarmLogicsData entry;
         entry.logicData.resize(6);
@@ -260,11 +312,25 @@ vector<ConfigStorage::AlarmLogicsData> ConfigStorage::get_alarm_logic()
     return retVal;
 }
 
+vector<ConfigStorage::PointSchedulePair> ConfigStorage::get_point_schedule_pair()
+{
+    vector<PointSchedulePair> retVal;
+    auto result = theDb.execute_query("Select Device, Point, Schedule from SchedulePointPair");
+    retVal.resize(result->get_row_count());
+    for (size_t i = 0; i < result->get_row_count(); ++i)
+    {
+        retVal[i].deviceId = result->get_integer(i, "Device").second;
+        retVal[i].pointId = result->get_integer(i, "Point").second;
+        retVal[i].scheduleId = result->get_integer(i, "Schedule").second;
+    }
+    return retVal;
+}
+
 vector<ConfigStorage::NodeAlarmData> ConfigStorage::get_node_alarm()
 {
     vector<NodeAlarmData> retVal;
     auto result = theDb.execute_query("Select Equipment, Property, AlarmLogicId, Priority from NodeAlarm");
-    for(size_t i=0; i<result->get_row_count(); ++i)
+    for (size_t i = 0; i < result->get_row_count(); ++i)
     {
         NodeAlarmData entry;
         entry.equipmentId.from_formatted_string(result->get_string(i, "Equipment").second);
@@ -280,7 +346,7 @@ vector<ConfigStorage::NodeNormalMessage> ConfigStorage::get_normal_message()
 {
     vector<NodeNormalMessage> retVal;
     auto result = theDb.execute_query("Select Equipment, Property, Message from NodeNormalMessage");
-    for(size_t i=0; i<result->get_row_count(); ++i)
+    for (size_t i = 0; i < result->get_row_count(); ++i)
     {
         NodeNormalMessage entry;
         entry.equipmentId.from_formatted_string(result->get_string(i, "Equipment").second);
@@ -296,7 +362,7 @@ vector<ConfigStorage::PointAlarmPair> ConfigStorage::get_alarm_point_pair()
     vector<PointAlarmPair> retVal;
     auto result = theDb.execute_query("Select DeviceId, PointId, LogicGroupId from PointAlarmPair");
     retVal.resize(result->get_row_count());
-    for(size_t i=0; i<result->get_row_count(); ++i)
+    for (size_t i = 0; i < result->get_row_count(); ++i)
     {
         retVal[i].deviceId = result->get_integer(i, "DeviceId").second;
         retVal[i].pointId = result->get_integer(i, "PointId").second;

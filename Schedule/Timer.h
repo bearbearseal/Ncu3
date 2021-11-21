@@ -1,3 +1,9 @@
+/*
+This class time is based on system clock.
+Add an event (with listener and token) to timer and tell it the second it should be invoked
+The event would be invoked when time is >= the intended time and be removed.
+*/
+
 #ifndef _Timer_H_
 #define _Timer_H_
 #include <memory>

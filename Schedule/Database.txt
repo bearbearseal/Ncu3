@@ -1,0 +1,28 @@
+TimeTable has multiple events.
+Each TimeTable can have up to 10 events, each event has an action and value.
+Action: 0=None, 1=Write, 2=Set, 3=Unset.
+
+Each Schedule Rule has 4 conditions, each condition has a RuleSubject, a comparison, a Value, AND rule
+RuleSubject:
+WEEK_DAY        = 1
+MONTH           = 2
+MONTH_DAY       = 3
+MONTH_WEEK      = 4
+MONTH_SUNDAY    = 5
+MONTH_MONDAY    = 6
+MONTH_TUESDAY   = 7
+MONTH_WEDNESDAY = 8
+MONTH_THURSDAY  = 9
+MONTH_FRIDAY    = 10
+MONTH_SATURDAY  = 11
+YEAR            = 12
+YEAR_DAY        = 13
+YEAR_WEEK       = 14
+DDMM            = 15
+DDMMYYYY        = 16
+INVALID         = 17
+
+Each Schedule has 4 ScheduleRule and TimeTable pair.
+Bigger number is the higher priority pair, meaning if the rule is hit, next pair would not be check.
+
+

@@ -1,3 +1,10 @@
+/**************************************************
+ * Contains TimeTable and ScheduleRules pair and priority.
+ * ScheduleRules would determine if the associated TimeTable is applicable 'today'.
+ * Priority would determine which of the applicable TimeTable would apply.
+ * Follow the default TimeTable if no TimeTable is applicable AND if default TimeTable exist.
+ * Always redetermine which TimeTable to follow at 00:00:00
+***************************************************/
 #ifndef _Schedule_H_
 #define _Schedule_H_
 #include <memory>
@@ -8,8 +15,6 @@
 #include "TimeTable.h"
 #include "../../MyLib/Basic/Value.h"
 
-//Contains TimeTable and ScheduleRules pair and priority
-//Should have a default time table if no time table is applicable, this time table would take action at 00:00:00 
 class Schedule {
 public:
     class Listener {
@@ -29,10 +34,10 @@ public:
         Schedule& master;
     };
 
-    Schedule(std::unique_ptr<Timer>& _timer);
+    Schedule(std::unique_ptr<Timer>& _timer, std::shared_ptr<TimeTable> _defaultTimeTable);
     virtual ~Schedule();
 
-    void set_default_time_table(std::shared_ptr<TimeTable> timeTable);
+    //void set_default_time_table(std::shared_ptr<TimeTable> timeTable);
     void add_time_table(std::shared_ptr<TimeTable> timeTable, std::shared_ptr<ScheduleRule> rules, uint8_t priority);
     void add_listener(std::weak_ptr<Listener> listener);
     void start();
@@ -55,7 +60,7 @@ private:
     //Find is based on today's date
     std::shared_ptr<TimeTable> get_applicable_time_table();
 
-    void handle_event(const TimeTable::EventData& eventInfo);
+    //void handle_event(const TimeTable::EventData& eventInfo);
     void notify_listener_set_event(const Value& setValue);
     void notify_listener_unset_event();
     void notify_listener_write_event(const Value& setValue);
