@@ -183,18 +183,18 @@ public:
     //GroupId2Rules, rules in sublist have and condition, or between list
     std::unordered_map<uint32_t, std::vector<std::vector<ScheduleRule>>> get_schedule_rule();
 
-    struct Schedule
+    struct RuleTablePair
     {
         uint32_t scheduleRule;
         uint32_t timeTable;
     };
-    struct ScheduleData
+    struct RuleTableData
     {
         uint32_t id;
-        std::vector<Schedule> scheduleList;
+        std::vector<RuleTablePair> pairList;
         uint32_t defaultTable;
     };
-    std::vector<ScheduleData> get_schedule();
+    std::vector<RuleTableData> get_schedule();
 
     struct PointSchedulePair
     {

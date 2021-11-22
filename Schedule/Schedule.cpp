@@ -6,7 +6,7 @@ using namespace std;
 const uint16_t TOKEN_Tomorrow = 0;
 const uint16_t TOKEN_NextEvent = 1;
 
-Schedule::Schedule(unique_ptr<Timer> &_timer, std::shared_ptr<TimeTable> _defaultTimeTable) : timer(_timer), defaultTimeTable(_defaultTimeTable)
+Schedule::Schedule(shared_ptr<Timer> &_timer, std::shared_ptr<TimeTable> _defaultTimeTable) : timer(_timer), defaultTimeTable(_defaultTimeTable)
 {
     timerListener = make_shared<TimerListener>(*this);
 }

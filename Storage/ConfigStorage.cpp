@@ -187,24 +187,24 @@ unordered_map<uint16_t, vector<uint16_t>> ConfigStorage::get_schedule_rule_and_c
     return retVal;
 }
 */
-vector<ConfigStorage::ScheduleData> ConfigStorage::get_schedule()
+vector<ConfigStorage::RuleTableData> ConfigStorage::get_schedule()
 {
-    vector<ConfigStorage::ScheduleData> retVal;
+    vector<ConfigStorage::RuleTableData> retVal;
     auto result = theDb.execute_query("Select Id, Rule1, TimeTable1, Rule2, TimeTable2, Rule3, TimeTable3, "
                                       "Rule4, TimeTable4, DefaultTable from Schedule");
     retVal.resize(result->get_row_count());
     for (size_t i = 0; i < result->get_row_count(); ++i)
     {
         retVal[i].id = result->get_integer(i, "Id").second;
-        retVal[i].scheduleList.resize(4);
-        retVal[i].scheduleList[0].scheduleRule = result->get_integer(i, "Rule1").second;
-        retVal[i].scheduleList[0].timeTable = result->get_integer(i, "TimeTable1").second;
-        retVal[i].scheduleList[1].scheduleRule = result->get_integer(i, "Rule2").second;
-        retVal[i].scheduleList[1].timeTable = result->get_integer(i, "TimeTable2").second;
-        retVal[i].scheduleList[2].scheduleRule = result->get_integer(i, "Rule3").second;
-        retVal[i].scheduleList[2].timeTable = result->get_integer(i, "TimeTable3").second;
-        retVal[i].scheduleList[3].scheduleRule = result->get_integer(i, "Rule4").second;
-        retVal[i].scheduleList[3].timeTable = result->get_integer(i, "TimeTable4").second;
+        retVal[i].pairList.resize(4);
+        retVal[i].pairList[0].scheduleRule = result->get_integer(i, "Rule1").second;
+        retVal[i].pairList[0].timeTable = result->get_integer(i, "TimeTable1").second;
+        retVal[i].pairList[1].scheduleRule = result->get_integer(i, "Rule2").second;
+        retVal[i].pairList[1].timeTable = result->get_integer(i, "TimeTable2").second;
+        retVal[i].pairList[2].scheduleRule = result->get_integer(i, "Rule3").second;
+        retVal[i].pairList[2].timeTable = result->get_integer(i, "TimeTable3").second;
+        retVal[i].pairList[3].scheduleRule = result->get_integer(i, "Rule4").second;
+        retVal[i].pairList[3].timeTable = result->get_integer(i, "TimeTable4").second;
     }
     return retVal;
 }
