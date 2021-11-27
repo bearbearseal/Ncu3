@@ -58,7 +58,7 @@ namespace Test
             timer->add_time_event(baseTime, listener, 5);
         }
     }
-
+/*
     void test_schedule_rule()
     {
         ScheduleRule sr1;
@@ -197,7 +197,7 @@ namespace Test
             this_thread::sleep_for(1s);
         }
     }
-
+*/
     void test_schedule_manager()
     {
         ConfigStorage configStorage("/var/sqlite/NcuConfig.db");

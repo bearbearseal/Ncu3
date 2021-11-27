@@ -1,6 +1,6 @@
 OBJS = main.o ScheduleRule.o Schedule.o
 OBJS += TimeTable.o Timer.o ScheduleManager.o ScheduleFunction.o
-OBJS += ConfigStorage.o Sqlite3.o
+OBJS += ConfigStorage.o Sqlite3.o GlobalEnum.o
 OBJS += Value.o
 
 CC = g++ -std=c++2a
@@ -42,6 +42,9 @@ ConfigStorage.o: ../Storage/ConfigStorage.h ../Storage/ConfigStorage.cpp
 
 Sqlite3.o: ../../MyLib/Sqlite/Sqlite3.h ../../MyLib/Sqlite/Sqlite3.cpp
 	$(CC) $(CFLAGS) ../../MyLib/Sqlite/Sqlite3.cpp
+
+GlobalEnum.o: ../Global/GlobalEnum.h ../Global/GlobalEnum.cpp
+	$(CC) $(CFLAGS) ../Global/GlobalEnum.cpp
 
 clean:
 	rm -f $(binaries) *.o

@@ -13,20 +13,16 @@ namespace GlobalEnum {
         NOTEQUAL        = 6,
         INVALID
     };
-    bool is_compare(int value)
-    {
-        return value>=static_cast<int>(Compare::GREATER) && value<=static_cast<int>(Compare::NOTEQUAL);
-    }
+    bool is_compare(int value);
+
     enum class ScheduleAction {
         SET     = 1,
         UNSET   = 2,
         WRITE   = 3,
         INVALID
     };
-    bool is_schedule_action(int action)
-    {
-        return action>=static_cast<int>(ScheduleAction::SET) && action<=static_cast<int>(ScheduleAction::WRITE);
-    }
+    bool is_schedule_action(int action);
+
     enum class ScheduleSubject
     {
         WEEK_DAY        = 1, //Sunday is 0, Monday is 1
@@ -47,10 +43,7 @@ namespace GlobalEnum {
         DDMMYYYY        = 16,
         INVALID
     };
-    bool is_schedule_subject(int subject)
-    {
-        return (subject >= int(GlobalEnum::ScheduleSubject::WEEK_DAY) && subject <= int(GlobalEnum::ScheduleSubject::DDMMYYYY));
-    }
+    bool is_schedule_subject(int subject);
 }
 
 #endif

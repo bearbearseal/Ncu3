@@ -212,7 +212,7 @@ vector<ConfigStorage::RuleTableData> ConfigStorage::get_schedule()
 unordered_map<uint32_t, vector<vector<ConfigStorage::ScheduleRule>>> ConfigStorage::get_schedule_rule()
 {
     unordered_map<uint32_t, vector<vector<ScheduleRule>>> retVal;
-    auto result = theDb.execute_query("Select Group, Subject1, Compare1, Value1, Subject2, Compare2, Value2, "
+    auto result = theDb.execute_query("Select `Group`, Subject1, Compare1, Value1, Subject2, Compare2, Value2, "
                                       "Subject3, Compare3, Value3, Subject4, Compare4, Value4 from ScheduleRule");
     for (size_t i = 0; i < result->get_row_count(); ++i)
     {

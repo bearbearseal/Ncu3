@@ -11,8 +11,9 @@ OBJS += $(OBJDIR)Sqlite3.o $(OBJDIR)Sqlite3JsonTalker.o $(OBJDIR)Sqlite3UdpListe
 OBJS += $(OBJDIR)AlarmLogicGroup.o $(OBJDIR)AlarmProcessor.o $(OBJDIR)AlarmVerifyStorePost.o $(OBJDIR)AlarmStateChecker.o
 OBJS += $(OBJDIR)AlarmTalker.o
 OBJS += $(OBJDIR)UdpSocket.o $(OBJDIR)UdpListener.o
+OBJS += $(OBJDIR)ConfigStorage.o
 #OBJS += Equipment.o Property.o EquipmentManager.o
-OBJS += $(OBJDIR)ConfigStorage.o $(OBJDIR)ChannelManager.o $(OBJDIR)SerialPortManager.o $(OBJDIR)ScheduleManager.o
+OBJS += $(OBJDIR)ChannelManager.o $(OBJDIR)SerialPortManager.o #$(OBJDIR)ScheduleManager.o
 CC = g++ -std=c++17
 CFLAGS = -Wall -O2 -c
 LFLAGS = -Wall
@@ -145,17 +146,17 @@ $(OBJDIR)Timer.o: Schedule/Timer.h Schedule/Timer.cpp
 $(OBJDIR)ScheduleFunction.o: Schedule/ScheduleFunction.h Schedule/ScheduleFunction.cpp
 	$(CC) $(CFLAGS) Schedule/ScheduleFunction.cpp -o $@
 
-$(OBJDIR)ChannelManager.o: Integrator/ChannelManager.h Integrator/ChannelManager.cpp
-	$(CC) $(CFLAGS) Integrator/ChannelManager.cpp -o $@
+#$(OBJDIR)ChannelManager.o: Integrator/ChannelManager.h Integrator/ChannelManager.cpp
+#	$(CC) $(CFLAGS) Integrator/ChannelManager.cpp -o $@
 
 #$(OBJDIR)EquipmentManager.o: Integrator/EquipmentManager.h Integrator/EquipmentManager.cpp
 #	$(CC) $(CFLAGS) Integrator/EquipmentManager.cpp
 
-$(OBJDIR)SerialPortManager.o: Integrator/SerialPortManager.h Integrator/SerialPortManager.cpp
-	$(CC) $(CFLAGS) Integrator/SerialPortManager.cpp -o $@
+#$(OBJDIR)SerialPortManager.o: Integrator/SerialPortManager.h Integrator/SerialPortManager.cpp
+#	$(CC) $(CFLAGS) Integrator/SerialPortManager.cpp -o $@
 
-$(OBJDIR)ScheduleManager.o: Integrator/ScheduleManager.h Integrator/ScheduleManager.cpp
-	$(CC) $(CFLAGS) Integrator/ScheduleManager.cpp -o $@
+#$(OBJDIR)ScheduleManager.o: Integrator/ScheduleManager.h Integrator/ScheduleManager.cpp
+#	$(CC) $(CFLAGS) Integrator/ScheduleManager.cpp -o $@
 
 clean:
 	rm -f $(binaries) $(OBJDIR)*.o

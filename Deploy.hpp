@@ -3,7 +3,7 @@
 //#include "Builder/Builder.h"
 #include "Storage/ConfigStorage.h"
 #include "Integrator/ChannelManager.h"
-#include "Integrator/EquipmentManager.h"
+//#include "Integrator/EquipmentManager.h"
 #include "Integrator/SerialPortManager.h"
 #include "InOutOperation/OpStorage.h"
 #include "Schedule/ScheduleManager.h"

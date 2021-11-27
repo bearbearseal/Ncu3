@@ -108,7 +108,6 @@ int32_t get_time_from_hhmmss(uint32_t hhmmss)
     return static_cast<int32_t>(totalSecond);
 }
 
-// If any of the action is invalid, whole time table would not load.
 unordered_map<uint16_t, shared_ptr<TimeTable>> ScheduleManager::load_time_table()
 {
     unordered_map<uint16_t, shared_ptr<TimeTable>> retVal;
@@ -126,15 +125,11 @@ unordered_map<uint16_t, shared_ptr<TimeTable>> ScheduleManager::load_time_table(
             }
             else
             {
-                printf("Time table %u has invalid action, time table would not be created.\n", timeTableData[i].id);
                 break;
             }
         }
-        if (timedActionList.size() == actionList.size())
-        {
-            shared_ptr<TimeTable> timeTable = make_shared<TimeTable>(timedActionList);
-            retVal[timeTableData[i].id] = timeTable;
-        }
+        //shared_ptr<TimeTable> timeTable = make_shared<TimeTable>(timedActionList);
+        retVal[timeTableData[i].id] = make_shared<TimeTable>(timedActionList);
     }
     return retVal;
 }
