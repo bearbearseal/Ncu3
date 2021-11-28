@@ -10,7 +10,7 @@ ConfigStorage::~ConfigStorage()
 {
 }
 
-unordered_map<string, ConfigStorage::SerialPortData> ConfigStorage::get_serial_port_data()
+unordered_map<string, ConfigStorage::SerialPortData> ConfigStorage::get_serial_port_data() const
 {
     unordered_map<string, SerialPortData> retVal;
     auto result = theDb.execute_query("Select Name, Baudrate, ParityBit, StopBit, HardwareFlowControl, SoftwareFlowControl, BitPerByte, Delay_ms from SerialPortConfig");
@@ -29,7 +29,7 @@ unordered_map<string, ConfigStorage::SerialPortData> ConfigStorage::get_serial_p
     return retVal;
 }
 
-vector<ConfigStorage::ModbusIpChannelData> ConfigStorage::get_modbus_ip_channel_data()
+vector<ConfigStorage::ModbusIpChannelData> ConfigStorage::get_modbus_ip_channel_data() const
 {
     vector<ModbusIpChannelData> retVal;
     auto result = theDb.execute_query("Select DeviceId, SlaveAddress, SlavePort, TagName, BigEndian, MaxRegister, MaxCoil, Timeout_ms from ModbusIpSlave");
@@ -50,7 +50,7 @@ vector<ConfigStorage::ModbusIpChannelData> ConfigStorage::get_modbus_ip_channel_
     return retVal;
 }
 
-unordered_map<uint16_t, vector<ConfigStorage::ModbusIpPoint>> ConfigStorage::get_modbus_ip_point()
+unordered_map<uint16_t, vector<ConfigStorage::ModbusIpPoint>> ConfigStorage::get_modbus_ip_point() const
 {
     unordered_map<uint16_t, vector<ModbusIpPoint>> retVal;
     auto result = theDb.execute_query("Select DeviceId, PointId, Address, Type, InOp, OutOp from ModbusIpPoint");
@@ -69,7 +69,7 @@ unordered_map<uint16_t, vector<ConfigStorage::ModbusIpPoint>> ConfigStorage::get
     return retVal;
 }
 
-unordered_map<uint16_t, vector<ConfigStorage::ModbusRtuPoint>> ConfigStorage::get_modbus_rtu_point()
+unordered_map<uint16_t, vector<ConfigStorage::ModbusRtuPoint>> ConfigStorage::get_modbus_rtu_point() const
 {
     unordered_map<uint16_t, vector<ModbusRtuPoint>> retVal;
     auto result = theDb.execute_query("Select DeviceId, PointId, Address, Type, InOp, OutOp from ModbusRtuPoint");
@@ -88,7 +88,7 @@ unordered_map<uint16_t, vector<ConfigStorage::ModbusRtuPoint>> ConfigStorage::ge
     return retVal;
 }
 
-vector<ConfigStorage::ModbusRtuChannelData> ConfigStorage::get_modbus_rtu_channel_data()
+vector<ConfigStorage::ModbusRtuChannelData> ConfigStorage::get_modbus_rtu_channel_data() const
 {
     vector<ModbusRtuChannelData> retVal;
     auto result = theDb.execute_query("Select DeviceId, SerialPortName, SlaveId, TagName, BigEndian, MaxRegister, MaxCoil, Timeout_ms from ModbusRtuSlave");
@@ -108,7 +108,7 @@ vector<ConfigStorage::ModbusRtuChannelData> ConfigStorage::get_modbus_rtu_channe
     return retVal;
 }
 
-vector<ConfigStorage::EquipmentData> ConfigStorage::get_equipment_data()
+vector<ConfigStorage::EquipmentData> ConfigStorage::get_equipment_data() const
 {
     vector<EquipmentData> retVal;
     auto result = theDb.execute_query("Select Id, Name from Equipment");
@@ -122,7 +122,7 @@ vector<ConfigStorage::EquipmentData> ConfigStorage::get_equipment_data()
     return retVal;
 }
 
-unordered_map<uint16_t, vector<ConfigStorage::PropertyData>> ConfigStorage::get_property_data()
+unordered_map<uint16_t, vector<ConfigStorage::PropertyData>> ConfigStorage::get_property_data() const
 {
     unordered_map<uint16_t, vector<PropertyData>> retVal;
     auto result = theDb.execute_query("Select EquipmentId, Name, DeviceId, PointId, InOp, OutOp from Property");
@@ -187,7 +187,7 @@ unordered_map<uint16_t, vector<uint16_t>> ConfigStorage::get_schedule_rule_and_c
     return retVal;
 }
 */
-vector<ConfigStorage::RuleTableData> ConfigStorage::get_schedule()
+vector<ConfigStorage::RuleTableData> ConfigStorage::get_schedule() const
 {
     vector<ConfigStorage::RuleTableData> retVal;
     auto result = theDb.execute_query("Select Id, Rule1, TimeTable1, Rule2, TimeTable2, Rule3, TimeTable3, "
@@ -209,7 +209,7 @@ vector<ConfigStorage::RuleTableData> ConfigStorage::get_schedule()
     return retVal;
 }
 
-unordered_map<uint32_t, vector<vector<ConfigStorage::ScheduleRule>>> ConfigStorage::get_schedule_rule()
+unordered_map<uint32_t, vector<vector<ConfigStorage::ScheduleRule>>> ConfigStorage::get_schedule_rule() const
 {
     unordered_map<uint32_t, vector<vector<ScheduleRule>>> retVal;
     auto result = theDb.execute_query("Select `Group`, Subject1, Compare1, Value1, Subject2, Compare2, Value2, "
@@ -236,7 +236,7 @@ unordered_map<uint32_t, vector<vector<ConfigStorage::ScheduleRule>>> ConfigStora
     return retVal;
 }
 
-vector<ConfigStorage::TimeTableData> ConfigStorage::get_time_table()
+vector<ConfigStorage::TimeTableData> ConfigStorage::get_time_table() const
 {
     vector<TimeTableData> retVal;
     auto result = theDb.execute_query("Select Id, Time1, Action1, Value1, Time2, Action2, Value2, Time3, Action3, Value3, "
@@ -275,7 +275,7 @@ vector<ConfigStorage::TimeTableData> ConfigStorage::get_time_table()
     return retVal;
 }
 
-vector<ConfigStorage::AlarmLogicsData> ConfigStorage::get_alarm_logic()
+vector<ConfigStorage::AlarmLogicsData> ConfigStorage::get_alarm_logic() const
 {
     vector<AlarmLogicsData> retVal;
     auto result = theDb.execute_query("Select Id, Compare1, RefValue1, State1, "
@@ -312,7 +312,7 @@ vector<ConfigStorage::AlarmLogicsData> ConfigStorage::get_alarm_logic()
     return retVal;
 }
 
-vector<ConfigStorage::PointSchedulePair> ConfigStorage::get_point_schedule_pair()
+vector<ConfigStorage::PointSchedulePair> ConfigStorage::get_point_schedule_pair() const
 {
     vector<PointSchedulePair> retVal;
     auto result = theDb.execute_query("Select Device, Point, Schedule from SchedulePointPair");
@@ -326,7 +326,7 @@ vector<ConfigStorage::PointSchedulePair> ConfigStorage::get_point_schedule_pair(
     return retVal;
 }
 
-vector<ConfigStorage::NodeAlarmData> ConfigStorage::get_node_alarm()
+vector<ConfigStorage::NodeAlarmData> ConfigStorage::get_node_alarm() const
 {
     vector<NodeAlarmData> retVal;
     auto result = theDb.execute_query("Select Equipment, Property, AlarmLogicId, Priority from NodeAlarm");
@@ -342,7 +342,7 @@ vector<ConfigStorage::NodeAlarmData> ConfigStorage::get_node_alarm()
     return retVal;
 }
 
-vector<ConfigStorage::NodeNormalMessage> ConfigStorage::get_normal_message()
+vector<ConfigStorage::NodeNormalMessage> ConfigStorage::get_normal_message() const
 {
     vector<NodeNormalMessage> retVal;
     auto result = theDb.execute_query("Select Equipment, Property, Message from NodeNormalMessage");
@@ -357,7 +357,7 @@ vector<ConfigStorage::NodeNormalMessage> ConfigStorage::get_normal_message()
     return retVal;
 }
 
-vector<ConfigStorage::PointAlarmPair> ConfigStorage::get_alarm_point_pair()
+vector<ConfigStorage::PointAlarmPair> ConfigStorage::get_alarm_point_pair() const
 {
     vector<PointAlarmPair> retVal;
     auto result = theDb.execute_query("Select DeviceId, PointId, LogicGroupId from PointAlarmPair");

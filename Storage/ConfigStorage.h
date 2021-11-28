@@ -23,7 +23,7 @@ public:
         uint16_t msDelay;
     };
 
-    std::unordered_map<std::string, SerialPortData> get_serial_port_data();
+    std::unordered_map<std::string, SerialPortData> get_serial_port_data() const;
 
     struct ModbusIpChannelData {
         uint16_t deviceId;
@@ -36,7 +36,7 @@ public:
         uint16_t msTimeout;
     };
 
-    std::vector<ModbusIpChannelData> get_modbus_ip_channel_data();
+    std::vector<ModbusIpChannelData> get_modbus_ip_channel_data() const;
 
     struct ModbusIpPoint {
         uint32_t pointId;
@@ -47,7 +47,7 @@ public:
         //uint32_t alarmLogic;
     };
 
-    std::unordered_map<uint16_t, std::vector<ModbusIpPoint>> get_modbus_ip_point();
+    std::unordered_map<uint16_t, std::vector<ModbusIpPoint>> get_modbus_ip_point() const;
 
     struct ModbusRtuPoint {
         uint16_t pointId;
@@ -58,7 +58,7 @@ public:
         //uint32_t alarmLogic;
     };
 
-    std::unordered_map<uint16_t, std::vector<ModbusRtuPoint>> get_modbus_rtu_point();
+    std::unordered_map<uint16_t, std::vector<ModbusRtuPoint>> get_modbus_rtu_point() const;
 
     struct ModbusRtuChannelData {
         uint16_t deviceId;
@@ -71,14 +71,14 @@ public:
         uint16_t msTimeout;
     };
 
-    std::vector<ModbusRtuChannelData> get_modbus_rtu_channel_data();
+    std::vector<ModbusRtuChannelData> get_modbus_rtu_channel_data() const;
 
     struct EquipmentData {
         uint16_t equipmentId;
         std::string name;
     };
 
-    std::vector<EquipmentData> get_equipment_data();
+    std::vector<EquipmentData> get_equipment_data() const;
 
     struct PropertyData {
         std::string name;
@@ -88,7 +88,7 @@ public:
         uint16_t outOperation;
     };
 
-    std::unordered_map<uint16_t, std::vector<PropertyData>> get_property_data();
+    std::unordered_map<uint16_t, std::vector<PropertyData>> get_property_data() const;
 /*
     struct ScheduleRuleConditionData {
         //size_t subject;
@@ -137,7 +137,7 @@ public:
         uint32_t id;
         std::vector<AlarmLogicData> logicData;
     };
-    std::vector<AlarmLogicsData> get_alarm_logic();
+    std::vector<AlarmLogicsData> get_alarm_logic() const;
 
     struct NodeAlarmData {
         HashKey::EitherKey equipmentId;
@@ -145,21 +145,21 @@ public:
         uint32_t alarmLogicId;
         uint16_t priority;
     };
-    std::vector<NodeAlarmData> get_node_alarm();
+    std::vector<NodeAlarmData> get_node_alarm() const;
 
     struct NodeNormalMessage {
         HashKey::EitherKey equipmentId;
         HashKey::EitherKey propertyId;
         std::string message;
     };
-    std::vector<NodeNormalMessage> get_normal_message();
+    std::vector<NodeNormalMessage> get_normal_message() const;
 
     struct PointAlarmPair {
         uint32_t deviceId;
         uint32_t pointId;
         uint32_t logicGroupId;
     };
-    std::vector<PointAlarmPair> get_alarm_point_pair();
+    std::vector<PointAlarmPair> get_alarm_point_pair() const;
 
     struct TimedAction
     {
@@ -172,7 +172,7 @@ public:
         uint32_t id;
         std::vector<TimedAction> actionList; 
     };
-    std::vector<TimeTableData> get_time_table();
+    std::vector<TimeTableData> get_time_table() const;
 
     struct ScheduleRule
     {
@@ -181,7 +181,7 @@ public:
         uint32_t value;
     };
     //GroupId2Rules, rules in sublist have and condition, or between list
-    std::unordered_map<uint32_t, std::vector<std::vector<ScheduleRule>>> get_schedule_rule();
+    std::unordered_map<uint32_t, std::vector<std::vector<ScheduleRule>>> get_schedule_rule() const;
 
     struct RuleTablePair
     {
@@ -194,7 +194,7 @@ public:
         std::vector<RuleTablePair> pairList;
         uint32_t defaultTable;
     };
-    std::vector<RuleTableData> get_schedule();
+    std::vector<RuleTableData> get_schedule() const;
 
     struct PointSchedulePair
     {
@@ -202,7 +202,7 @@ public:
         uint32_t pointId;
         uint32_t scheduleId;
     };
-    std::vector<PointSchedulePair> get_point_schedule_pair();
+    std::vector<PointSchedulePair> get_point_schedule_pair() const;
     
 private:
     Sqlite3 theDb;

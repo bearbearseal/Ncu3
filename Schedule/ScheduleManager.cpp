@@ -128,7 +128,7 @@ unordered_map<uint16_t, shared_ptr<TimeTable>> ScheduleManager::load_time_table(
                 break;
             }
         }
-        //shared_ptr<TimeTable> timeTable = make_shared<TimeTable>(timedActionList);
+        // shared_ptr<TimeTable> timeTable = make_shared<TimeTable>(timedActionList);
         retVal[timeTableData[i].id] = make_shared<TimeTable>(timedActionList);
     }
     return retVal;
@@ -143,7 +143,7 @@ unordered_map<uint16_t, unique_ptr<Schedule>> ScheduleManager::load_schedule_map
     for (size_t i = 0; i < scheduleList.size(); ++i)
     {
         unique_ptr<Schedule> schedule;
-        if (timeTableMap.contains(scheduleList[i].defaultTable))
+        if (timeTableMap.count(scheduleList[i].defaultTable))
         {
             schedule = make_unique<Schedule>(timer, timeTableMap[scheduleList[i].defaultTable]);
         }
@@ -154,7 +154,7 @@ unordered_map<uint16_t, unique_ptr<Schedule>> ScheduleManager::load_schedule_map
         auto &pairList = scheduleList[i].pairList;
         for (size_t j = 0; j < pairList.size(); ++j)
         {
-            if (scheduleRuleMap.contains(pairList[j].scheduleRule) && timeTableMap.contains(pairList[j].timeTable))
+            if (scheduleRuleMap.count(pairList[j].scheduleRule) && timeTableMap.count(pairList[j].timeTable))
             {
                 schedule->add_time_table(timeTableMap[pairList[j].timeTable], scheduleRuleMap[pairList[j].scheduleRule], j);
             }
