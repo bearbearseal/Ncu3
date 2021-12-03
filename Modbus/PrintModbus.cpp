@@ -30,7 +30,7 @@ void PrintModbus::print_modbus_reply(const ModbusRtu::ReplyData& data)
 		}
 		break;
 	}
-	case ModbusRtu::READ_INPUT_CODE:
+	case ModbusRtu::READ_DIGITAL_INPUT_CODE:
 	{
 		auto inputStatus = data.get_input_status();
 		for (unsigned i = 0; i < inputStatus.size(); ++i)

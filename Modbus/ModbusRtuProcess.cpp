@@ -67,7 +67,8 @@ shared_ptr<ModbusRtuProcess::DigitalInputVariable> ModbusRtuProcess::get_digital
 {
 	lock_guard<mutex> lock(digitalInputMutex);
 	auto i = address2DigitalVariableMap.find(theAddress);
-	if(i != address2DigitalVariableMap.end());
+	if (i != address2DigitalVariableMap.end())
+		;
 	{
 		return i->second;
 	}
@@ -95,7 +96,7 @@ shared_ptr<ModbusRtuProcess::InputRegisterVariable> ModbusRtuProcess::get_input_
 	uint16_t count = ModbusRegisterValue::get_register_count(type);
 	shared_ptr<InputRegisterVariable> retVal(new InputRegisterVariable(myShadow, registerAddress, type, config.smallEndian, inLogic, outLogic));
 	InputRegisterData &data = address2InputRegisterVariableMap[registerAddress];
-	if(data.count < count)
+	if (data.count < count)
 	{
 		data.count = count;
 	}
@@ -258,7 +259,7 @@ void ModbusRtuProcess::build_query()
 			coilStatusQueryList.push_back(element);
 		}
 	}
-	//Digital Input
+	// Digital Input
 	{
 		struct DigitalInputQueryData
 		{
@@ -266,18 +267,18 @@ void ModbusRtuProcess::build_query()
 			uint16_t inputCount = 0;
 			vector<shared_ptr<DigitalInputVariable>> variables;
 		} entry;
-		for(auto i=address2DigitalVariableMap.begin(); i!=address2DigitalVariableMap.end(); ++i)
+		for (auto i = address2DigitalVariableMap.begin(); i != address2DigitalVariableMap.end(); ++i)
 		{
-			if(!bool(entry.inputCount))
+			if (!bool(entry.inputCount))
 			{
 				entry.firstAddress = i->first;
 				entry.inputCount = 1;
 				entry.variables.push_back(i->second);
 				continue;
 			}
-			if(i->first - (entry.firstAddress + entry.inputCount) < 8)
+			if (i->first - (entry.firstAddress + entry.inputCount) < 8)
 			{
-				if(config.maxCoilPerMessage > (i->first - entry.firstAddress))
+				if (config.maxCoilPerMessage > (i->first - entry.firstAddress))
 				{
 					entry.inputCount = i->first - entry.firstAddress + 1;
 					entry.variables.push_back(i->second);
@@ -424,10 +425,27 @@ void ModbusRtuProcess::thread_process(ModbusRtuProcess *theProcess)
 			}
 		}
 		// Input Register
-		for(InputRegisterQuery &singleQuery : theProcess->inputRegisterQueryList)
+		for (InputRegisterQuery &singleQuery : theProcess->inputRegisterQueryList)
 		{
-			
+			// Make sure write is handled frequently {
+			theProcess->write_holding_register();
+			theProcess->force_coil_status();
+			//}
+			string reply = theProcess->serialPort->write_then_read(singleQuery.query, singleQuery.replyLength, theProcess->config.timeout);
+			if (reply.size() >= singleQuery.replyLength)
+			{
+				auto replyData = ModbusRtu::decode_reply(reply);
+				if (replyData.functionCode == ModbusRtu::READ_INPUT_REGISTER_CODE)
+				{
+					vector<RegisterValue> result = replyData.get_input_register();
+					for (auto element : singleQuery.variables)
+					{
+						element->update_value_from_source(singleQuery.startAddress, result);
+					}
+				}
+			}
 		}
+		//Coil
 		for (CoilStatusQuery &singleQuery : theProcess->coilStatusQueryList)
 		{
 			// Make sure write is handled frequently {}
@@ -439,6 +457,27 @@ void ModbusRtuProcess::thread_process(ModbusRtuProcess *theProcess)
 			{
 				auto replyData = ModbusRtu::decode_reply(reply);
 				if (replyData.functionCode == ModbusRtu::READ_COIL_CODE)
+				{
+					vector<bool> result = replyData.get_coils();
+					for (auto element : singleQuery.variables)
+					{
+						element->update_value_from_source(singleQuery.startAddress, result);
+					}
+				}
+			}
+		}
+		//Digital Input
+		for (DigitalInputQuery &singleQuery : theProcess->digitalInputQueryList)
+		{
+			// Make sure write is handled frequently {}
+			theProcess->write_holding_register();
+			theProcess->force_coil_status();
+			//}
+			string reply = theProcess->serialPort->write_then_read(singleQuery.query, singleQuery.replyLength, theProcess->config.timeout);
+			if (reply.size() >= singleQuery.replyLength)
+			{
+				auto replyData = ModbusRtu::decode_reply(reply);
+				if (replyData.functionCode == ModbusRtu::READ_DIGITAL_INPUT_CODE)
 				{
 					vector<bool> result = replyData.get_coils();
 					for (auto element : singleQuery.variables)
@@ -497,7 +536,7 @@ ModbusRtuProcess::DigitalInputVariable::~DigitalInputVariable()
 void ModbusRtuProcess::DigitalInputVariable::update_value_from_source(uint16_t firstAddress, const std::vector<bool> &values)
 {
 	size_t index = address - firstAddress;
-	if(index >= values.size())
+	if (index >= values.size())
 	{
 		return;
 	}
@@ -540,16 +579,14 @@ bool ModbusRtuProcess::HoldingRegisterVariable::_write_value(const Value &newVal
 }
 //}
 
-//Input Register Variable {
+// Input Register Variable {
 ModbusRtuProcess::InputRegisterVariable::InputRegisterVariable(shared_ptr<Shadow> _master, uint16_t _firstAddress, ModbusRegisterValue::DataType _type, bool _smallEndian, shared_ptr<OperationalLogic> inLogic, shared_ptr<OperationalLogic> outLogic)
 	: OperationVariable(inLogic, outLogic), master(_master), firstAddress(_firstAddress), type(_type), isSmallEndian(_smallEndian)
 {
-
 }
 
 ModbusRtuProcess::InputRegisterVariable::~InputRegisterVariable()
 {
-
 }
 
 void ModbusRtuProcess::InputRegisterVariable::update_value_from_source(uint16_t _registerAddress, const std::vector<RegisterValue> &values)

@@ -92,9 +92,9 @@ public:
 		inline uint8_t register_count() { return ModbusRegisterValue::get_register_count(type); }
 
 		std::weak_ptr<Shadow> master;
-		bool isSmallEndian;
 		uint16_t firstAddress;
-		ModbusRegisterValue::DataType type;
+		const ModbusRegisterValue::DataType type;
+		const bool isSmallEndian;
 	};
 	std::shared_ptr<HoldingRegisterVariable> get_holding_register_variable(uint16_t registerAddress, ModbusRegisterValue::DataType type, std::shared_ptr<OperationalLogic> inLogic = nullptr, std::shared_ptr<OperationalLogic> outLogic = nullptr);
 
@@ -121,8 +121,8 @@ public:
 
 		std::weak_ptr<Shadow> master;
 		uint16_t firstAddress;
-		bool isSmallEndian;
-		ModbusRegisterValue::DataType type;
+		const ModbusRegisterValue::DataType type;
+		const bool isSmallEndian;
 	};
 	std::shared_ptr<InputRegisterVariable> get_input_register_variable(uint16_t registerAddress, ModbusRegisterValue::DataType type, std::shared_ptr<OperationalLogic> inLogic = nullptr, std::shared_ptr<OperationalLogic> outLogic = nullptr);
 
