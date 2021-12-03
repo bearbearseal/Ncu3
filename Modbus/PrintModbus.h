@@ -1,7 +1,7 @@
 #ifndef _PRINTMODBUS_H_
 #define _PRINTMODBUS_H_
 #include <stdio.h>
-#include "ModbusRTU.h"
+#include "ModbusRtu.h"
 
 namespace PrintModbus
 {

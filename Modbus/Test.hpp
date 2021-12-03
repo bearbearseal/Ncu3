@@ -1,7 +1,7 @@
 #ifndef _TEST_HPP_
 #define _TEST_HPP_
-#include "../MyLib/SerialPort/SerialPort.h"
-#include "../MyLib/TcpSocket/TcpSocket.h"
+#include "../../MyLib/SerialPort/SerialPort.h"
+#include "../../MyLib/TcpSocket/TcpSocket.h"
 #include "ModbusIP.h"
 #include "ModbusIpProcess.h"
 #include "ModbusRegisterValue.h"
@@ -311,21 +311,21 @@ void test_modbus_ip_process() {
 	while(1) {
 		this_thread::sleep_for(10s);
 		printf("Loop %d\n", i++);
-		printf("coil 1 value: %s\n", coil1->get_value().to_string().c_str());
-		printf("coil 2 value: %s\n", coil2->get_value().to_string().c_str());
-		printf("coil 5 value: %s\n", coil5->get_value().to_string().c_str());
-		printf("coil 7 value: %s\n", coil7->get_value().to_string().c_str());
-		printf("coil 19 value: %s\n", coil19->get_value().to_string().c_str());
-		printf("coil 30 value: %s\n", coil30->get_value().to_string().c_str());
-		printf("coil 48 value: %s\n", coil48->get_value().to_string().c_str());
+		printf("coil 1 value: %s\n", coil1->read_value().to_string().c_str());
+		printf("coil 2 value: %s\n", coil2->read_value().to_string().c_str());
+		printf("coil 5 value: %s\n", coil5->read_value().to_string().c_str());
+		printf("coil 7 value: %s\n", coil7->read_value().to_string().c_str());
+		printf("coil 19 value: %s\n", coil19->read_value().to_string().c_str());
+		printf("coil 30 value: %s\n", coil30->read_value().to_string().c_str());
+		printf("coil 48 value: %s\n", coil48->read_value().to_string().c_str());
 		printf("\n");
-		printf("register 4 value: %s\n", register4->get_value().to_string().c_str());
-		printf("register 8 value: %s\n", register8->get_value().to_string().c_str());
-		printf("register 9 value: %s\n", register9->get_value().to_string().c_str());
-		printf("register 12 value: %s\n", register12->get_value().to_string().c_str());
-		printf("register 14 value: %s\n", register14->get_value().to_string().c_str());
-		printf("register 18 value: %s\n", register18->get_value().to_string().c_str());
-		printf("register 26 value: %s\n", register26->get_value().to_string().c_str());
+		printf("register 4 value: %s\n", register4->read_value().to_string().c_str());
+		printf("register 8 value: %s\n", register8->read_value().to_string().c_str());
+		printf("register 9 value: %s\n", register9->read_value().to_string().c_str());
+		printf("register 12 value: %s\n", register12->read_value().to_string().c_str());
+		printf("register 14 value: %s\n", register14->read_value().to_string().c_str());
+		printf("register 18 value: %s\n", register18->read_value().to_string().c_str());
+		printf("register 26 value: %s\n", register26->read_value().to_string().c_str());
 		printf("\n");
 		printf("\n");
 	}
@@ -344,6 +344,7 @@ void test_modbus_rtu_process() {
 
 	ModbusRtuProcess modbusRtuProcess(serialPort, 1, 16, 64, chrono::milliseconds(500), true);
 	
+	/*
 	auto coil0 = modbusRtuProcess.create_coil_status_variable(0);
 	auto coil2 = modbusRtuProcess.create_coil_status_variable(2);
 	auto coil5 = modbusRtuProcess.create_coil_status_variable(5);
@@ -351,7 +352,12 @@ void test_modbus_rtu_process() {
 	auto coil19 = modbusRtuProcess.create_coil_status_variable(19);
 	auto coil30 = modbusRtuProcess.create_coil_status_variable(30);
 	auto coil48 = modbusRtuProcess.create_coil_status_variable(48);
+	*/
 
+	auto temperature = modbusRtuProcess.get_input_register_variable(1, ModbusRegisterValue::DataType::UINT16);
+	auto humidity = modbusRtuProcess.get_input_register_variable(2, ModbusRegisterValue::DataType::UINT16);
+
+	/*
 	auto register1 = modbusRtuProcess.create_holding_register_variable(1, ModbusRegisterValue::DataType::INT16);
 	auto register4 = modbusRtuProcess.create_holding_register_variable(4, ModbusRegisterValue::DataType::INT32_LM);
 	auto register8 = modbusRtuProcess.create_holding_register_variable(8, ModbusRegisterValue::DataType::INT16);
@@ -360,12 +366,25 @@ void test_modbus_rtu_process() {
 	auto register14 = modbusRtuProcess.create_holding_register_variable(14, ModbusRegisterValue::DataType::INT64_LM);
 	auto register18 = modbusRtuProcess.create_holding_register_variable(18, ModbusRegisterValue::DataType::UINT32_LM);
 	auto register26 = modbusRtuProcess.create_holding_register_variable(26, ModbusRegisterValue::DataType::UINT16);
+	*/
+
+	auto deviceAddress = modbusRtuProcess.get_holding_register_variable(0x101, ModbusRegisterValue::DataType::UINT16);
+	auto baudrate = modbusRtuProcess.get_holding_register_variable(0x102, ModbusRegisterValue::DataType::UINT16);	//0, 1, 2
+	auto temperatureCorrection = modbusRtuProcess.get_holding_register_variable(0x103, ModbusRegisterValue::DataType::UINT16);
+	auto humidityCorrection = modbusRtuProcess.get_holding_register_variable(0x104, ModbusRegisterValue::DataType::UINT16);
 
 	modbusRtuProcess.start();
 	int i = 0;
 	while(1) {
 		this_thread::sleep_for(10s);
 		printf("Loop %d\n", i++);
+		printf("Temperature: %s\n", temperature->read_value().to_string().c_str());
+		printf("Humidity: %s\n", humidity->read_value().to_string().c_str());
+		printf("Address: %s\n", temperature->read_value().to_string().c_str());
+		printf("Baudrate: %s\n", temperature->read_value().to_string().c_str());
+		printf("Temperature Correction: %s\n", temperature->read_value().to_string().c_str());
+		printf("Humidity Correction: %s\n", temperature->read_value().to_string().c_str());
+		/*
 		printf("coil 0 value: %s\n", coil0->read_value().to_string().c_str());
 		printf("coil 2 value: %s\n", coil2->read_value().to_string().c_str());
 		printf("coil 5 value: %s\n", coil5->read_value().to_string().c_str());
@@ -384,6 +403,7 @@ void test_modbus_rtu_process() {
 		printf("register 26 value: %s\n", register26->read_value().to_string().c_str());
 		printf("\n");
 		printf("\n");
+		*/
 	}
 }
 

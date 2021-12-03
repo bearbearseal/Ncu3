@@ -12,7 +12,7 @@ namespace ModbusRtu
 {
 	const uint16_t MODBUS_POLY = 0xA001;
 	const uint8_t READ_COIL_CODE = 0x01;
-	const uint8_t READ_INPUT_CODE = 0x02;
+	const uint8_t READ_DIGITAL_INPUT_CODE = 0x02;
 	const uint8_t READ_HOLDING_REGISTER_CODE = 0x03;
 	const uint8_t READ_INPUT_REGISTER_CODE = 0x04;
 	const uint8_t FORCE_SINGLE_COIL_CODE = 0x05;
@@ -52,7 +52,7 @@ namespace ModbusRtu
 	//the query string + the expected reply length
 	std::pair<std::string, uint16_t> create_read_coil_status(uint8_t slaveAddress, uint16_t firstCoilAddress, uint16_t totalCoil);
 
-	std::pair<std::string, uint16_t> create_read_input_status(uint8_t slaveAddress, uint16_t firstAddress, uint16_t inputCount);
+	std::pair<std::string, uint16_t> create_read_digital_input(uint8_t slaveAddress, uint16_t firstAddress, uint16_t inputCount);
 
 	std::pair<std::string, uint16_t> create_read_holding_register(uint8_t slaveAddress, uint16_t firstAddress, uint16_t registerCount);
 

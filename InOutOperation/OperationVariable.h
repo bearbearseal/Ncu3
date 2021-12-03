@@ -12,7 +12,7 @@ public:
 	bool write_value(const Value& newValue);
 
 protected:
-    bool virtual _write_value(const Value& newValue) = 0;
+    virtual bool _write_value(const Value& newValue) = 0;
 	virtual void update_value_to_cache(const Value& newValue);
 
 private:

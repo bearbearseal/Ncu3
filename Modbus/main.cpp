@@ -10,8 +10,8 @@ using namespace std;
 
 int main()
 {
-	test_modbus_ip_process();
-	//test_modbus_rtu_process();
+	//test_modbus_ip_process();
+	test_modbus_rtu_process();
 	//test_modbusip();
 	//Test::test_load_file();
 	//FrameTest::run_test();

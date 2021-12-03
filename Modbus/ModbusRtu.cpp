@@ -18,7 +18,7 @@ ModbusRtu::ReplyData::ReplyData(const ReplyData& theOther)
 	switch (functionCode)
 	{
 	case READ_COIL_CODE:
-	case READ_INPUT_CODE:
+	case READ_DIGITAL_INPUT_CODE:
 		data = new vector<bool>(*((vector<bool>*) theOther.data));
 		break;
 	case READ_HOLDING_REGISTER_CODE:
@@ -56,7 +56,7 @@ void ModbusRtu::ReplyData::operator=(const ReplyData& theOther)
 	switch (functionCode)
 	{
 	case READ_COIL_CODE:
-	case READ_INPUT_CODE:
+	case READ_DIGITAL_INPUT_CODE:
 		data = new vector<bool>(*((vector<bool>*) theOther.data));
 		break;
 	case READ_HOLDING_REGISTER_CODE:
@@ -91,7 +91,7 @@ void ModbusRtu::ReplyData::delete_data()
 	switch (functionCode)
 	{
 	case READ_COIL_CODE:
-	case READ_INPUT_CODE:
+	case READ_DIGITAL_INPUT_CODE:
 		delete ((vector<bool>*) data);
 		break;
 	case READ_HOLDING_REGISTER_CODE:
@@ -205,11 +205,11 @@ pair<string, uint16_t> ModbusRtu::create_read_coil_status(uint8_t slaveAddress, 
 	return { retVal, replyLength };
 }
 
-pair<string, uint16_t> ModbusRtu::create_read_input_status(uint8_t slaveAddress, uint16_t firstAddress, uint16_t inputCount)
+pair<string, uint16_t> ModbusRtu::create_read_digital_input(uint8_t slaveAddress, uint16_t firstAddress, uint16_t inputCount)
 {
 	string retVal;
 	retVal.append((char*)&slaveAddress, sizeof(slaveAddress));
-	retVal.append((char*)&READ_INPUT_CODE, sizeof(READ_INPUT_CODE));
+	retVal.append((char*)&READ_DIGITAL_INPUT_CODE, sizeof(READ_DIGITAL_INPUT_CODE));
 	uint8_t aByte;
 	aByte = (uint8_t)(firstAddress >> 8);
 	retVal.append((char*)&aByte, 1);
@@ -447,7 +447,7 @@ ModbusRtu::ReplyData ModbusRtu::decode_reply(const string& reply)
 	switch (retVal.functionCode)
 	{
 	case READ_COIL_CODE:
-	case READ_INPUT_CODE:
+	case READ_DIGITAL_INPUT_CODE:
 	{
 		uint8_t bytesCount = reply[2];
 		if (bytesCount != (reply.size() - 5))
