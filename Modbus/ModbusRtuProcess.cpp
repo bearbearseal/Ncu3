@@ -1,5 +1,6 @@
 #include "ModbusRtuProcess.h"
 #include "ModbusRtu.h"
+#include "PrintModbus.h"
 #include <iostream>
 
 using namespace std;
@@ -562,6 +563,7 @@ void ModbusRtuProcess::HoldingRegisterVariable::update_value_from_source(uint16_
 		return;
 	}
 	ModbusRegisterValue modbusValue(type, isSmallEndian);
+    modbusValue.set_register_value(values, index);
 	this->update_value_to_cache(modbusValue.get_value());
 }
 
@@ -597,6 +599,7 @@ void ModbusRtuProcess::InputRegisterVariable::update_value_from_source(uint16_t 
 		return;
 	}
 	ModbusRegisterValue modbusValue(type, isSmallEndian);
+    modbusValue.set_register_value(values, index);
 	this->update_value_to_cache(modbusValue.get_value());
 }
 

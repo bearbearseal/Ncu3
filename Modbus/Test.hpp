@@ -339,7 +339,7 @@ void test_modbus_rtu_process() {
 	serialConfig.bitPerByte = 8;
 	serialConfig.hardwareFlowControl = false;
 	serialConfig.softwareFlowControl = false;
-	serialConfig.baudrate = 19200;
+	serialConfig.baudrate = 9600;
 	serialPort->open("/dev/ttyUSB0", serialConfig);
 
 	ModbusRtuProcess modbusRtuProcess(serialPort, 1, 16, 64, chrono::milliseconds(500), true);
@@ -370,20 +370,20 @@ void test_modbus_rtu_process() {
 
 	auto deviceAddress = modbusRtuProcess.get_holding_register_variable(0x101, ModbusRegisterValue::DataType::UINT16);
 	auto baudrate = modbusRtuProcess.get_holding_register_variable(0x102, ModbusRegisterValue::DataType::UINT16);	//0, 1, 2
-	auto temperatureCorrection = modbusRtuProcess.get_holding_register_variable(0x103, ModbusRegisterValue::DataType::UINT16);
-	auto humidityCorrection = modbusRtuProcess.get_holding_register_variable(0x104, ModbusRegisterValue::DataType::UINT16);
+	auto temperatureCorrection = modbusRtuProcess.get_holding_register_variable(0x103, ModbusRegisterValue::DataType::INT16);
+	auto humidityCorrection = modbusRtuProcess.get_holding_register_variable(0x104, ModbusRegisterValue::DataType::INT16);
 
 	modbusRtuProcess.start();
 	int i = 0;
 	while(1) {
-		this_thread::sleep_for(10s);
+		this_thread::sleep_for(5s);
 		printf("Loop %d\n", i++);
 		printf("Temperature: %s\n", temperature->read_value().to_string().c_str());
 		printf("Humidity: %s\n", humidity->read_value().to_string().c_str());
-		printf("Address: %s\n", temperature->read_value().to_string().c_str());
-		printf("Baudrate: %s\n", temperature->read_value().to_string().c_str());
-		printf("Temperature Correction: %s\n", temperature->read_value().to_string().c_str());
-		printf("Humidity Correction: %s\n", temperature->read_value().to_string().c_str());
+		printf("Address: %s\n", deviceAddress->read_value().to_string().c_str());
+		printf("Baudrate: %s\n", baudrate->read_value().to_string().c_str());
+		printf("Temperature Correction: %s\n", temperatureCorrection->read_value().to_string().c_str());
+		printf("Humidity Correction: %s\n", humidityCorrection->read_value().to_string().c_str());
 		/*
 		printf("coil 0 value: %s\n", coil0->read_value().to_string().c_str());
 		printf("coil 2 value: %s\n", coil2->read_value().to_string().c_str());

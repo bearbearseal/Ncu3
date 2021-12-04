@@ -1,4 +1,4 @@
-#ifndef _Modbustu_H_
+#ifndef _ModbusRtu_H_
 #define _ModbusRtu_H_
 #include <stdint.h>
 #include <string>
@@ -10,15 +10,15 @@
 
 namespace ModbusRtu
 {
-	const uint16_t MODBUS_POLY = 0xA001;
-	const uint8_t READ_COIL_CODE = 0x01;
-	const uint8_t READ_DIGITAL_INPUT_CODE = 0x02;
-	const uint8_t READ_HOLDING_REGISTER_CODE = 0x03;
-	const uint8_t READ_INPUT_REGISTER_CODE = 0x04;
-	const uint8_t FORCE_SINGLE_COIL_CODE = 0x05;
-	const uint8_t PRESET_SINGLE_REGISTER_CODE = 0x06;
-	const uint8_t FORCE_MULTIPLE_COILS_CODE = 0x0F;
-	const uint8_t PRESET_MULTIPLE_REGISTERS_CODE = 0x10;
+	static const uint16_t MODBUS_POLY = 0xA001;
+	static const uint8_t READ_COIL_CODE = 0x01;
+	static const uint8_t READ_DIGITAL_INPUT_CODE = 0x02;
+	static const uint8_t READ_HOLDING_REGISTER_CODE = 0x03;
+	static const uint8_t READ_INPUT_REGISTER_CODE = 0x04;
+	static const uint8_t FORCE_SINGLE_COIL_CODE = 0x05;
+	static const uint8_t PRESET_SINGLE_REGISTER_CODE = 0x06;
+	static const uint8_t FORCE_MULTIPLE_COILS_CODE = 0x0F;
+	static const uint8_t PRESET_MULTIPLE_REGISTERS_CODE = 0x10;
 
 	struct ReplyData
 	{

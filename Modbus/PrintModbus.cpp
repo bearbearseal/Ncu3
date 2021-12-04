@@ -1,6 +1,8 @@
 #include "PrintModbus.h"
 
-void PrintModbus::print_value_in_hex(const std::string& source)
+using namespace std;
+
+void PrintModbus::print_value_in_hex(const string& source)
 {
 	for (unsigned i = 0; i < source.size(); ++i)
 	{
