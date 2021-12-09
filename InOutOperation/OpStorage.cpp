@@ -20,7 +20,6 @@ OpStorage::~OpStorage() {
 
 shared_ptr<OperationalLogic> OpStorage::get_logic(size_t logicId) {
     if(!id2FileMap.count(logicId)) {
-        printf("Return %zu, nullptr.\n", logicId);
         return nullptr;
     }
     if(!logicMap.count(logicId)) {
@@ -33,7 +32,6 @@ shared_ptr<OperationalLogic> OpStorage::get_logic(size_t logicId) {
         creator.clear();
         logicMap.emplace(logicId, creator.load_logic(content));
     }
-    printf("Returing %zu, valid.\n", logicId);
     return logicMap[logicId];
 }
 

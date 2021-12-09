@@ -5,6 +5,7 @@
 #include <map>
 #include <chrono>
 #include "ModbusIP.h"
+#include "../Global/GlobalEnum.h"
 #include "../InOutOperation/OperationalLogic.h"
 #include "../InOutOperation/OperationVariable.h"
 #include "../../MyLib/TcpSocket/TcpSocket.h"
@@ -47,7 +48,7 @@ public:
 		HoldingRegisterVariable(
 			std::shared_ptr<Shadow> _master,
 			uint16_t _firstAddress,
-			ModbusRegisterValue::DataType _type,
+			GlobalEnum::ModbusDataType _type,
 			bool smallEndian, 
 			std::shared_ptr<OperationalLogic> inLogic, 
 			std::shared_ptr<OperationalLogic> outLogic);
@@ -61,9 +62,9 @@ public:
 		std::weak_ptr<Shadow> master;
 		uint16_t firstAddress;
 		bool smallEndian;
-		ModbusRegisterValue::DataType type;
+		GlobalEnum::ModbusDataType type;
 	};
-	std::shared_ptr<HoldingRegisterVariable> get_holding_register_variable(uint16_t registerAddress, ModbusRegisterValue::DataType type, std::shared_ptr<OperationalLogic> inLogic = nullptr, std::shared_ptr<OperationalLogic> outLogic = nullptr);
+	std::shared_ptr<HoldingRegisterVariable> get_holding_register_variable(uint16_t registerAddress, GlobalEnum::ModbusDataType type, std::shared_ptr<OperationalLogic> inLogic = nullptr, std::shared_ptr<OperationalLogic> outLogic = nullptr);
 
 	class DigitalInputVariable : public OperationVariable
 	{
@@ -91,7 +92,7 @@ public:
 		InputRegisterVariable(
 			std::shared_ptr<Shadow> _master,
 			uint16_t _firstAddress,
-			ModbusRegisterValue::DataType _type,
+			GlobalEnum::ModbusDataType _type,
 			bool smallEndian,
 			std::shared_ptr<OperationalLogic> inLogic,
 			std::shared_ptr<OperationalLogic> outLogic);
@@ -105,9 +106,9 @@ public:
 		std::weak_ptr<Shadow> master;
 		uint16_t firstAddress;
 		bool smallEndian;
-		ModbusRegisterValue::DataType type;
+		GlobalEnum::ModbusDataType type;
 	};
-	std::shared_ptr<InputRegisterVariable> get_input_register_variable(uint16_t registerAddress, ModbusRegisterValue::DataType type, std::shared_ptr<OperationalLogic> inLogic = nullptr, std::shared_ptr<OperationalLogic> outLogic = nullptr);
+	std::shared_ptr<InputRegisterVariable> get_input_register_variable(uint16_t registerAddress, GlobalEnum::ModbusDataType type, std::shared_ptr<OperationalLogic> inLogic = nullptr, std::shared_ptr<OperationalLogic> outLogic = nullptr);
 
 private:
 	std::shared_ptr<Shadow> myShadow;

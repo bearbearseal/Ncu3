@@ -8,6 +8,7 @@
 #include "../Modbus/ModbusRtuProcess.h"
 #include "../VariableTree/VariableTree.h"
 #include "../InOutOperation/OpStorage.h"
+#include "../Global/GlobalEnum.h"
 #include "SerialPortManager.h"
 
 //Channel Manager manages channels, physical peripheral devices
@@ -28,7 +29,7 @@ private:
 
     struct ModbusPointData {
         uint16_t address;
-        ModbusRegisterValue::DataType type;
+        GlobalEnum::ModbusDataType type;
         uint32_t inOpertation;
         uint32_t outOperation;
     };

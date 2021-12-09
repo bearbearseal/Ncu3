@@ -73,7 +73,7 @@ shared_ptr<ModbusIpProcess::CoilStatusVariable> ModbusIpProcess::get_coil_status
     return retVal;
 }
 
-shared_ptr<ModbusIpProcess::HoldingRegisterVariable> ModbusIpProcess::get_holding_register_variable(uint16_t registerAddress, ModbusRegisterValue::DataType type, shared_ptr<OperationalLogic> inLogic, shared_ptr<OperationalLogic> outLogic)
+shared_ptr<ModbusIpProcess::HoldingRegisterVariable> ModbusIpProcess::get_holding_register_variable(uint16_t registerAddress, GlobalEnum::ModbusDataType type, shared_ptr<OperationalLogic> inLogic, shared_ptr<OperationalLogic> outLogic)
 {
     shared_ptr<HoldingRegisterVariable> retVal = make_shared<HoldingRegisterVariable>(myShadow, registerAddress, type, config.isSmallEndian, inLogic, outLogic);
     uint16_t count = ModbusRegisterValue::get_register_count(type);
@@ -97,7 +97,7 @@ shared_ptr<ModbusIpProcess::DigitalInputVariable> ModbusIpProcess::get_digital_i
     return retVal;
 }
 
-shared_ptr<ModbusIpProcess::InputRegisterVariable> ModbusIpProcess::get_input_register_variable(uint16_t registerAddress, ModbusRegisterValue::DataType type, shared_ptr<OperationalLogic> inLogic, shared_ptr<OperationalLogic> outLogic)
+shared_ptr<ModbusIpProcess::InputRegisterVariable> ModbusIpProcess::get_input_register_variable(uint16_t registerAddress, GlobalEnum::ModbusDataType type, shared_ptr<OperationalLogic> inLogic, shared_ptr<OperationalLogic> outLogic)
 {
     shared_ptr<InputRegisterVariable> retVal = make_shared<InputRegisterVariable>(myShadow, registerAddress, type, config.isSmallEndian, inLogic, outLogic);
     uint16_t count = ModbusRegisterValue::get_register_count(type);
@@ -798,7 +798,7 @@ void ModbusIpProcess::DigitalInputVariable::update_value_from_source(uint16_t fi
 }
 
 ModbusIpProcess::HoldingRegisterVariable::HoldingRegisterVariable(
-    shared_ptr<Shadow> _master, uint16_t _firstAddress, ModbusRegisterValue::DataType _type, bool _smallEndian, shared_ptr<OperationalLogic> _inLogic, shared_ptr<OperationalLogic> _outLogic) : OperationVariable(_inLogic, _outLogic), master(_master)
+    shared_ptr<Shadow> _master, uint16_t _firstAddress, GlobalEnum::ModbusDataType _type, bool _smallEndian, shared_ptr<OperationalLogic> _inLogic, shared_ptr<OperationalLogic> _outLogic) : OperationVariable(_inLogic, _outLogic), master(_master)
 {
     firstAddress = _firstAddress;
     type = _type;
@@ -834,7 +834,7 @@ void ModbusIpProcess::HoldingRegisterVariable::update_value_from_source(uint16_t
 }
 
 ModbusIpProcess::InputRegisterVariable::InputRegisterVariable(
-    std::shared_ptr<Shadow> _master, uint16_t _firstAddress, ModbusRegisterValue::DataType _type, bool _smallEndian, shared_ptr<OperationalLogic> _inLogic, shared_ptr<OperationalLogic> _outLogic) : OperationVariable(_inLogic, _outLogic), master(_master)
+    std::shared_ptr<Shadow> _master, uint16_t _firstAddress, GlobalEnum::ModbusDataType _type, bool _smallEndian, shared_ptr<OperationalLogic> _inLogic, shared_ptr<OperationalLogic> _outLogic) : OperationVariable(_inLogic, _outLogic), master(_master)
 {
     firstAddress = _firstAddress;
     type = _type;

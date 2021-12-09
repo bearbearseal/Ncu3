@@ -3,32 +3,47 @@
 
 using namespace std;
 
-ModbusRegisterValue::ModbusRegisterValue(DataType _type, bool isSmallEndian)
+ModbusRegisterValue::ModbusRegisterValue(GlobalEnum::ModbusDataType _type, bool isSmallEndian)
 {
 	type = _type;
 	smallEndian = isSmallEndian;
 	switch (type)
 	{
-	case DataType::UNKNOWN:
-	case DataType::COIL:
-	case DataType::INT16:
-	case DataType::UINT16:
+	case GlobalEnum::ModbusDataType::UNKNOWN:
+	case GlobalEnum::ModbusDataType::COIL:
+	case GlobalEnum::ModbusDataType::DIGITAL_INPUT:
+	case GlobalEnum::ModbusDataType::INT16:
+	case GlobalEnum::ModbusDataType::UINT16:
+	case GlobalEnum::ModbusDataType::I_INT16:
+	case GlobalEnum::ModbusDataType::I_UINT16:
 		registerValues.resize(1);
 		break;
-	case DataType::INT32_LM:
-	case DataType::INT32_ML:
-	case DataType::UINT32_LM:
-	case DataType::UINT32_ML:
-	case DataType::FLOAT32_LM:
-	case DataType::FLOAT32_ML:
+	case GlobalEnum::ModbusDataType::INT32_LM:
+	case GlobalEnum::ModbusDataType::INT32_ML:
+	case GlobalEnum::ModbusDataType::UINT32_LM:
+	case GlobalEnum::ModbusDataType::UINT32_ML:
+	case GlobalEnum::ModbusDataType::FLOAT32_LM:
+	case GlobalEnum::ModbusDataType::FLOAT32_ML:
+	case GlobalEnum::ModbusDataType::I_INT32_LM:
+	case GlobalEnum::ModbusDataType::I_INT32_ML:
+	case GlobalEnum::ModbusDataType::I_UINT32_LM:
+	case GlobalEnum::ModbusDataType::I_UINT32_ML:
+	case GlobalEnum::ModbusDataType::I_FLOAT32_LM:
+	case GlobalEnum::ModbusDataType::I_FLOAT32_ML:
 		registerValues.resize(2);
 		break;
-	case DataType::INT64_LM:
-	case DataType::INT64_ML:
-	case DataType::UINT64_LM:
-	case DataType::UINT64_ML:
-	case DataType::FLOAT64_LM:
-	case DataType::FLOAT64_ML:
+	case GlobalEnum::ModbusDataType::INT64_LM:
+	case GlobalEnum::ModbusDataType::INT64_ML:
+	case GlobalEnum::ModbusDataType::UINT64_LM:
+	case GlobalEnum::ModbusDataType::UINT64_ML:
+	case GlobalEnum::ModbusDataType::FLOAT64_LM:
+	case GlobalEnum::ModbusDataType::FLOAT64_ML:
+	case GlobalEnum::ModbusDataType::I_INT64_LM:
+	case GlobalEnum::ModbusDataType::I_INT64_ML:
+	case GlobalEnum::ModbusDataType::I_UINT64_LM:
+	case GlobalEnum::ModbusDataType::I_UINT64_ML:
+	case GlobalEnum::ModbusDataType::I_FLOAT64_LM:
+	case GlobalEnum::ModbusDataType::I_FLOAT64_ML:
 		registerValues.resize(4);
 		break;
 	}
@@ -74,29 +89,44 @@ uint16_t ModbusRegisterValue::get_value(uint8_t high, uint8_t low) const
 	}
 }
 
-uint8_t ModbusRegisterValue::get_register_count(DataType type)
+uint8_t ModbusRegisterValue::get_register_count(GlobalEnum::ModbusDataType type)
 {
 	switch (type)
 	{
-	case DataType::UNKNOWN:	//Should not happen
-	case DataType::COIL:	//Should not happen
+	case GlobalEnum::ModbusDataType::UNKNOWN:	//Should not happen
+	case GlobalEnum::ModbusDataType::COIL:	//Should not happen
+	case GlobalEnum::ModbusDataType::DIGITAL_INPUT:	//Should not happen
 		return 0;
-	case DataType::INT16:
-	case DataType::UINT16:
+	case GlobalEnum::ModbusDataType::INT16:
+	case GlobalEnum::ModbusDataType::UINT16:
+	case GlobalEnum::ModbusDataType::I_INT16:
+	case GlobalEnum::ModbusDataType::I_UINT16:
 		return 1;
-	case DataType::INT32_LM:
-	case DataType::INT32_ML:
-	case DataType::UINT32_LM:
-	case DataType::UINT32_ML:
-	case DataType::FLOAT32_LM:
-	case DataType::FLOAT32_ML:
+	case GlobalEnum::ModbusDataType::INT32_LM:
+	case GlobalEnum::ModbusDataType::INT32_ML:
+	case GlobalEnum::ModbusDataType::UINT32_LM:
+	case GlobalEnum::ModbusDataType::UINT32_ML:
+	case GlobalEnum::ModbusDataType::FLOAT32_LM:
+	case GlobalEnum::ModbusDataType::FLOAT32_ML:
+	case GlobalEnum::ModbusDataType::I_INT32_LM:
+	case GlobalEnum::ModbusDataType::I_INT32_ML:
+	case GlobalEnum::ModbusDataType::I_UINT32_LM:
+	case GlobalEnum::ModbusDataType::I_UINT32_ML:
+	case GlobalEnum::ModbusDataType::I_FLOAT32_LM:
+	case GlobalEnum::ModbusDataType::I_FLOAT32_ML:
 		return 2;
-	case DataType::INT64_LM:
-	case DataType::INT64_ML:
-	case DataType::UINT64_LM:
-	case DataType::UINT64_ML:
-	case DataType::FLOAT64_LM:
-	case DataType::FLOAT64_ML:
+	case GlobalEnum::ModbusDataType::INT64_LM:
+	case GlobalEnum::ModbusDataType::INT64_ML:
+	case GlobalEnum::ModbusDataType::UINT64_LM:
+	case GlobalEnum::ModbusDataType::UINT64_ML:
+	case GlobalEnum::ModbusDataType::FLOAT64_LM:
+	case GlobalEnum::ModbusDataType::FLOAT64_ML:
+	case GlobalEnum::ModbusDataType::I_INT64_LM:
+	case GlobalEnum::ModbusDataType::I_INT64_ML:
+	case GlobalEnum::ModbusDataType::I_UINT64_LM:
+	case GlobalEnum::ModbusDataType::I_UINT64_ML:
+	case GlobalEnum::ModbusDataType::I_FLOAT64_LM:
+	case GlobalEnum::ModbusDataType::I_FLOAT64_ML:
 		return 4;
 	}
 	return 0;
@@ -153,15 +183,21 @@ Value ModbusRegisterValue::get_value() const
 	Value retVal;
 	switch (type)
 	{
-	case DataType::COIL:	//Should not happen
+	case GlobalEnum::ModbusDataType::COIL:	//Should not happen
+	case GlobalEnum::ModbusDataType::DIGITAL_INPUT:
 		break;
-	case DataType::INT16:
+	case GlobalEnum::ModbusDataType::INT16:
+	case GlobalEnum::ModbusDataType::I_INT16:
 		retVal.set_integer((int16_t)get_value(registerValues[0].high, registerValues[0].low));
 		break;
-	case DataType::UINT16:
+	case GlobalEnum::ModbusDataType::UINT16:
+	case GlobalEnum::ModbusDataType::I_UINT16:
 		retVal.set_integer((uint16_t)get_value(registerValues[0].high, registerValues[0].low));
 		break;
-	case DataType::INT32_LM:
+	case GlobalEnum::ModbusDataType::INT32_LM:
+	case GlobalEnum::ModbusDataType::I_INT32_LM:
+	case GlobalEnum::ModbusDataType::UINT32_LM:
+	case GlobalEnum::ModbusDataType::I_UINT32_LM:
 	{
 		int32_t result = get_value(registerValues[1].high, registerValues[1].low);
 		result <<= 16;
@@ -169,7 +205,10 @@ Value ModbusRegisterValue::get_value() const
 		retVal.set_integer(result);
 		break;
 	}
-	case DataType::INT32_ML:
+	case GlobalEnum::ModbusDataType::INT32_ML:
+	case GlobalEnum::ModbusDataType::I_INT32_ML:
+	case GlobalEnum::ModbusDataType::UINT32_ML:
+	case GlobalEnum::ModbusDataType::I_UINT32_ML:
 	{
 		int32_t result = get_value(registerValues[0].high, registerValues[0].low);
 		result <<= 16;
@@ -177,24 +216,10 @@ Value ModbusRegisterValue::get_value() const
 		retVal.set_integer(result);
 		break;
 	}
-	case DataType::UINT32_LM:
-	{
-		uint32_t result = get_value(registerValues[1].high, registerValues[1].low);
-		result <<= 16;
-		result |= get_value(registerValues[0].high, registerValues[0].low);
-		retVal.set_integer(result);
-		break;
-	}
-	case DataType::UINT32_ML:
-	{
-		uint32_t result = get_value(registerValues[0].high, registerValues[0].low);
-		result <<= 16;
-		result |= get_value(registerValues[1].high, registerValues[1].low);
-		retVal.set_integer(result);
-		break;
-	}
-	case DataType::INT64_LM:
-	case DataType::UINT64_LM:
+	case GlobalEnum::ModbusDataType::INT64_LM:
+	case GlobalEnum::ModbusDataType::UINT64_LM:
+	case GlobalEnum::ModbusDataType::I_INT64_LM:
+	case GlobalEnum::ModbusDataType::I_UINT64_LM:
 	{
 		int64_t result = get_value(registerValues[3].high, registerValues[3].low);
 		result <<= 16;
@@ -206,8 +231,10 @@ Value ModbusRegisterValue::get_value() const
 		retVal.set_integer(result);
 		break;
 	}
-	case DataType::INT64_ML:
-	case DataType::UINT64_ML:
+	case GlobalEnum::ModbusDataType::INT64_ML:
+	case GlobalEnum::ModbusDataType::UINT64_ML:
+	case GlobalEnum::ModbusDataType::I_INT64_ML:
+	case GlobalEnum::ModbusDataType::I_UINT64_ML:
 	{
 		uint64_t result = get_value(registerValues[0].high, registerValues[0].low);
 		result <<= 16;
@@ -219,7 +246,8 @@ Value ModbusRegisterValue::get_value() const
 		retVal.set_integer(result);
 		break;
 	}
-	case DataType::FLOAT32_LM:
+	case GlobalEnum::ModbusDataType::FLOAT32_LM:
+	case GlobalEnum::ModbusDataType::I_FLOAT32_LM:
 	{
 		uint8_t result[4];
 		//result[0] is the most significant
@@ -267,7 +295,8 @@ Value ModbusRegisterValue::get_value() const
 		retVal.set_float(*((float*)&result));
 		break;
 	}
-	case DataType::FLOAT32_ML:
+	case GlobalEnum::ModbusDataType::FLOAT32_ML:
+	case GlobalEnum::ModbusDataType::I_FLOAT32_ML:
 	{
 		uint8_t result[4];
 		//result[0] is the most significant
@@ -315,7 +344,8 @@ Value ModbusRegisterValue::get_value() const
 		retVal.set_float(*((float*)&result));
 		break;
 	}
-	case DataType::FLOAT64_LM:
+	case GlobalEnum::ModbusDataType::FLOAT64_LM:
+	case GlobalEnum::ModbusDataType::I_FLOAT64_LM:
 	{
 		uint8_t result[8];
 		//result[0] is the most significant
@@ -379,7 +409,8 @@ Value ModbusRegisterValue::get_value() const
 		retVal.set_float(*((float*)&result));
 		break;
 	}
-	case DataType::FLOAT64_ML:
+	case GlobalEnum::ModbusDataType::FLOAT64_ML:
+	case GlobalEnum::ModbusDataType::I_FLOAT64_ML:
 	{
 		uint8_t result[8];
 		//result[0] is the most significant
@@ -449,50 +480,28 @@ Value ModbusRegisterValue::get_value() const
 	return retVal;
 }
 
-ModbusRegisterValue::DataType ModbusRegisterValue::convert_integer_to_data_type(uint16_t type) {
-	switch(type) {
-		case uint16_t(DataType::COIL):
-		case uint16_t(DataType::INT16):
-		case uint16_t(DataType::INT32_LM):
-		case uint16_t(DataType::INT32_ML):
-		case uint16_t(DataType::INT64_LM):
-		case uint16_t(DataType::INT64_ML):
-		case uint16_t(DataType::UINT16):
-		case uint16_t(DataType::UINT32_LM):
-		case uint16_t(DataType::UINT32_ML):
-		case uint16_t(DataType::UINT64_LM):
-		case uint16_t(DataType::UINT64_ML):
-		case uint16_t(DataType::FLOAT32_LM):
-		case uint16_t(DataType::FLOAT32_ML):
-		case uint16_t(DataType::FLOAT64_LM):
-		case uint16_t(DataType::FLOAT64_ML):
-		return DataType(type);
-	}
-	return DataType::UNKNOWN;
-}
-
 std::vector<RegisterValue> ModbusRegisterValue::convert_to_register_value(const Value& rawValue)
 {
 	vector<RegisterValue> retVal;
 	switch (type)
 	{
-	case DataType::COIL:
+	case GlobalEnum::ModbusDataType::COIL:
 		break;
-	case DataType::INT16:
+	case GlobalEnum::ModbusDataType::INT16:
 	{
 		int16_t int16 = (int16_t) rawValue.get_int();
 		RegisterValue aValue = get_register(int16);
 		retVal.push_back(aValue);
 		break;
 	}
-	case DataType::UINT16:
+	case GlobalEnum::ModbusDataType::UINT16:
 	{
 		uint16_t uint16 = (uint16_t)rawValue.get_int();
 		RegisterValue aValue = get_register(uint16);
 		retVal.push_back(aValue);
 		break;
 	}
-	case DataType::INT32_LM:
+	case GlobalEnum::ModbusDataType::INT32_LM:
 	{
 		int32_t int32 = (int32_t)rawValue.get_int();
 		int16_t int16 = (int16_t) int32;
@@ -501,7 +510,7 @@ std::vector<RegisterValue> ModbusRegisterValue::convert_to_register_value(const 
 		retVal.push_back(get_register(int16));
 		break;
 	}
-	case DataType::INT32_ML:
+	case GlobalEnum::ModbusDataType::INT32_ML:
 	{
 		int32_t int32 = (int32_t)rawValue.get_int();
 		int16_t int16 = (int16_t)(int32 >> 16);
@@ -510,7 +519,7 @@ std::vector<RegisterValue> ModbusRegisterValue::convert_to_register_value(const 
 		retVal.push_back(get_register(int16));
 		break;
 	}
-	case DataType::UINT32_LM:
+	case GlobalEnum::ModbusDataType::UINT32_LM:
 	{
 		uint32_t uint32 = (uint32_t)rawValue.get_int();
 		uint16_t uint16 = (uint16_t)uint32;
@@ -519,7 +528,7 @@ std::vector<RegisterValue> ModbusRegisterValue::convert_to_register_value(const 
 		retVal.push_back(get_register(uint16));
 		break;
 	}
-	case DataType::UINT32_ML:
+	case GlobalEnum::ModbusDataType::UINT32_ML:
 	{
 		int32_t int32 = (int32_t)rawValue.get_int();
 		int16_t int16 = (int16_t)(int32 >> 16);
@@ -528,7 +537,7 @@ std::vector<RegisterValue> ModbusRegisterValue::convert_to_register_value(const 
 		retVal.push_back(get_register(int16));
 		break;
 	}
-	case DataType::INT64_LM:
+	case GlobalEnum::ModbusDataType::INT64_LM:
 	{
 		int64_t int64 = (int64_t)rawValue.get_int();
 		int16_t int16 = (int16_t)int64;
@@ -541,7 +550,7 @@ std::vector<RegisterValue> ModbusRegisterValue::convert_to_register_value(const 
 		retVal.push_back(get_register(int16));
 		break;
 	}
-	case DataType::INT64_ML:
+	case GlobalEnum::ModbusDataType::INT64_ML:
 	{
 		int64_t int64 = (int64_t)rawValue.get_int();
 		int16_t int16 = (int16_t)(int64 >> 48);
@@ -554,7 +563,7 @@ std::vector<RegisterValue> ModbusRegisterValue::convert_to_register_value(const 
 		retVal.push_back(get_register(int16));
 		break;
 	}
-	case DataType::UINT64_LM:
+	case GlobalEnum::ModbusDataType::UINT64_LM:
 	{
 		uint64_t uint64 = (uint64_t)rawValue.get_int();
 		uint16_t uint16 = (uint16_t)uint64;
@@ -567,7 +576,7 @@ std::vector<RegisterValue> ModbusRegisterValue::convert_to_register_value(const 
 		retVal.push_back(get_register(uint16));
 		break;
 	}
-	case DataType::UINT64_ML:
+	case GlobalEnum::ModbusDataType::UINT64_ML:
 	{
 		uint64_t uint64 = (uint64_t)rawValue.get_int();
 		uint16_t uint16 = (uint16_t)(uint64 >> 48);
@@ -580,7 +589,7 @@ std::vector<RegisterValue> ModbusRegisterValue::convert_to_register_value(const 
 		retVal.push_back(get_register(uint16));
 		break;
 	}
-	case DataType::FLOAT32_LM:
+	case GlobalEnum::ModbusDataType::FLOAT32_LM:
 	{
 		float theFloat = (float)rawValue.get_float();
 		uint8_t* result = ((uint8_t*) &theFloat);
@@ -640,7 +649,7 @@ std::vector<RegisterValue> ModbusRegisterValue::convert_to_register_value(const 
 		}
 		break;
 	}
-	case DataType::FLOAT32_ML:
+	case GlobalEnum::ModbusDataType::FLOAT32_ML:
 	{
 		float theFloat = (float)rawValue.get_float();
 		uint8_t* result = ((uint8_t*)&theFloat);
@@ -700,7 +709,7 @@ std::vector<RegisterValue> ModbusRegisterValue::convert_to_register_value(const 
 		}
 		break;
 	}
-	case DataType::FLOAT64_LM:
+	case GlobalEnum::ModbusDataType::FLOAT64_LM:
 	{
 		double theFloat = (double)rawValue.get_float();
 		uint8_t* result = ((uint8_t*)&theFloat);
@@ -784,7 +793,7 @@ std::vector<RegisterValue> ModbusRegisterValue::convert_to_register_value(const 
 		}
 		break;
 	}
-	case DataType::FLOAT64_ML:
+	case GlobalEnum::ModbusDataType::FLOAT64_ML:
 	{
 		double theFloat = (double)rawValue.get_float();
 		uint8_t* result = ((uint8_t*)&theFloat);

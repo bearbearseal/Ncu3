@@ -78,7 +78,7 @@ shared_ptr<ModbusRtuProcess::DigitalInputVariable> ModbusRtuProcess::get_digital
 	return retVal;
 }
 
-shared_ptr<ModbusRtuProcess::HoldingRegisterVariable> ModbusRtuProcess::get_holding_register_variable(uint16_t registerAddress, ModbusRegisterValue::DataType type, shared_ptr<OperationalLogic> inLogic, shared_ptr<OperationalLogic> outLogic)
+shared_ptr<ModbusRtuProcess::HoldingRegisterVariable> ModbusRtuProcess::get_holding_register_variable(uint16_t registerAddress, GlobalEnum::ModbusDataType type, shared_ptr<OperationalLogic> inLogic, shared_ptr<OperationalLogic> outLogic)
 {
 	uint16_t count = ModbusRegisterValue::get_register_count(type);
 	// shared_ptr<HoldingRegisterVariable> retVal = make_shared<HoldingRegisterVariable>(myShadow, registerAddress, type, config.smallEndian, inLogic, outLogic);
@@ -92,7 +92,7 @@ shared_ptr<ModbusRtuProcess::HoldingRegisterVariable> ModbusRtuProcess::get_hold
 	return retVal;
 }
 
-shared_ptr<ModbusRtuProcess::InputRegisterVariable> ModbusRtuProcess::get_input_register_variable(uint16_t registerAddress, ModbusRegisterValue::DataType type, shared_ptr<OperationalLogic> inLogic, shared_ptr<OperationalLogic> outLogic)
+shared_ptr<ModbusRtuProcess::InputRegisterVariable> ModbusRtuProcess::get_input_register_variable(uint16_t registerAddress, GlobalEnum::ModbusDataType type, shared_ptr<OperationalLogic> inLogic, shared_ptr<OperationalLogic> outLogic)
 {
 	uint16_t count = ModbusRegisterValue::get_register_count(type);
 	shared_ptr<InputRegisterVariable> retVal(new InputRegisterVariable(myShadow, registerAddress, type, config.smallEndian, inLogic, outLogic));
@@ -402,6 +402,10 @@ void ModbusRtuProcess::clean_build_data()
 void ModbusRtuProcess::thread_process(ModbusRtuProcess *theProcess)
 {
 	printf("Modbus Rtu started.\n");
+	printf("Holding register query count:%zu\n", theProcess->holdingRegisterQueryList.size());
+	printf("Input register query count:%zu\n", theProcess->inputRegisterQueryList.size());
+	printf("Coil status query count:%zu\n", theProcess->coilStatusQueryList.size());
+	printf("Digital input query count:%zu\n", theProcess->digitalInputQueryList.size());
 	while (theProcess->keepRunning)
 	{
 		// Holding Register
@@ -546,7 +550,7 @@ void ModbusRtuProcess::DigitalInputVariable::update_value_from_source(uint16_t f
 // }
 
 // Holding Register Variable {
-ModbusRtuProcess::HoldingRegisterVariable::HoldingRegisterVariable(shared_ptr<Shadow> _master, uint16_t _firstAddress, ModbusRegisterValue::DataType _type, bool _isSmallEndian, shared_ptr<OperationalLogic> inLogic, shared_ptr<OperationalLogic> outLogic)
+ModbusRtuProcess::HoldingRegisterVariable::HoldingRegisterVariable(shared_ptr<Shadow> _master, uint16_t _firstAddress, GlobalEnum::ModbusDataType _type, bool _isSmallEndian, shared_ptr<OperationalLogic> inLogic, shared_ptr<OperationalLogic> outLogic)
 	: OperationVariable(inLogic, outLogic), master(_master), firstAddress(_firstAddress), type(_type), isSmallEndian(_isSmallEndian)
 {
 }
@@ -582,7 +586,7 @@ bool ModbusRtuProcess::HoldingRegisterVariable::_write_value(const Value &newVal
 //}
 
 // Input Register Variable {
-ModbusRtuProcess::InputRegisterVariable::InputRegisterVariable(shared_ptr<Shadow> _master, uint16_t _firstAddress, ModbusRegisterValue::DataType _type, bool _smallEndian, shared_ptr<OperationalLogic> inLogic, shared_ptr<OperationalLogic> outLogic)
+ModbusRtuProcess::InputRegisterVariable::InputRegisterVariable(shared_ptr<Shadow> _master, uint16_t _firstAddress, GlobalEnum::ModbusDataType _type, bool _smallEndian, shared_ptr<OperationalLogic> inLogic, shared_ptr<OperationalLogic> outLogic)
 	: OperationVariable(inLogic, outLogic), master(_master), firstAddress(_firstAddress), type(_type), isSmallEndian(_smallEndian)
 {
 }

@@ -2,7 +2,7 @@
 
 using namespace std;
 
-ChannelManager::ChannelManager(ConfigStorage &configStorage, SerialPortManager &serialPortManager, OpStorage& _opStorage) : opStorage(_opStorage)
+ChannelManager::ChannelManager(ConfigStorage &configStorage, SerialPortManager &serialPortManager, OpStorage &_opStorage) : opStorage(_opStorage)
 {
     auto modbusIpData = configStorage.get_modbus_ip_channel_data();
     auto modbusRtuData = configStorage.get_modbus_rtu_channel_data();
@@ -32,14 +32,17 @@ ChannelManager::ChannelManager(ConfigStorage &configStorage, SerialPortManager &
         unordered_map<uint16_t, ModbusPointData> &channelEntry = modbusPoint[i->first];
         for (size_t j = 0; j < i->second.size(); ++j)
         {
-            ModbusPointData &pointEntry = channelEntry[i->second[j].pointId];
-            pointEntry.address = i->second[j].address;
-            pointEntry.type = ModbusRegisterValue::convert_integer_to_data_type(i->second[j].type);
-            pointEntry.inOpertation = i->second[j].inOp;
-            pointEntry.outOperation = i->second[j].outOp;
-            if (pointEntry.type == ModbusRegisterValue::DataType::UNKNOWN)
+            if (GlobalEnum::is_modbus_data_type(i->second[j].type))
             {
-                pointEntry.type = ModbusRegisterValue::DataType::COIL;
+                ModbusPointData &pointEntry = channelEntry[i->second[j].pointId];
+                pointEntry.address = i->second[j].address;
+                pointEntry.type = static_cast<GlobalEnum::ModbusDataType>(i->second[j].type);
+                pointEntry.inOpertation = i->second[j].inOp;
+                pointEntry.outOperation = i->second[j].outOp;
+            }
+            else
+            {
+                printf("Got invalid modbus data type %u at device %u point %u modbus ip, skipping\n", i->second[j].type, i->first, i->second[j].pointId);
             }
         }
     }
@@ -55,14 +58,17 @@ ChannelManager::ChannelManager(ConfigStorage &configStorage, SerialPortManager &
         unordered_map<uint16_t, ModbusPointData> &channelEntry = modbusPoint[i->first];
         for (size_t j = 0; j < i->second.size(); ++j)
         {
-            ModbusPointData &pointEntry = channelEntry[i->second[j].pointId];
-            pointEntry.address = i->second[j].address;
-            pointEntry.type = ModbusRegisterValue::convert_integer_to_data_type(i->second[j].type);
-            pointEntry.inOpertation = i->second[j].inOp;
-            pointEntry.outOperation = i->second[j].outOp;
-            if (pointEntry.type == ModbusRegisterValue::DataType::UNKNOWN)
+            if (GlobalEnum::is_modbus_data_type(i->second[j].type))
             {
-                pointEntry.type = ModbusRegisterValue::DataType::COIL;
+                ModbusPointData &pointEntry = channelEntry[i->second[j].pointId];
+                pointEntry.address = i->second[j].address;
+                pointEntry.type = static_cast<GlobalEnum::ModbusDataType>(i->second[j].type);
+                pointEntry.inOpertation = i->second[j].inOp;
+                pointEntry.outOperation = i->second[j].outOp;
+            }
+            else
+            {
+                printf("Got invalid modbus data type %u at device %u point %u modbus rtu, skipping\n", i->second[j].type, i->first, i->second[j].pointId);
             }
         }
     }
@@ -89,24 +95,40 @@ shared_ptr<Variable> ChannelManager::get_point(uint16_t deviceId, uint16_t point
     shared_ptr<Variable> retVal;
     if (modbusIpMap.count(deviceId))
     {
-        if (pointEntry.type == ModbusRegisterValue::DataType::COIL)
+        if (GlobalEnum::is_modbus_coil_type(pointEntry.type))
         {
             retVal = modbusIpMap[deviceId]->get_coil_status_variable(pointEntry.address, opStorage.get_logic(pointEntry.inOpertation), opStorage.get_logic(pointEntry.outOperation));
         }
-        else
+        else if (GlobalEnum::is_modbus_digital_input_type(pointEntry.type))
+        {
+            retVal = modbusIpMap[deviceId]->get_digital_input_variable(pointEntry.address, opStorage.get_logic(pointEntry.inOpertation), opStorage.get_logic(pointEntry.outOperation));
+        }
+        else if (GlobalEnum::is_modbus_holding_register_type(pointEntry.type))
         {
             retVal = modbusIpMap[deviceId]->get_holding_register_variable(pointEntry.address, pointEntry.type, opStorage.get_logic(pointEntry.inOpertation), opStorage.get_logic(pointEntry.outOperation));
+        }
+        else if (GlobalEnum::is_modbus_input_register_type(pointEntry.type))
+        {
+            retVal = modbusIpMap[deviceId]->get_input_register_variable(pointEntry.address, pointEntry.type, opStorage.get_logic(pointEntry.inOpertation), opStorage.get_logic(pointEntry.outOperation));
         }
     }
     else if (modbusRtuMap.count(deviceId))
     {
-        if (pointEntry.type == ModbusRegisterValue::DataType::COIL)
+        if (GlobalEnum::is_modbus_coil_type(pointEntry.type))
         {
-            retVal = modbusRtuMap[deviceId]->create_coil_status_variable(pointEntry.address, opStorage.get_logic(pointEntry.inOpertation), opStorage.get_logic(pointEntry.outOperation));
+            retVal = modbusRtuMap[deviceId]->get_coil_status_variable(pointEntry.address, opStorage.get_logic(pointEntry.inOpertation), opStorage.get_logic(pointEntry.outOperation));
         }
-        else
+        else if (GlobalEnum::is_modbus_digital_input_type(pointEntry.type))
         {
-            retVal = modbusRtuMap[deviceId]->create_holding_register_variable(pointEntry.address, pointEntry.type, opStorage.get_logic(pointEntry.inOpertation), opStorage.get_logic(pointEntry.outOperation));
+            retVal = modbusRtuMap[deviceId]->get_digital_input_variable(pointEntry.address, opStorage.get_logic(pointEntry.inOpertation), opStorage.get_logic(pointEntry.outOperation));
+        }
+        else if (GlobalEnum::is_modbus_holding_register_type(pointEntry.type))
+        {
+            retVal = modbusRtuMap[deviceId]->get_holding_register_variable(pointEntry.address, pointEntry.type, opStorage.get_logic(pointEntry.inOpertation), opStorage.get_logic(pointEntry.outOperation));
+        }
+        else if (GlobalEnum::is_modbus_input_register_type(pointEntry.type))
+        {
+            retVal = modbusRtuMap[deviceId]->get_input_register_variable(pointEntry.address, pointEntry.type, opStorage.get_logic(pointEntry.inOpertation), opStorage.get_logic(pointEntry.outOperation));
         }
     }
     return retVal;

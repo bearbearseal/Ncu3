@@ -1,8 +1,8 @@
 #ifndef _LoginJsonTalker_H_
 #define _LoginJsonTalker_H_
 #include <string>
-#include "../../MyLib/Sqlite/Sqlite3.h"
-#include "../../OtherLib/nlohmann/json.hpp"
+#include "../../../MyLib/Sqlite/Sqlite3.h"
+#include "../../../OtherLib/nlohmann/json.hpp"
 
 class LoginJsonTalker {
 public:
