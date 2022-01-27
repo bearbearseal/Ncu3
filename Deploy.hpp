@@ -1,16 +1,12 @@
 #include "VariableTree/VariableTree.h"
 #include "VariableTree/TcpTalker.h"
-//#include "Builder/Builder.h"
 #include "Storage/ConfigStorage.h"
 #include "Integrator/ChannelManager.h"
-//#include "Integrator/EquipmentManager.h"
 #include "Integrator/SerialPortManager.h"
-#include "Integrator/Integrator.h"
 #include "InOutOperation/OpStorage.h"
-#include "Schedule/ScheduleManager.h"
-#include "Alarm/AlarmProcessor.h"
+#include "Integrator/Integrator.h"
 #include "Alarm/AlarmVerifyStorePost.h"
-#include "Alarm/AlarmTalker.h"
+#include "Log/PointLogStorage.h"
 
 #include <thread>
 
@@ -43,6 +39,10 @@ namespace Deploy {
         while(1) {
             this_thread::sleep_for(1s);
         }
-
    }
+
+    void run_equipment_alarm_schedule_log()
+    {
+        
+    }
 };

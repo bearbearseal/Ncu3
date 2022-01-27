@@ -6,7 +6,7 @@ using namespace std;
 const uint16_t TOKEN_Tomorrow = 0;
 const uint16_t TOKEN_NextEvent = 1;
 
-Schedule::Schedule(shared_ptr<Timer> &_timer, std::shared_ptr<TimeTable> _defaultTimeTable) : timer(_timer), defaultTimeTable(_defaultTimeTable)
+Schedule::Schedule(std::shared_ptr<TimeTable> _defaultTimeTable) : defaultTimeTable(_defaultTimeTable)
 {
     timerListener = make_shared<TimerListener>(*this);
 }
@@ -47,7 +47,7 @@ void Schedule::start()
         printf("Active time table is null.\n");
         // Set an event, tomolo 00:00:00
         time_t tomolo = today0Second + (24 * 3600);
-        timer->add_time_event(tomolo, timerListener, TOKEN_Tomorrow);
+        EventTimer::add_time_event(tomolo, timerListener, TOKEN_Tomorrow);
     }
     else
     {
@@ -61,12 +61,12 @@ void Schedule::start()
         if (actionAfter.has_value())
         {
             time_t nextEventTime = ScheduleFunction::today_second_to_local_time_t(actionAfter->daySecond);
-            timer->add_time_event(nextEventTime, timerListener, TOKEN_NextEvent);
+            EventTimer::add_time_event(nextEventTime, timerListener, TOKEN_NextEvent);
         }
         else
         {
             time_t tomorrow = today0Second + (24 * 3600);
-            timer->add_time_event(tomorrow, timerListener, TOKEN_Tomorrow);
+            EventTimer::add_time_event(tomorrow, timerListener, TOKEN_Tomorrow);
         }
     }
 }

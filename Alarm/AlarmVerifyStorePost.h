@@ -76,7 +76,7 @@ private:
     };
 
     inline void store_alarm(std::unique_ptr<AlarmDefinition::AlarmMessage> &message);
-    uint64_t store_to_active_alarm(std::unique_ptr<AlarmDefinition::AlarmMessage> &message);
+    std::optional<uint64_t> store_to_active_alarm(std::unique_ptr<AlarmDefinition::AlarmMessage> &message);
     bool remove_from_active_alarm(uint64_t id);
     void store_to_history_alarm(uint64_t id, std::unique_ptr<AlarmDefinition::AlarmMessage> &message);
     void handle_alarm(std::unique_ptr<AlarmDefinition::AlarmMessage> &message);

@@ -70,7 +70,7 @@ void AlarmVerifyStorePost::stop()
 void AlarmVerifyStorePost::add_alarm_listener(std::weak_ptr<AlarmListener> listener)
 {
     auto shared = listener.lock();
-    if(shared != nullptr)
+    if (shared != nullptr)
     {
         listenerMap[shared.get()] = listener;
     }
@@ -131,19 +131,12 @@ void AlarmVerifyStorePost::store_alarm(unique_ptr<AlarmMessage> &message)
     senderSocket->send_message(Message2Thread(Command::StoreAlarm, message));
 }
 
-uint64_t AlarmVerifyStorePost::store_to_active_alarm(unique_ptr<AlarmMessage> &message)
+optional<uint64_t> AlarmVerifyStorePost::store_to_active_alarm(unique_ptr<AlarmMessage> &message)
 {
-    try
-    {
-        return theDb.execute_insert("Insert into ActiveAlarm (Device, Point, ActiveValue, RefValue, Comparison, AlarmState, Time_ms)"
-                                    "Values(%lu, %u, %f, %f, %d, %d, %lu)",
-                                    message->deviceId, message->pointId, message->activeValue.get_float(), message->refValue.get_float(),
-                                    int(message->comparison), message->alarmState, message->msTime);
-    }
-    catch (Sqlite3::Exception)
-    {
-    }
-    return 0;
+    return theDb.execute_insert("Insert into ActiveAlarm (Device, Point, ActiveValue, RefValue, Comparison, AlarmState, Time_ms)"
+                                "Values(%lu, %u, %f, %f, %d, %d, %lu)",
+                                message->deviceId, message->pointId, message->activeValue.get_float(), message->refValue.get_float(),
+                                int(message->comparison), message->alarmState, message->msTime);
 }
 
 bool AlarmVerifyStorePost::remove_from_active_alarm(uint64_t id)
@@ -170,10 +163,10 @@ void AlarmVerifyStorePost::handle_alarm(unique_ptr<AlarmMessage> &message)
         {
             printf("From normal to alarm.\n");
             // from normal to alarm, create an alarm in active
-            uint64_t alarmId = store_to_active_alarm(message);
-            if (static_cast<bool>(alarmId))
+            optional<uint64_t> alarmId = store_to_active_alarm(message);
+            if (alarmId.has_value())
             {
-                point2ActiveAlarmMap.emplace(meldId, ActiveAlarmData{alarmId, move(message)});
+                point2ActiveAlarmMap.emplace(meldId, ActiveAlarmData{alarmId.value(), move(message)});
             }
         }
     }
@@ -196,10 +189,10 @@ void AlarmVerifyStorePost::handle_alarm(unique_ptr<AlarmMessage> &message)
             store_to_history_alarm(theAlarm.alarmId, message);
             remove_from_active_alarm(theAlarm.alarmId);
             // Create an alarm in active.
-            uint64_t alarmId = store_to_active_alarm(message);
-            if (static_cast<bool>(alarmId))
+            optional<uint64_t> alarmId = store_to_active_alarm(message);
+            if (alarmId.has_value())
             {
-                theAlarm.alarmId = alarmId;
+                theAlarm.alarmId = alarmId.value();
                 theAlarm.message = move(message);
             }
         }

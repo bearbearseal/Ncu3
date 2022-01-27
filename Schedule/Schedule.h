@@ -10,7 +10,7 @@
 #include <memory>
 #include <map>
 #include <unordered_map>
-#include "Timer.h"
+#include "../../MyLib/Timer/EventTimer.h"
 #include "ScheduleRule.h"
 #include "TimeTable.h"
 #include "../../MyLib/Basic/Value.h"
@@ -25,7 +25,7 @@ public:
         virtual void catch_unset_event() {}
         virtual void catch_write_event(const Value& setValue) {}
     };
-    class TimerListener : public Timer::Listener {
+    class TimerListener : public EventTimer::Listener {
     public:
         TimerListener(Schedule& _master) : master(_master) {}
         virtual ~TimerListener() {}
@@ -34,7 +34,7 @@ public:
         Schedule& master;
     };
 
-    Schedule(std::shared_ptr<Timer>& _timer, std::shared_ptr<TimeTable> _defaultTimeTable);
+    Schedule(std::shared_ptr<TimeTable> _defaultTimeTable);
     virtual ~Schedule();
 
     //void set_default_time_table(std::shared_ptr<TimeTable> timeTable);
@@ -52,7 +52,7 @@ private:
         std::shared_ptr<TimeTable> timeTable;
     };
     std::shared_ptr<TimerListener> timerListener;
-    std::shared_ptr<Timer>& timer;
+    //std::shared_ptr<Timer>& timer;
     std::unordered_map<void*, std::weak_ptr<Listener>> listenerMap;
     std::map<uint8_t, TimeTableData> priority2TimeTableMap;
     std::shared_ptr<TimeTable> defaultTimeTable = nullptr;
