@@ -6,6 +6,7 @@
 #include "InOutOperation/OpStorage.h"
 #include "Integrator/Integrator.h"
 #include "Alarm/AlarmVerifyStorePost.h"
+#include "Alarm/AlarmTalker.h"
 #include "Log/PointLogStorage.h"
 
 #include <thread>

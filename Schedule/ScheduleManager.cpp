@@ -5,7 +5,7 @@ using namespace std;
 
 ScheduleManager::ScheduleManager(ConfigStorage &_configStorage) : configStorage(_configStorage)
 {
-    timer = make_shared<Timer>();
+    //timer = make_shared<Timer>();
     auto ruleMap = load_schedule_rules();
     auto timeTableMap = load_time_table();
     scheduleMap = load_schedule_map(ruleMap, timeTableMap);
@@ -145,7 +145,7 @@ unordered_map<uint16_t, unique_ptr<Schedule>> ScheduleManager::load_schedule_map
         unique_ptr<Schedule> schedule;
         if (timeTableMap.count(scheduleList[i].defaultTable))
         {
-            schedule = make_unique<Schedule>(timer, timeTableMap[scheduleList[i].defaultTable]);
+            schedule = make_unique<Schedule>(timeTableMap[scheduleList[i].defaultTable]);
         }
         else
         {

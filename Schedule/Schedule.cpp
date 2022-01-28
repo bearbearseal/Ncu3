@@ -9,17 +9,13 @@ const uint16_t TOKEN_NextEvent = 1;
 Schedule::Schedule(std::shared_ptr<TimeTable> _defaultTimeTable) : defaultTimeTable(_defaultTimeTable)
 {
     timerListener = make_shared<TimerListener>(*this);
+    EventTimer::start();
 }
 
 Schedule::~Schedule()
 {
 }
-/*
-void Schedule::set_default_time_table(std::shared_ptr<TimeTable> timeTable)
-{
-    defaultTimeTable = timeTable;
-}
-*/
+
 void Schedule::add_time_table(std::shared_ptr<TimeTable> timeTable, std::shared_ptr<ScheduleRule> rules, uint8_t priority)
 {
     TimeTableData &entry = priority2TimeTableMap[priority];
@@ -84,7 +80,7 @@ void Schedule::catch_time_event(time_t eventTime, uint32_t token)
         if (activeTimeTable == nullptr)
         {
             time_t tomolo = nowInSec - daySec + 24 * 3600;
-            timer->add_time_event(tomolo, timerListener, 0); // 0 for tomolo event
+            EventTimer::add_time_event(tomolo, timerListener, 0); // 0 for tomolo event
         }
         else
         {
@@ -93,13 +89,13 @@ void Schedule::catch_time_event(time_t eventTime, uint32_t token)
             {
                 // add the action
                 time_t eventTime = nowInSec - daySec + firstAction->daySecond;
-                timer->add_time_event(eventTime, timerListener, TOKEN_NextEvent);
+                EventTimer::add_time_event(eventTime, timerListener, TOKEN_NextEvent);
             }
             else
             {
                 // tomolo again
                 time_t tomorrow = nowInSec - daySec + 24 * 3600;
-                timer->add_time_event(tomorrow, timerListener, TOKEN_Tomorrow);
+                EventTimer::add_time_event(tomorrow, timerListener, TOKEN_Tomorrow);
             }
         }
         break;
@@ -128,11 +124,11 @@ void Schedule::catch_time_event(time_t eventTime, uint32_t token)
         time_t today0Second = ScheduleFunction::today_hms_to_local_time_t(0, 0, 0);
         if (nextEvent.has_value())
         {
-            timer->add_time_event(today0Second + nextEvent->daySecond, timerListener, TOKEN_NextEvent);
+            EventTimer::add_time_event(today0Second + nextEvent->daySecond, timerListener, TOKEN_NextEvent);
         }
         else
         {
-            timer->add_time_event(today0Second + (24*3600), timerListener, TOKEN_Tomorrow);
+            EventTimer::add_time_event(today0Second + (24*3600), timerListener, TOKEN_Tomorrow);
         }
     }
 

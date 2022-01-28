@@ -6,14 +6,13 @@ OBJS += $(OBJDIR)ModbusIP.o $(OBJDIR)ModbusIpProcess.o $(OBJDIR)ModbusRtu.o $(OB
 OBJS += $(OBJDIR)OperationalLogic.o $(OBJDIR)OpCreator.o $(OBJDIR)OperationVariable.o $(OBJDIR)OpStorage.o
 OBJS += $(OBJDIR)StringManipulator.o $(OBJDIR)FileIOer.o
 OBJS += $(OBJDIR)SerialPort.o $(OBJDIR)SyncedSerialPort.o $(OBJDIR)PrioritizedValue.o
-OBJS += $(OBJDIR)ScheduleRule.o $(OBJDIR)Schedule.o $(OBJDIR)TimeTable.o $(OBJDIR)Timer.o $(OBJDIR)ScheduleFunction.o $(OBJDIR)ScheduleManager.o
+OBJS += $(OBJDIR)ScheduleRule.o $(OBJDIR)Schedule.o $(OBJDIR)TimeTable.o $(OBJDIR)EventTimer.o $(OBJDIR)ScheduleFunction.o $(OBJDIR)ScheduleManager.o
 OBJS += $(OBJDIR)Sqlite3.o $(OBJDIR)Sqlite3JsonTalker.o $(OBJDIR)Sqlite3UdpListener.o
-OBJS += $(OBJDIR)AlarmLogicGroup.o $(OBJDIR)AlarmProcessor.o $(OBJDIR)AlarmVerifyStorePost.o $(OBJDIR)AlarmStateChecker.o
-OBJS += $(OBJDIR)AlarmTalker.o
+OBJS += $(OBJDIR)AlarmLogicGroup.o $(OBJDIR)AlarmProcessor.o $(OBJDIR)AlarmVerifyStorePost.o $(OBJDIR)AlarmStateChecker.o $(OBJDIR)AlarmTalker.o
 OBJS += $(OBJDIR)UdpSocket.o $(OBJDIR)UdpListener.o
 OBJS += $(OBJDIR)ConfigStorage.o $(OBJDIR)GlobalEnum.o
-#OBJS += Equipment.o Property.o EquipmentManager.o
 OBJS += $(OBJDIR)ChannelManager.o $(OBJDIR)SerialPortManager.o $(OBJDIR)Integrator.o
+OBJS += $(OBJDIR)PointLogger.o $(OBJDIR)PointLogStorage.o
 CC = g++ -std=c++17
 CFLAGS = -Wall -O2 -c
 LFLAGS = -Wall
@@ -140,8 +139,8 @@ $(OBJDIR)Schedule.o: Schedule/Schedule.h Schedule/Schedule.cpp
 $(OBJDIR)TimeTable.o: Schedule/TimeTable.h Schedule/TimeTable.cpp
 	$(CC) $(CFLAGS) Schedule/TimeTable.cpp -o $@
 
-$(OBJDIR)Timer.o: Schedule/Timer.h Schedule/Timer.cpp
-	$(CC) $(CFLAGS) Schedule/Timer.cpp -o $@
+$(OBJDIR)EventTimer.o: ../MyLib/Timer/EventTimer.h ../MyLib/Timer/EventTimer.cpp
+	$(CC) $(CFLAGS) ../MyLib/Timer/EventTimer.cpp -o $@
 
 $(OBJDIR)ScheduleFunction.o: Schedule/ScheduleFunction.h Schedule/ScheduleFunction.cpp
 	$(CC) $(CFLAGS) Schedule/ScheduleFunction.cpp -o $@
@@ -158,11 +157,14 @@ $(OBJDIR)Integrator.o: Integrator/Integrator.h Integrator/Integrator.cpp
 $(OBJDIR)GlobalEnum.o: Global/GlobalEnum.h Global/GlobalEnum.cpp
 	$(CC) $(CFLAGS) Global/GlobalEnum.cpp -o $@
 
+$(OBJDIR)PointLogStorage.o: Log/PointLogStorage.h Log/PointLogStorage.cpp
+	$(CC) $(CFLAGS) Log/PointLogStorage.cpp -o $@
+
+$(OBJDIR)PointLogger.o: Log/PointLogger.h Log/PointLogger.cpp
+	$(CC) $(CFLAGS) Log/PointLogger.cpp -o $@
+
 $(OBJDIR)SerialPortManager.o: Integrator/SerialPortManager.h Integrator/SerialPortManager.cpp
 	$(CC) $(CFLAGS) Integrator/SerialPortManager.cpp -o $@
-
-#$(OBJDIR)ScheduleManager.o: Integrator/ScheduleManager.h Integrator/ScheduleManager.cpp
-#	$(CC) $(CFLAGS) Integrator/ScheduleManager.cpp -o $@
 
 clean:
 	rm -f $(binaries) $(OBJDIR)*.o

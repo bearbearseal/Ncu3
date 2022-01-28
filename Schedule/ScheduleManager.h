@@ -25,7 +25,7 @@ private:
     std::unordered_map<uint16_t, std::unique_ptr<Schedule>> load_schedule_map(std::unordered_map<uint16_t, std::shared_ptr<ScheduleRule>> scheduleRuleMap, std::unordered_map<uint16_t, std::shared_ptr<TimeTable>> timeTableMap);
 
     ConfigStorage& configStorage;
-    std::shared_ptr<Timer> timer;
+    //std::shared_ptr<Timer> timer;
     std::unordered_map<uint16_t, std::unique_ptr<Schedule>> scheduleMap;
 };
 
