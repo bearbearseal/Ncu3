@@ -1,4 +1,5 @@
 #include "ConfigStorage.h"
+#include "../../OtherLib/nlohmann/json.hpp"
 
 using namespace std;
 
@@ -140,53 +141,7 @@ unordered_map<uint16_t, vector<ConfigStorage::PropertyData>> ConfigStorage::get_
     }
     return retVal;
 }
-/*
-vector<ConfigStorage::EquipmentScheduleData> ConfigStorage::get_equipment_schedule_data()
-{
-    vector<EquipmentScheduleData> retVal;
-    auto result = theDb.execute_query("Select EquipmentId, PropertyName, ScheduleId from ScheduleEquipment");
-    for (size_t i = 0; i < result->get_row_count(); ++i)
-    {
-        EquipmentScheduleData entry;
-        entry.equipmentId = result->get_integer(i, "EquipmentId").second;
-        entry.propertyName = result->get_string(i, "PropertyName").second;
-        entry.scheduleId = result->get_integer(i, "ScheduleId").second;
-        retVal.push_back(entry);
-    }
-    return retVal;
-}
 
-unordered_map<uint16_t, vector<ConfigStorage::ScheduleRuleConditionData>> ConfigStorage::get_schedule_condition_data()
-{
-    unordered_map<uint16_t, vector<ConfigStorage::ScheduleRuleConditionData>> retVal;
-    auto result = theDb.execute_query("Select ConditionId, Subject, Comparison, Value from ScheduleCondition");
-    for (size_t i = 0; i < result->get_row_count(); ++i)
-    {
-        uint16_t conditionId = result->get_integer(i, "ConditionId").second;
-        vector<ScheduleRuleConditionData> &theList = retVal[conditionId];
-        ScheduleRuleConditionData entry;
-        entry.subject = result->get_string(i, "Subject").second;
-        entry.comparison = result->get_string(i, "Comparison").second;
-        entry.value = result->get_integer(i, "Value").second;
-        theList.push_back(entry);
-    }
-    return retVal;
-}
-
-unordered_map<uint16_t, vector<uint16_t>> ConfigStorage::get_schedule_rule_and_condition_data()
-{
-    unordered_map<uint16_t, vector<uint16_t>> retVal;
-    auto result = theDb.execute_query("Select RuleId, ConditionId from ScheduleRule");
-    for (size_t i = 0; i < result->get_row_count(); ++i)
-    {
-        uint16_t ruleId = result->get_integer(i, "RuleId").second;
-        vector<uint16_t> &theList = retVal[ruleId];
-        uint16_t scheduleId = result->get_integer(i, "ConditionId").second;
-        theList.push_back(scheduleId);
-    }
-    return retVal;
-}
-*/
 vector<ConfigStorage::RuleTableData> ConfigStorage::get_schedule() const
 {
     vector<ConfigStorage::RuleTableData> retVal;
@@ -367,6 +322,55 @@ vector<ConfigStorage::PointAlarmPair> ConfigStorage::get_alarm_point_pair() cons
         retVal[i].deviceId = result->get_integer(i, "DeviceId").second;
         retVal[i].pointId = result->get_integer(i, "PointId").second;
         retVal[i].logicGroupId = result->get_integer(i, "LogicGroupId").second;
+    }
+    return retVal;
+}
+
+vector<ConfigStorage::PointReadingLog> ConfigStorage::get_point_reading_log() const
+{
+    vector<PointReadingLog> retVal;
+    auto result = theDb.execute_query("Select Device, Point, Rate, StartPattern from PointReadingLog");
+    retVal.resize(result->get_row_count());
+    printf("Log count: %zu\n", retVal.size());
+    for (size_t i = 0; i < result->get_row_count(); ++i)
+    {
+        retVal[i].device = result->get_integer(i, "Device").second;
+        retVal[i].point = result->get_integer(i, "Point").second;
+        retVal[i].rate = result->get_integer(i, "Rate").second;
+        string temp = result->get_string(i, "StartPattern").second;
+        if (temp.size())
+        {
+            try
+            {
+                nlohmann::json jPattern = nlohmann::json::parse(temp);
+                if (!jPattern.is_array())
+                {
+                    printf("jPattern is not array.\n");
+                    return {};
+                }
+                printf("jPattern size: %zu\n", jPattern.size());
+                for (size_t j = 0; j < jPattern.size(); ++j)
+                {
+                    pair<optional<uint8_t>, optional<uint8_t>> entry;
+                    if (jPattern[j].contains("Hour") && jPattern[j]["Hour"].is_number_integer())
+                    {
+                        entry.first = jPattern[j]["Hour"].get<uint8_t>();
+                    }
+                    if (jPattern[j].contains("Minute") && jPattern[j]["Minute"].is_number_integer())
+                    {
+                        entry.second = jPattern[j]["Minute"].get<uint8_t>();
+                    }
+                    if (entry.first.has_value() || entry.second.has_value())
+                    {
+                        retVal[i].patterns.push_back(entry);
+                    }
+                }
+            }
+            catch (nlohmann::json::parse_error &error)
+            {
+                printf("Pattern parse error, device %u point %u pattern %s.\n", retVal[i].device, retVal[i].point, temp.c_str());
+            }
+        }
     }
     return retVal;
 }

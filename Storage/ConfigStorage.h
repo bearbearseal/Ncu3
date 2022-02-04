@@ -204,6 +204,15 @@ public:
     };
     std::vector<PointSchedulePair> get_point_schedule_pair() const;
     
+    struct PointReadingLog
+    {
+        uint16_t device;
+        uint16_t point;
+        uint16_t rate;
+        std::vector<std::pair<std::optional<uint8_t>, std::optional<uint8_t>>> patterns;
+    };
+    std::vector<PointReadingLog> get_point_reading_log() const;
+
 private:
     Sqlite3 theDb;
 };

@@ -12,7 +12,7 @@ OBJS += $(OBJDIR)AlarmLogicGroup.o $(OBJDIR)AlarmProcessor.o $(OBJDIR)AlarmVerif
 OBJS += $(OBJDIR)UdpSocket.o $(OBJDIR)UdpListener.o
 OBJS += $(OBJDIR)ConfigStorage.o $(OBJDIR)GlobalEnum.o
 OBJS += $(OBJDIR)ChannelManager.o $(OBJDIR)SerialPortManager.o $(OBJDIR)Integrator.o
-OBJS += $(OBJDIR)PointLogger.o $(OBJDIR)PointLogStorage.o
+OBJS += $(OBJDIR)PointLogger.o $(OBJDIR)PointLogStorage.o $(OBJDIR)LogBuilder.o
 CC = g++ -std=c++17
 CFLAGS = -Wall -O2 -c
 LFLAGS = -Wall
@@ -165,6 +165,9 @@ $(OBJDIR)PointLogger.o: Log/PointLogger.h Log/PointLogger.cpp
 
 $(OBJDIR)SerialPortManager.o: Integrator/SerialPortManager.h Integrator/SerialPortManager.cpp
 	$(CC) $(CFLAGS) Integrator/SerialPortManager.cpp -o $@
+
+$(OBJDIR)LogBuilder.o: Log/LogBuilder.h Log/LogBuilder.cpp
+	$(CC) $(CFLAGS) Log/LogBuilder.cpp -o $@
 
 clean:
 	rm -f $(binaries) $(OBJDIR)*.o

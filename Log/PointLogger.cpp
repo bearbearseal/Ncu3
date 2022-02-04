@@ -62,7 +62,7 @@ time_t get_next_start_time(time_t todaySec, time_t nowSec, const PointLogger::St
             timeStruct.tm_hour = startPattern.hour.value();
             timeStruct.tm_min = startPattern.minute.value();
             timeStruct.tm_sec = 0;
-            printf("Next start time is :%02u%02u\n", timeStruct.tm_hour, timeStruct.tm_min);
+            //printf("Next start time is :%02u%02u\n", timeStruct.tm_hour, timeStruct.tm_min);
             return timelocal(&timeStruct);
         }
         else
@@ -71,7 +71,7 @@ time_t get_next_start_time(time_t todaySec, time_t nowSec, const PointLogger::St
             timeStruct.tm_hour = startPattern.hour.value();
             timeStruct.tm_min = startPattern.minute.value();
             timeStruct.tm_sec = 0;
-            printf("Next start time is :%02u%02u tomorrow\n", timeStruct.tm_hour, timeStruct.tm_min);
+            //printf("Next start time is :%02u%02u tomorrow\n", timeStruct.tm_hour, timeStruct.tm_min);
             return timelocal(&timeStruct) + (24 * 3600);
         }
     }
@@ -80,7 +80,7 @@ time_t get_next_start_time(time_t todaySec, time_t nowSec, const PointLogger::St
         if (timeStruct.tm_min < startPattern.minute.value())
         {
             // Set start this hour later.
-            printf("Next start time is :%02u%02u\n", timeStruct.tm_hour, startPattern.minute.value());
+            //printf("Next start time is :%02u%02u\n", timeStruct.tm_hour, startPattern.minute.value());
             timeStruct.tm_min = startPattern.minute.value();
             timeStruct.tm_sec = 0;
             return timelocal(&timeStruct);
@@ -88,7 +88,7 @@ time_t get_next_start_time(time_t todaySec, time_t nowSec, const PointLogger::St
         else
         {
             // next start time is next hour
-            printf("Next start time is :%02u%02u\n", timeStruct.tm_hour + 1, startPattern.minute.value());
+            //printf("Next start time is :%02u%02u\n", timeStruct.tm_hour + 1, startPattern.minute.value());
             timeStruct.tm_min = startPattern.minute.value();
             timeStruct.tm_sec = 0;
             return timelocal(&timeStruct) + 3600;
@@ -144,10 +144,10 @@ void PointLogger::handle_timer_event(time_t eventTime, uint32_t token)
     // Do the log action
     PointData &theData = pointMap[token];
     {
-        printf("Handling event time=>%02u:%02u:%02u\n", get_hour_from_time(eventTime), get_minute_from_time(eventTime), get_second_from_time(eventTime));
-        time_t nextTime = eventTime + theData.secInterval;
-        printf("Next similar event=>%02u:%02u:%02u\n", get_hour_from_time(nextTime), get_minute_from_time(nextTime), get_second_from_time(nextTime));
-        printf("Device: %u Point: %u\n", theData.device, theData.point);
+        //printf("Handling event time=>%02u:%02u:%02u\n", get_hour_from_time(eventTime), get_minute_from_time(eventTime), get_second_from_time(eventTime));
+        //time_t nextTime = eventTime + theData.secInterval;
+        //printf("Next similar event=>%02u:%02u:%02u\n", get_hour_from_time(nextTime), get_minute_from_time(nextTime), get_second_from_time(nextTime));
+        //printf("Device: %u Point: %u\n", theData.device, theData.point);
         auto value = theData.valuePoint->get_value();
         printf("Value: %s\n", value.to_string().c_str());
         storage.store_record(PointLogStorage::RecordData{theData.device, theData.point, eventTime, value});
@@ -156,7 +156,6 @@ void PointLogger::handle_timer_event(time_t eventTime, uint32_t token)
 
 void PointLogger::TimerListener::catch_time_event(time_t eventTime, uint32_t token)
 {
-    // Would it call some mutex lock again?
+    printf("logging caught time event.\n");
     master.handle_timer_event(eventTime, token);
-    // timer.add_time_event(eventTime + interval, token);
 }

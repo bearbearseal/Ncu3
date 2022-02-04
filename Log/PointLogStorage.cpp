@@ -186,6 +186,7 @@ void PointLogStorage::catch_time_event(time_t theMoment)
 
 void PointLogStorage::perform_push_to_sqlite()
 {
+    printf("Periodic pushing.\n");
     auto result = bulkInsert->commit_insert();
     if (!result.has_value())
     {

@@ -17,5 +17,6 @@ int main() {
 	//Test::run_equipment();
 	//Test::run_schedule();
 	//Deploy::run_real_time_value();
-	Deploy::run_equipment_alarm();
+	//Deploy::run_equipment_alarm();
+	Deploy::run_equipment_alarm_schedule_log();
 }

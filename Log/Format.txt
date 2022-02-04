@@ -1,0 +1,6 @@
+StartPattern:
+[
+    {"Hour":2, "Minute": 24},
+    {"Hour": 0},
+    {"Minute": 15}
+]

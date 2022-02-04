@@ -9,7 +9,6 @@
 /*******************************************************************************************************
 Start pattern can only define up to minute, when hour is defined then minute should be defined too.
 available interval:
-10sec
 1min
 5min
 30min
