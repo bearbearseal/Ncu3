@@ -33,8 +33,9 @@ AlarmVerifyStorePost::AlarmVerifyStorePost(const std::string &dbFile) : theDb(db
         uint64_t alarmId = result->get_integer(i, "Id").second;
         point2ActiveAlarmMap.emplace(meldId, ActiveAlarmData{alarmId, move(alarmMessage)});
     }
-    threadSocket = move(itc.create_fixed_socket(1, 2));
-    senderSocket = move(itc.create_fixed_socket(2, 1));
+    serverSocket = itc.get_server_socket();
+    //threadSocket = move(itc.create_fixed_socket(1, 2));
+    //senderSocket = move(itc.create_fixed_socket(2, 1));
     theProcess = make_unique<thread>(the_process, this);
 }
 
@@ -62,7 +63,8 @@ void AlarmVerifyStorePost::start()
 
 void AlarmVerifyStorePost::stop()
 {
-    senderSocket->send_message(Message2Thread{Command::Stop});
+    auto clientSocket = itc.get_client_socket();
+    clientSocket->send_message(Message2Server{Command::Stop});
     theProcess->join();
     theProcess.reset();
 }
@@ -78,57 +80,63 @@ void AlarmVerifyStorePost::add_alarm_listener(std::weak_ptr<AlarmListener> liste
 
 AlarmVerifyStorePost::ReadAlarmData AlarmVerifyStorePost::read_active_alarm()
 {
-    senderSocket->send_message(Message2Thread{Command::GetActiveAlarm});
-    if (senderSocket->wait_message())
+    auto clientSocket = itc.get_client_socket();
+    clientSocket->send_message(Message2Server{Command::GetActiveAlarm});
+    if (clientSocket->wait_message() == ServerClientItc<Message2Server, Message2Client>::WaitResult::GotMessage)
     {
-        return get<Message2Sender>(senderSocket->get_message().message).alarms;
+        return clientSocket->get_message().value().alarms;
     }
     return ReadAlarmData();
 }
 
 AlarmVerifyStorePost::ReadAlarmData AlarmVerifyStorePost::read_active_alarm(uint64_t id)
 {
-    senderSocket->send_message(Message2Thread(Command::GetActiveAlarmId, id));
-    if (senderSocket->wait_message())
+    auto clientSocket = itc.get_client_socket();
+    clientSocket->send_message(Message2Server(Command::GetActiveAlarmId, id));
+    if (clientSocket->wait_message() == ServerClientItc<Message2Server, Message2Client>::WaitResult::GotMessage)
     {
-        return get<Message2Sender>(senderSocket->get_message().message).alarms;
+        return clientSocket->get_message().value().alarms;
     }
     return ReadAlarmData();
 }
 
 AlarmVerifyStorePost::ReadAlarmData AlarmVerifyStorePost::read_history_alarm_id(uint64_t id, size_t count)
 {
-    senderSocket->send_message(Message2Thread(Command::GetActiveAlarm, id, count));
-    if (senderSocket->wait_message())
+    auto clientSocket = itc.get_client_socket();
+    clientSocket->send_message(Message2Server(Command::GetActiveAlarm, id, count));
+    if (clientSocket->wait_message() == ServerClientItc<Message2Server, Message2Client>::WaitResult::GotMessage)
     {
-        return get<Message2Sender>(senderSocket->get_message().message).alarms;
+        return clientSocket->get_message().value().alarms;
     }
     return ReadAlarmData();
 }
 
 AlarmVerifyStorePost::ReadAlarmData AlarmVerifyStorePost::read_history_alarm_count(uint64_t beginTime, size_t count)
 {
-    senderSocket->send_message(Message2Thread(Command::GetActiveAlarm, beginTime, count));
-    if (senderSocket->wait_message())
+    auto clientSocket = itc.get_client_socket();
+    clientSocket->send_message(Message2Server(Command::GetActiveAlarm, beginTime, count));
+    if (clientSocket->wait_message() == ServerClientItc<Message2Server, Message2Client>::WaitResult::GotMessage)
     {
-        return get<Message2Sender>(senderSocket->get_message().message).alarms;
+        return clientSocket->get_message().value().alarms;
     }
     return ReadAlarmData();
 }
 
 AlarmVerifyStorePost::ReadAlarmData AlarmVerifyStorePost::read_history_alarm_interval(uint64_t beginTime, uint64_t endTime)
 {
-    senderSocket->send_message(Message2Thread(Command::GetActiveAlarm, beginTime, endTime));
-    if (senderSocket->wait_message())
+    auto clientSocket = itc.get_client_socket();
+    clientSocket->send_message(Message2Server(Command::GetActiveAlarm, beginTime, endTime));
+    if (clientSocket->wait_message() == ServerClientItc<Message2Server, Message2Client>::WaitResult::GotMessage)
     {
-        return get<Message2Sender>(senderSocket->get_message().message).alarms;
+        return clientSocket->get_message().value().alarms;
     }
     return ReadAlarmData();
 }
 
 void AlarmVerifyStorePost::store_alarm(unique_ptr<AlarmMessage> &message)
 {
-    senderSocket->send_message(Message2Thread(Command::StoreAlarm, message));
+    auto clientSocket = itc.get_client_socket();
+    clientSocket->send_message(Message2Server(Command::StoreAlarm, message));
 }
 
 optional<uint64_t> AlarmVerifyStorePost::store_to_active_alarm(unique_ptr<AlarmMessage> &message)
@@ -361,13 +369,14 @@ void AlarmVerifyStorePost::the_process(AlarmVerifyStorePost *me)
     while (1)
     {
         // wiat for message
-        if (me->threadSocket->wait_message())
+        if (me->serverSocket->wait_message() == ServerClientItc<Message2Server, Message2Client>::WaitResult::GotMessage)
         {
             // process message
             do
             {
-                auto message = me->threadSocket->get_message();
-                Message2Thread &aMessage = get<Message2Thread>(message.message);
+                auto messagePair = me->serverSocket->get_message();
+                Message2Server &aMessage = messagePair.value().message;
+                auto clientId = messagePair.value().sourceId;
                 switch (aMessage.command)
                 {
                 case Command::Stop:
@@ -380,34 +389,39 @@ void AlarmVerifyStorePost::the_process(AlarmVerifyStorePost *me)
                 case Command::GetActiveAlarm:
                 {
                     auto result = me->load_active_alarm();
-                    me->threadSocket->send_message(Message2Sender{Command::GetActiveAlarm, result});
+                    me->serverSocket->send_message(clientId, Message2Client{Command::GetActiveAlarm, result});
                     break;
                 }
                 case Command::GetActiveAlarmId:
                 {
                     auto result = me->load_active_alarm(aMessage.parameter1);
-                    me->threadSocket->send_message(Message2Sender{Command::GetActiveAlarmId, result});
+                    me->serverSocket->send_message(clientId, Message2Client{Command::GetActiveAlarmId, result});
                 }
                 case Command::GetHistoryAlarmId:
                 {
                     auto result = me->load_history_alarm_id(aMessage.parameter1, aMessage.parameter2);
-                    me->threadSocket->send_message(Message2Sender{Command::GetHistoryAlarmId, result});
+                    me->serverSocket->send_message(clientId, Message2Client{Command::GetHistoryAlarmId, result});
                     break;
                 }
                 case Command::GetHistoryAlarmCount:
                 {
                     auto result = me->load_history_alarm_count(aMessage.parameter1, aMessage.parameter2);
-                    me->threadSocket->send_message(Message2Sender{Command::GetHistoryAlarmId, result});
+                    me->serverSocket->send_message(clientId, Message2Client{Command::GetHistoryAlarmId, result});
                     break;
                 }
                 case Command::GetHistoryAlarmInterval:
                 {
                     auto result = me->load_history_alarm_interval(aMessage.parameter1, aMessage.parameter2);
-                    me->threadSocket->send_message(Message2Sender{Command::GetHistoryAlarmId, result});
+                    me->serverSocket->send_message(clientId, Message2Client{Command::GetHistoryAlarmId, result});
                     break;
                 }
                 }
-            } while (me->threadSocket->has_message());
+            } while (me->serverSocket->has_message());
+        }
+        else
+        {
+            // The itc got destructed, nothing logical could be done
+            break;
         }
     }
 }

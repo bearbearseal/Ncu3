@@ -3,7 +3,8 @@
 #include <string>
 #include <thread>
 #include <variant>
-#include "../../MyLib/ITC/ITC.h"
+//#include "../../MyLib/ITC/ITC.h"
+#include "../../MyLib/ServerClientITC/ServerClientItc.h"
 #include "../../MyLib/Sqlite/Sqlite3.h"
 #include "../../MyLib/Basic/Value.h"
 #include "AlarmDefinition.h"
@@ -39,14 +40,14 @@ private:
         GetHistoryAlarmCount,
         GetHistoryAlarmInterval
     };
-    struct Message2Thread
+    struct Message2Server
     {
-        Message2Thread(Command _command, uint64_t param1 = 0, uint64_t param2 = 0) : command(_command), parameter1(param1), parameter2(param2) {}
-        Message2Thread(Command _command, std::unique_ptr<AlarmDefinition::AlarmMessage> &_alarmMessage) : command(_command), parameter1(0), parameter2(0)
+        Message2Server(Command _command, uint64_t param1 = 0, uint64_t param2 = 0) : command(_command), parameter1(param1), parameter2(param2) {}
+        Message2Server(Command _command, std::unique_ptr<AlarmDefinition::AlarmMessage> &_alarmMessage) : command(_command), parameter1(0), parameter2(0)
         {
             alarmMessage = std::move(_alarmMessage);
         }
-        Message2Thread(const Message2Thread &theOther)
+        Message2Server(const Message2Server &theOther)
         {
             command = theOther.command;
             parameter1 = theOther.parameter1;
@@ -54,7 +55,7 @@ private:
             if (theOther.alarmMessage != nullptr)
                 alarmMessage = std::make_unique<AlarmDefinition::AlarmMessage>(*theOther.alarmMessage);
         }
-        Message2Thread(Message2Thread &theOther)
+        Message2Server(Message2Server &theOther)
         {
             command = theOther.command;
             alarmMessage = std::move(theOther.alarmMessage);
@@ -64,7 +65,7 @@ private:
         uint64_t parameter2;
         std::unique_ptr<AlarmDefinition::AlarmMessage> alarmMessage = nullptr; // unique_ptr is hard to copy
     };
-    struct Message2Sender
+    struct Message2Client
     {
         Command command;
         ReadAlarmData alarms;
@@ -89,9 +90,13 @@ private:
 
     std::unordered_map<void*, std::weak_ptr<AlarmListener>> listenerMap;
 
-    ITC<std::variant<Message2Thread, Message2Sender>> itc;
-    std::unique_ptr<ITC<std::variant<Message2Thread, Message2Sender>>::FixedSocket> threadSocket;
-    std::unique_ptr<ITC<std::variant<Message2Thread, Message2Sender>>::FixedSocket> senderSocket;
+    //ITC<std::variant<Message2Thread, Message2Sender>> itc;
+    //std::unique_ptr<ITC<std::variant<Message2Thread, Message2Sender>>::FixedSocket> threadSocket;
+    //std::unique_ptr<ITC<std::variant<Message2Thread, Message2Sender>>::FixedSocket> senderSocket;
+    ServerClientItc<Message2Server, Message2Client> itc;
+    std::unique_ptr<ServerClientItc<Message2Server, Message2Client>::ServerSocket> serverSocket;
+    // threadSocket and senderSocket took 1 and 2, nextSocket would take 3 onwards.
+    size_t nextSocketId = 3;
 
     std::unordered_map<uint64_t, ActiveAlarmData> point2ActiveAlarmMap;
 
